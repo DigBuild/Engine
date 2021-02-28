@@ -1,18 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using DigBuildEngine.Voxel;
 using DigBuildPlatformCS.Render;
+using DigBuildPlatformCS.Util;
 
 namespace DigBuildEngine.Render
 {
     public class WorldRenderManager
     {
+        private readonly IReadOnlyDictionary<Block, IBlockModel> _blockModels;
+        private readonly IEnumerable<IWorldRenderLayer> _renderLayers;
+        private readonly NativeBufferPool _pool;
+        private readonly UniformBufferSet _ubs;
+
         private readonly HashSet<Chunk> _updatedChunks = new();
         private readonly Dictionary<Chunk, ChunkRenderData> _chunkRenderData = new();
-        private readonly ICamera _camera;
 
-        public WorldRenderManager(ICamera camera)
+        public WorldRenderManager(IReadOnlyDictionary<Block, IBlockModel> blockModels, IEnumerable<IWorldRenderLayer> renderLayers, NativeBufferPool pool)
         {
-            _camera = camera;
+            _blockModels = blockModels;
+            _renderLayers = renderLayers;
+            _pool = pool;
+            _ubs = new UniformBufferSet(pool);
         }
 
         public void QueueChunkUpdate(Chunk chunk)
@@ -20,20 +30,18 @@ namespace DigBuildEngine.Render
             _updatedChunks.Add(chunk);
         }
 
-        public void Reset(bool queueRenderedChunks)
+        public void ReRender(bool queueRenderedChunks)
         {
             if (queueRenderedChunks)
-            {
                 foreach (var chunk in _chunkRenderData.Keys)
-                {
                     QueueChunkUpdate(chunk);
-                }
-            }
 
+            foreach (var data in _chunkRenderData.Values)
+                data.Dispose();
             _chunkRenderData.Clear();
         }
 
-        public void UpdateChunks(RenderContext renderContext)
+        public void UpdateChunks()
         {
             if (_updatedChunks.Count == 0)
                 return;
@@ -41,21 +49,29 @@ namespace DigBuildEngine.Render
             foreach (var chunk in _updatedChunks)
             {
                 if (!_chunkRenderData.TryGetValue(chunk, out var renderData))
-                    _chunkRenderData[chunk] = renderData = new ChunkRenderData(renderContext, chunk);
+                    _chunkRenderData[chunk] = renderData = new ChunkRenderData(chunk, _blockModels, _pool);
                 renderData.UpdateGeometry();
             }
 
             _updatedChunks.Clear();
         }
 
-        public void SubmitGeometry(CommandBufferRecorder cmd, float aspectRatio, float partialTick)
+        public void SubmitGeometry(RenderContext context, CommandBufferRecorder cmd, ICamera camera, float aspectRatio, float partialTick)
         {
-            if (_chunkRenderData.Count > 0)
-                ChunkRenderData.BeginSubmit(cmd, aspectRatio);
-            foreach (var renderData in _chunkRenderData.Values)
-                renderData.SubmitGeometry(_camera, cmd, partialTick);
-            if (_chunkRenderData.Count > 0)
-                ChunkRenderData.CompleteSubmit();
+            _ubs.Clear();
+            _ubs.Setup(context, cmd);
+            foreach (var layer in _renderLayers)
+            {
+                foreach (var (chunk, renderData) in _chunkRenderData)
+                {
+                    var transform =
+                        Matrix4x4.CreateTranslation(chunk.Position.GetOrigin())
+                        * camera.GetInterpolatedTransform(partialTick);
+                    _ubs.AddAndUse(context, cmd, layer, transform);
+                    renderData.SubmitGeometry(context, layer, cmd);
+                }
+            }
+            _ubs.Finalize(context, cmd);
         }
     }
 }

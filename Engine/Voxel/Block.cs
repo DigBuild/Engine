@@ -14,11 +14,13 @@ namespace DigBuildEngine.Voxel
 
         public readonly uint Id;
         public readonly ICollider Collider;
+        public readonly Boolean Solid;
 
-        internal Block(uint id, ICollider collider)
+        internal Block(uint id, ICollider collider, bool solid)
         {
             Id = id;
             Collider = collider;
+            Solid = solid;
         }
     }
 
@@ -31,9 +33,9 @@ namespace DigBuildEngine.Voxel
         }
 
         public static Block CreateTmp(this RegistryBuilder<Block> builder, ResourceName name,
-            uint id, ICollider collider)
+            uint id, ICollider collider, bool solid)
         {
-            var block = new Block(id, collider);
+            var block = new Block(id, collider, solid);
             ((IRegistryBuilder<Block>)builder).Add(name, block);
             return block;
         }

@@ -19,7 +19,7 @@ namespace DigBuildEngine.Render
         public void Setup(RenderContext context, CommandBufferRecorder cmd)
         {
             foreach (var data in _layers.Values)
-                data.Setup(context, cmd);
+                data.Uniforms.Setup(context, cmd);
         }
 
         public void AddAndUse(RenderContext context, CommandBufferRecorder cmd, IWorldRenderLayer layer, Matrix4x4 transform)

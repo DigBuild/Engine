@@ -1,4 +1,4 @@
-﻿namespace DigBuildEngine.Voxel
+﻿namespace DigBuild.Engine.Voxel
 {
     public interface IBlockBehavior<TContract>
     {

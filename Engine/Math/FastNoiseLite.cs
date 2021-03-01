@@ -52,7 +52,7 @@ using System.Runtime.CompilerServices;
 using FNLfloat = System.Single;
 //using FNLfloat = System.Double;
 
-namespace DigBuildEngine.Math
+namespace DigBuild.Engine.Math
 {
     public class FastNoiseLite
     {

@@ -1,7 +1,7 @@
 ﻿using System;
-using DigBuildEngine.Math;
+using DigBuild.Engine.Math;
 
-namespace DigBuildEngine.Render
+namespace DigBuild.Engine.Render
 {
     public interface IBlockModel
     {

@@ -1,7 +1,7 @@
 ﻿using System;
-using DigBuildEngine.Math;
+using DigBuild.Engine.Math;
 
-namespace DigBuildEngine.Worldgen
+namespace DigBuild.Engine.Worldgen
 {
     public sealed class WorldSliceDescriptionContext
     {

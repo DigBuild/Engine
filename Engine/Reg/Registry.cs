@@ -4,10 +4,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using DigBuildEngine.Util;
-using DigBuildPlatformCS.Resource;
+using DigBuild.Platform.Resource;
 
-namespace DigBuildEngine.Reg
+namespace DigBuild.Engine.Reg
 {
     public sealed class Registry<T> : IReadOnlyDictionary<ResourceName, T> where T : notnull
     {

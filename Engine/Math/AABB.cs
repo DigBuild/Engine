@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using DigBuildEngine.Math;
 
-namespace DigBuildEngine.Math
+namespace DigBuild.Engine.Math
 {
     public readonly struct AABB
     {

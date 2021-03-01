@@ -1,9 +1,8 @@
 ﻿using System.Collections.Immutable;
-using DigBuildEngine.Reg;
-using DigBuildEngine.Util;
-using DigBuildPlatformCS.Resource;
+using DigBuild.Engine.Reg;
+using DigBuild.Platform.Resource;
 
-namespace DigBuildEngine.Worldgen
+namespace DigBuild.Engine.Worldgen
 {
     public interface IWorldgenFeature
     {

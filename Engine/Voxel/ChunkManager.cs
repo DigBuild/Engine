@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using DigBuildEngine.Math;
-using DigBuildEngine.Worldgen;
+using DigBuild.Engine.Math;
+using DigBuild.Engine.Worldgen;
 
-namespace DigBuildEngine.Voxel
+namespace DigBuild.Engine.Voxel
 {
     public class ChunkManager
     {

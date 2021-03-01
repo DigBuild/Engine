@@ -1,8 +1,7 @@
-﻿using System;
-using DigBuildEngine.Math;
-using DigBuildEngine.Voxel;
+﻿using DigBuild.Engine.Math;
+using DigBuild.Engine.Voxel;
 
-namespace DigBuildEngine.Worldgen
+namespace DigBuild.Engine.Worldgen
 {
     public sealed class ChunkPrototype : IChunk
     {

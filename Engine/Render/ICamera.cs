@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace DigBuildEngine.Render
+namespace DigBuild.Engine.Render
 {
     public interface ICamera
     {

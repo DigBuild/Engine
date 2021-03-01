@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DigBuildEngine.Voxel
+namespace DigBuild.Engine.Voxel
 {
     public class BlockChunkStorage : IChunkStorage
     {

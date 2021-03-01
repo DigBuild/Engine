@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DigBuildPlatformCS.Util;
+using DigBuild.Platform.Util;
 
-namespace DigBuildEngine.Render
+namespace DigBuild.Engine.Render
 {
     public interface IVertexConsumer<in T> where T : unmanaged
     {

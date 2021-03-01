@@ -1,7 +1,7 @@
 ﻿using System;
-using DigBuildEngine.Math;
+using DigBuild.Engine.Math;
 
-namespace DigBuildEngine.Voxel
+namespace DigBuild.Engine.Voxel
 {
     public class Chunk : IChunk
     {

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
-using DigBuildEngine.Voxel;
-using DigBuildPlatformCS.Render;
-using DigBuildPlatformCS.Util;
+using DigBuild.Engine.Voxel;
+using DigBuild.Platform.Render;
+using DigBuild.Platform.Util;
 
-namespace DigBuildEngine.Render
+namespace DigBuild.Engine.Render
 {
     public class WorldRenderManager
     {

@@ -1,7 +1,7 @@
 ﻿using System;
-using DigBuildEngine.Util;
+using DigBuild.Engine.Util;
 
-namespace DigBuildEngine.Voxel
+namespace DigBuild.Engine.Voxel
 {
     public sealed class BlockBuilder
     {

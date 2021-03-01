@@ -1,4 +1,4 @@
-﻿namespace DigBuildEngine.Math
+﻿namespace DigBuild.Engine.Math
 {
     public readonly struct WorldSlicePos
     {

@@ -1,10 +1,9 @@
 ﻿using System;
-using DigBuildEngine.Math;
-using DigBuildEngine.Reg;
-using DigBuildEngine.Util;
-using DigBuildPlatformCS.Resource;
+using DigBuild.Engine.Math;
+using DigBuild.Engine.Reg;
+using DigBuild.Platform.Resource;
 
-namespace DigBuildEngine.Voxel
+namespace DigBuild.Engine.Voxel
 {
     public sealed class Block
     {

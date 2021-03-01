@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using DigBuildPlatformCS.Render;
-using DigBuildPlatformCS.Util;
+using DigBuild.Platform.Render;
+using DigBuild.Platform.Util;
 
-namespace DigBuildEngine.Render
+namespace DigBuild.Engine.Render
 {
     public sealed class GeometryBufferSet : IDisposable
     {

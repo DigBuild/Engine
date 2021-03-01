@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace DigBuildEngine.Worldgen
+namespace DigBuild.Engine.Worldgen
 {
     public sealed class ImmutableMap2D<T> : IReadOnlyCollection<T> where T : unmanaged
     {

@@ -1,6 +1,6 @@
-﻿using DigBuildEngine.Math;
+﻿using DigBuild.Engine.Math;
 
-namespace DigBuildEngine.Voxel
+namespace DigBuild.Engine.Voxel
 {
     public interface IWorld
     {

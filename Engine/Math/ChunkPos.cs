@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace DigBuildEngine.Math
+namespace DigBuild.Engine.Math
 {
     public readonly struct ChunkPos : IEquatable<ChunkPos>
     {

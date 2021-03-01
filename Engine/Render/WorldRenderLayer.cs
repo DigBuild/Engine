@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Numerics;
-using DigBuildPlatformCS.Render;
-using DigBuildPlatformCS.Resource;
-using DigBuildPlatformCS.Util;
+using DigBuild.Platform.Render;
+using DigBuild.Platform.Resource;
+using DigBuild.Platform.Util;
 
-namespace DigBuildEngine.Render
+namespace DigBuild.Engine.Render
 {
     public sealed class WorldRenderLayer<TVertex> : IWorldRenderLayer where TVertex : unmanaged
     {

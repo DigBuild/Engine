@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
-using DigBuildEngine.Render;
+using DigBuild.Engine.Render;
 
-namespace DigBuildEngine.Math
+namespace DigBuild.Engine.Math
 {
     public enum BlockFace : byte
     {

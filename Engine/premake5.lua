@@ -1,10 +1,8 @@
-project "DigBuildEngine"
+project "DigBuild.Engine"
     kind "SharedLib"
     framework "net5.0"
     language "C#"
     csversion "9.0"
-	packageid "DigBuild.Engine"
-	targetname "DigBuild.Engine"
     enabledefaultcompileitems(true)
     allownullable(true)
     noframeworktag(true)
@@ -12,14 +10,14 @@ project "DigBuildEngine"
     objdir "../bin-int/%{cfg.buildcfg}"
 
     dependson {
-		"DigBuildPlatformCS",
-		"DigBuildPlatformSourceGen"
+		"DigBuild.Platform",
+		"DigBuild.Platform.SourceGen"
 	}
     links {
-		"DigBuildPlatformCS"
+		"DigBuild.Platform"
 	}
 	analyzer {
-		"DigBuildPlatformSourceGen"
+		"DigBuild.Platform.SourceGen"
 	}
 
     filter "configurations:Debug"

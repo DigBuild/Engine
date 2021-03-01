@@ -1,3 +1,3 @@
 [submodule "PlatformBindings"]
 	path = PlatformBindings
-	url = git@github.com:DigBuild/PlatformBindings.git
+	url = https://github.com/DigBuild/PlatformBindings.git

@@ -17,11 +17,27 @@ namespace DigBuild.Engine.Worldgen
             _seed = seed;
         }
 
+        public WorldSliceDescriptor DescribeSlice(WorldSlicePos pos, IWorldgenFeature stop)
+        {
+            WorldSliceDescriptionContext descriptionContext = new(pos, _seed);
+            foreach (var feature in _features)
+            {
+                if (feature == stop)
+                    return descriptionContext.CreateDescriptor();
+                
+                descriptionContext.NeighborDescriptor = p => DescribeSlice(p, feature);
+                feature.DescribeSlice(descriptionContext);
+                descriptionContext.Next();
+            }
+            return descriptionContext.CreateDescriptor();
+        }
+
         public void GenerateSlice(WorldSlicePos pos, Chunk[] chunks)
         {
             WorldSliceDescriptionContext descriptionContext = new(pos, _seed);
             foreach (var feature in _features)
             {
+                descriptionContext.NeighborDescriptor = p => DescribeSlice(p, feature);
                 feature.DescribeSlice(descriptionContext);
                 descriptionContext.Next();
             }

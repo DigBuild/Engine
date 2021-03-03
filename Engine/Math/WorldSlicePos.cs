@@ -14,5 +14,10 @@
         {
             return $"{nameof(WorldSlicePos)}({X}, {Z})";
         }
+
+        public static WorldSlicePos operator +(WorldSlicePos pos, WorldSliceOffset offset)
+        {
+            return new(pos.X + offset.X, pos.Z + offset.Z);
+        }
     }
 }

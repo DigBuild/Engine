@@ -55,7 +55,7 @@ namespace DigBuild.Engine.Render
             _updatedChunks.Clear();
         }
 
-        public void SubmitGeometry(RenderContext context, CommandBufferRecorder cmd, ICamera camera, float aspectRatio, float partialTick)
+        public void SubmitGeometry(RenderContext context, CommandBufferRecorder cmd, ICamera camera, float partialTick)
         {
             _ubs.Clear();
             _ubs.Setup(context, cmd);

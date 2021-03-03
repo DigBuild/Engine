@@ -1,15 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Worldgen
 {
     public sealed class WorldSliceDescriptionContext
     {
+        public delegate WorldSliceDescriptor DescribeNeighborDelegate(WorldSlicePos pos);
+
         private readonly WorldgenAttributeDictionary _attributes = new();
         private readonly WorldgenAttributeDictionary _newAttributes = new();
 
         public WorldSlicePos Position { get; }
         public long Seed { get; }
+
+        public DescribeNeighborDelegate NeighborDescriptor { private get; set; } = null!;
 
         internal WorldSliceDescriptionContext(WorldSlicePos position, long seed)
         {
@@ -21,8 +26,8 @@ namespace DigBuild.Engine.Worldgen
             where TStorage : notnull
         {
             if (!offset.Equals(default(WorldSliceOffset)))
-                throw new ArgumentException("Offsets are not supported at the moment.", nameof(offset));
-
+                return NeighborDescriptor(Position + offset).Get(attribute);
+            
             return _attributes.Get(attribute);
         }
 

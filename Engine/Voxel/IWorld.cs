@@ -2,7 +2,7 @@
 
 namespace DigBuild.Engine.Voxel
 {
-    public interface IWorld
+    public interface IWorld : IReadOnlyWorld
     {
         // public T GetStorage<T>() where T : IWorldStorage<T> => throw new NotImplementedException();
         

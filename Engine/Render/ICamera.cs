@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using DigBuild.Engine.Voxel;
 
 namespace DigBuild.Engine.Render
 {
@@ -8,5 +9,6 @@ namespace DigBuild.Engine.Render
         Vector3 Position { get; }
 
         Matrix4x4 GetInterpolatedTransform(float partialTick);
+        public RayCaster.Ray GetInterpolatedRay(float partialTick);
     }
 }

@@ -12,7 +12,7 @@ namespace DigBuild.Engine.Voxel
 
         public virtual Block? GetBlock(BlockPos pos)
         {
-            return GetChunk(pos.ChunkPos)!.BlockStorage.Blocks[pos.X & 15, pos.Y & 15, pos.Z & 15];
+            return GetChunk(pos.ChunkPos)?.BlockStorage.Blocks[pos.X & 15, pos.Y & 15, pos.Z & 15];
         }
 
         public virtual void SetBlock(BlockPos pos, Block? block)

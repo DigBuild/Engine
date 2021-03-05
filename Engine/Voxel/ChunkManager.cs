@@ -19,6 +19,8 @@ namespace DigBuild.Engine.Voxel
 
         public Chunk? Get(ChunkPos pos, bool load = true)
         {
+            if (pos.Y < 0) return null;
+
             _chunks.TryGetValue(pos, out var chunk);
             if (chunk != null || !load) return chunk;
 

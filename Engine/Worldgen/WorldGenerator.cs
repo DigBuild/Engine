@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Voxel;
 
@@ -10,11 +11,13 @@ namespace DigBuild.Engine.Worldgen
 
         private readonly IReadOnlyCollection<IWorldgenFeature> _features;
         private readonly long _seed;
+        private readonly Func<ChunkPos, IChunk> _chunkPrototypeFactory;
 
-        public WorldGenerator(IReadOnlyCollection<IWorldgenFeature> features, long seed)
+        public WorldGenerator(IReadOnlyCollection<IWorldgenFeature> features, long seed, Func<ChunkPos, IChunk> chunkPrototypeFactory)
         {
             _features = features;
             _seed = seed;
+            _chunkPrototypeFactory = chunkPrototypeFactory;
         }
 
         public WorldSliceDescriptor DescribeSlice(WorldSlicePos pos, IWorldgenFeature stop)
@@ -32,7 +35,7 @@ namespace DigBuild.Engine.Worldgen
             return descriptionContext.CreateDescriptor();
         }
 
-        public void GenerateSlice(WorldSlicePos pos, Chunk[] chunks)
+        public void GenerateSlice(WorldSlicePos pos, IChunk[] chunks)
         {
             WorldSliceDescriptionContext descriptionContext = new(pos, _seed);
             foreach (var feature in _features)
@@ -45,10 +48,10 @@ namespace DigBuild.Engine.Worldgen
             int height = chunks.Length;
 
             var descriptor = descriptionContext.CreateDescriptor();
-            var chunkPrototypes = new ChunkPrototype[height];
+            var chunkPrototypes = new IChunk[height];
             for (var y = 0; y < height; y++)
             {
-                var prototype = chunkPrototypes[y] = new ChunkPrototype(new ChunkPos(pos.X, y, pos.Z));
+                var prototype = chunkPrototypes[y] = _chunkPrototypeFactory(new ChunkPos(pos.X, y, pos.Z));
                 foreach (var feature in _features)
                 {
                     feature.PopulateChunk(descriptor, prototype);

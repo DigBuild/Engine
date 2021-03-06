@@ -10,11 +10,11 @@ namespace DigBuild.Engine.Render
 {
     public class ChunkRenderData : IDisposable
     {
-        private readonly Chunk _chunk;
+        private readonly IChunk _chunk;
         private readonly IReadOnlyDictionary<Block, IBlockModel> _blockModels;
         private readonly GeometryBufferSet _gbs;
 
-        public ChunkRenderData(Chunk chunk, IReadOnlyDictionary<Block, IBlockModel> blockModels, NativeBufferPool pool)
+        public ChunkRenderData(IChunk chunk, IReadOnlyDictionary<Block, IBlockModel> blockModels, NativeBufferPool pool)
         {
             _chunk = chunk;
             _blockModels = blockModels;

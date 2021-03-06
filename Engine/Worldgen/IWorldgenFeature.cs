@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using DigBuild.Engine.Reg;
+using DigBuild.Engine.Voxel;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Worldgen
@@ -11,7 +12,7 @@ namespace DigBuild.Engine.Worldgen
 
         void DescribeSlice(WorldSliceDescriptionContext context);
         
-        void PopulateChunk(WorldSliceDescriptor descriptor, ChunkPrototype chunk);
+        void PopulateChunk(WorldSliceDescriptor descriptor, IChunk chunk);
     }
 
     public static class WorldgenFeatureRegistryBuilderExtensions

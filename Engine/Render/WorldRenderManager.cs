@@ -14,8 +14,8 @@ namespace DigBuild.Engine.Render
         private readonly NativeBufferPool _pool;
         private readonly UniformBufferSet _ubs;
 
-        private readonly HashSet<Chunk> _updatedChunks = new();
-        private readonly Dictionary<Chunk, ChunkRenderData> _chunkRenderData = new();
+        private readonly HashSet<IChunk> _updatedChunks = new();
+        private readonly Dictionary<IChunk, ChunkRenderData> _chunkRenderData = new();
 
         public WorldRenderManager(IReadOnlyDictionary<Block, IBlockModel> blockModels, IEnumerable<IWorldRenderLayer> renderLayers, NativeBufferPool pool)
         {
@@ -25,7 +25,7 @@ namespace DigBuild.Engine.Render
             _ubs = new UniformBufferSet(pool);
         }
 
-        public void QueueChunkUpdate(Chunk chunk)
+        public void QueueChunkUpdate(IChunk chunk)
         {
             _updatedChunks.Add(chunk);
         }

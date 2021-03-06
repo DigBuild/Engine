@@ -9,7 +9,7 @@ namespace DigBuild.Engine.Voxel
         {
             return GetChunk(pos, load);
         }
-        public abstract Chunk? GetChunk(ChunkPos pos, bool load = true);
+        public abstract IChunk? GetChunk(ChunkPos pos, bool load = true);
 
         public virtual Block? GetBlock(BlockPos pos)
         {

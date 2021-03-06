@@ -30,6 +30,13 @@ namespace DigBuild.Engine.Math
             z = Z;
         }
 
+        public BlockPos Offset(BlockFace face)
+        {
+            return this + face.GetOffset();
+        }
+        
+        public static BlockPos operator +(BlockPos a, Vector3i b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+
         public override string ToString()
         {
             return $"<{X}, {Y}, {Z}>";

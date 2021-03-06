@@ -39,6 +39,25 @@ namespace DigBuild.Engine.Math
 
     public static class BlockFaceExtensions
     {
+        private static readonly Vector3i[] Offsets = {
+            new(-1, 0, 0),
+            new(1, 0, 0),
+            new(0, -1, 0),
+            new(0, 1, 0),
+            new(0, 0, -1),
+            new(0, 0, 1)
+        };
+
+        public static BlockFace GetOpposite(this BlockFace face)
+        {
+            return (BlockFace) ((int) face ^ 1);
+        }
+
+        public static Vector3i GetOffset(this BlockFace face)
+        {
+            return Offsets[(int) face];
+        }
+
         public static BlockFaceFlags ToFlags(this BlockFace face)
         {
             return (BlockFaceFlags) (1 << (int) face);

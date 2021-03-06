@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Numerics;
 using DigBuild.Engine.Render;
 
 namespace DigBuild.Engine.Math
@@ -17,6 +18,23 @@ namespace DigBuild.Engine.Math
             BlockFace.NegY, BlockFace.PosY,
             BlockFace.NegZ, BlockFace.PosZ
         );
+
+        public static BlockFace FromOffset(Vector3 vector)
+        {
+            var abs = Vector3.Abs(vector);
+            if (abs.X > abs.Y)
+            {
+                if (abs.X > abs.Z)
+                    return vector.X > 0 ? BlockFace.PosX : BlockFace.NegX;
+                return vector.Z > 0 ? BlockFace.PosZ : BlockFace.NegZ;
+            }
+            else
+            {
+                if (abs.Y > abs.Z)
+                    return vector.Y > 0 ? BlockFace.PosY : BlockFace.NegY;
+                return vector.Z > 0 ? BlockFace.PosZ : BlockFace.NegZ;
+            }
+        }
     }
 
     public static class BlockFaceExtensions

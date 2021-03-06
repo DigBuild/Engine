@@ -1,14 +1,17 @@
 ﻿using System;
+using DigBuild.Engine.Blocks;
 
 namespace DigBuild.Engine.Voxel
 {
     public class BlockChunkStorage : IChunkStorage
     {
         public BlockContainer Blocks { get; }
+        public BlockDataContainerContainer Data { get; }
 
         public BlockChunkStorage(Action notifyUpdate)
         {
             Blocks = new BlockContainer(notifyUpdate);
+            Data = new BlockDataContainerContainer(notifyUpdate);
         }
 
         public sealed class BlockContainer
@@ -27,6 +30,31 @@ namespace DigBuild.Engine.Voxel
                 set
                 {
                     _blocks[x, y, z] = value;
+                    _notifyUpdate();
+                }
+            }
+        }
+
+        public sealed class BlockDataContainerContainer
+        {
+            private readonly Action _notifyUpdate;
+            private readonly BlockDataContainer?[,,] _data = new BlockDataContainer[16, 16, 16];
+
+            public BlockDataContainerContainer(Action notifyUpdate)
+            {
+                _notifyUpdate = notifyUpdate;
+                for (int x = 0; x < 16; x++)
+                for (int y = 0; y < 16; y++)
+                for (int z = 0; z < 16; z++)
+                    _data[x, y, z] = new BlockDataContainer();
+            }
+
+            public BlockDataContainer? this[int x, int y, int z]
+            {
+                get => _data[x, y, z];
+                set
+                {
+                    _data[x, y, z] = value;
                     _notifyUpdate();
                 }
             }

@@ -1,4 +1,5 @@
-﻿using DigBuild.Engine.Math;
+﻿using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Voxel
 {
@@ -15,9 +16,16 @@ namespace DigBuild.Engine.Voxel
             return GetChunk(pos.ChunkPos)?.BlockStorage.Blocks[pos.X & 15, pos.Y & 15, pos.Z & 15];
         }
 
+        public BlockDataContainer? GetData(BlockPos pos)
+        {
+            return GetChunk(pos.ChunkPos)?.BlockStorage.Data[pos.X & 15, pos.Y & 15, pos.Z & 15];
+        }
+
         public virtual void SetBlock(BlockPos pos, Block? block)
         {
-            GetChunk(pos.ChunkPos)!.BlockStorage.Blocks[pos.X & 15, pos.Y & 15, pos.Z & 15] = block;
+            var storage = GetChunk(pos.ChunkPos)!.BlockStorage;
+            storage.Blocks[pos.X & 15, pos.Y & 15, pos.Z & 15] = block;
+            storage.Data[pos.X & 15, pos.Y & 15, pos.Z & 15] = new BlockDataContainer();
         }
     }
 }

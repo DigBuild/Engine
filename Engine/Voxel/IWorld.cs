@@ -1,4 +1,5 @@
-﻿using DigBuild.Engine.Math;
+﻿using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Voxel
 {
@@ -9,6 +10,8 @@ namespace DigBuild.Engine.Voxel
         IChunk? GetChunk(ChunkPos pos, bool load = true);
 
         Block? GetBlock(BlockPos pos);
+
+        BlockDataContainer? GetData(BlockPos pos);
 
         void SetBlock(BlockPos pos, Block? block);
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Voxel;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Util;
@@ -35,17 +36,17 @@ namespace DigBuild.Engine.Render
                             continue;
 
                         var faces = BlockFaceFlags.None;
-                        if (x == 0 || (!_chunk.BlockStorage.Blocks[x - 1, y, z]?.Solid ?? true))
+                        if (x == 0 || _chunk.BlockStorage.Blocks[x - 1, y, z] == null)
                             faces |= BlockFaceFlags.NegX;
-                        if (x == 15 || (!_chunk.BlockStorage.Blocks[x + 1, y, z]?.Solid ?? true))
+                        if (x == 15 || _chunk.BlockStorage.Blocks[x + 1, y, z] == null)
                             faces |= BlockFaceFlags.PosX;
-                        if (y == 0 || (!_chunk.BlockStorage.Blocks[x, y - 1, z]?.Solid ?? true))
+                        if (y == 0 || _chunk.BlockStorage.Blocks[x, y - 1, z] == null)
                             faces |= BlockFaceFlags.NegY;
-                        if (y == 15 || (!_chunk.BlockStorage.Blocks[x, y + 1, z]?.Solid ?? true))
+                        if (y == 15 || _chunk.BlockStorage.Blocks[x, y + 1, z] == null)
                             faces |= BlockFaceFlags.PosY;
-                        if (z == 0 || (!_chunk.BlockStorage.Blocks[x, y, z - 1]?.Solid ?? true))
+                        if (z == 0 || _chunk.BlockStorage.Blocks[x, y, z - 1] == null)
                             faces |= BlockFaceFlags.NegZ;
-                        if (z == 15 || (!_chunk.BlockStorage.Blocks[x, y, z + 1]?.Solid ?? true))
+                        if (z == 15 || _chunk.BlockStorage.Blocks[x, y, z + 1] == null)
                             faces |= BlockFaceFlags.PosZ;
 
                         _gbs.SetTransform(Matrix4x4.CreateTranslation(x, y, z));

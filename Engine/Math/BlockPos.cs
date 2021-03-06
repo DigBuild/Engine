@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace DigBuild.Engine.Math
 {
@@ -27,6 +28,11 @@ namespace DigBuild.Engine.Math
             x = X;
             y = Y;
             z = Z;
+        }
+
+        public override string ToString()
+        {
+            return $"<{X}, {Y}, {Z}>";
         }
     }
 }

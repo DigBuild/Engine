@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
+using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Voxel;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Util;

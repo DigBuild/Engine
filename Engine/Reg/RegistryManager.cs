@@ -23,6 +23,13 @@ namespace DigBuild.Engine.Reg
             return prototype;
         }
 
+        public ExtendedTypeRegistryPrototype<T, TValue> CreateExtendedRegistryOfTypes<T, TValue>(ResourceName name, Predicate<Type> typeValidator)
+        {
+            var prototype = new ExtendedTypeRegistryPrototype<T, TValue>(typeValidator);
+            _prototypes.Add(prototype);
+            return prototype;
+        }
+
         public void BuildAll()
         {
             _prototypes.ForEach(p => p.Build());
@@ -52,6 +59,28 @@ namespace DigBuild.Engine.Reg
             var builder = new TypeRegistryBuilder<T>(_typeValidator);
             Building?.Invoke(builder);
             Built?.Invoke(new TypeRegistry<T>(builder));
+        }
+    }
+
+    public delegate void ExtendedTypeRegistryBuildingEventHandler<T, TValue>(ExtendedTypeRegistryBuilder<T, TValue> builder);
+    public delegate void ExtendedTypeRegistryBuiltEventHandler<T, TValue>(ExtendedTypeRegistry<T, TValue> registry);
+    public sealed class ExtendedTypeRegistryPrototype<T, TValue> : IRegistryPrototype
+    {
+        private readonly Predicate<Type> _typeValidator;
+        
+        internal ExtendedTypeRegistryPrototype(Predicate<Type> typeValidator)
+        {
+            _typeValidator = typeValidator;
+        }
+
+        public event ExtendedTypeRegistryBuildingEventHandler<T, TValue>? Building;
+        public event ExtendedTypeRegistryBuiltEventHandler<T, TValue>? Built;
+
+        public void Build()
+        {
+            var builder = new ExtendedTypeRegistryBuilder<T, TValue>(_typeValidator);
+            Building?.Invoke(builder);
+            Built?.Invoke(new ExtendedTypeRegistry<T, TValue>(builder));
         }
     }
 

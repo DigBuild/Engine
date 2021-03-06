@@ -71,8 +71,9 @@ namespace DigBuild.Engine.Reg
 
     public interface IRegistryBuilder<in T> where T : notnull
     {
-        void Add(ResourceName name, T instance);
+        T2 Add<T2>(ResourceName name, T2 value) where T2 : T;
     }
+
     public sealed class RegistryBuilder<T> : IRegistryBuilder<T> where T : notnull
     {
         internal readonly Dictionary<ResourceName, T> Entries = new();
@@ -86,7 +87,7 @@ namespace DigBuild.Engine.Reg
             _valueValidator = valueValidator;
         }
 
-        void IRegistryBuilder<T>.Add(ResourceName name, T value)
+        T2 IRegistryBuilder<T>.Add<T2>(ResourceName name, T2 value)
         {
             if (Entries.ContainsKey(name))
                 throw new ArgumentException($"Name already in use: {name}", nameof(name));
@@ -99,6 +100,7 @@ namespace DigBuild.Engine.Reg
                 throw new ArgumentException($"Unsupported value: {value}", nameof(value));
 
             Entries.Add(name, value);
+            return value;
         }
     }
 }

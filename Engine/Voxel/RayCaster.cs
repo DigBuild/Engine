@@ -49,7 +49,7 @@ namespace DigBuild.Engine.Voxel
             
             while (distanceFromStart <= reach)
             {
-                if (context.Visit(pos, ray, out hit))
+                if (context.Visit(pos, ray.Start + direction * (float) distanceFromStart, ray, out hit))
                     return true;
 
                 if (xDist < yDist)
@@ -91,6 +91,6 @@ namespace DigBuild.Engine.Voxel
 
     public interface IGridAlignedRayCastingContext<THit> where THit : class
     {
-        bool Visit(Vector3i position, RayCaster.Ray ray, [NotNullWhen(true)] out THit? hit);
+        bool Visit(Vector3i gridPosition, Vector3 position, RayCaster.Ray ray, [NotNullWhen(true)] out THit? hit);
     }
 }

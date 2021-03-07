@@ -6,6 +6,8 @@ namespace DigBuild.Engine.Voxel
     {
         public IBlockContainer Blocks { get; }
         public IBlockDataContainerContainer Data { get; }
+
+        public void CopyFrom(IBlockChunkStorage other);
     }
 
     public interface IBlockContainer

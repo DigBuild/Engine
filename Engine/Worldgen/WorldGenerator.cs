@@ -7,8 +7,6 @@ namespace DigBuild.Engine.Worldgen
 {
     public class WorldGenerator
     {
-        private const uint ChunkSize = 16;
-
         private readonly IReadOnlyCollection<IWorldgenFeature> _features;
         private readonly long _seed;
         private readonly Func<ChunkPos, IChunk> _chunkPrototypeFactory;
@@ -62,16 +60,7 @@ namespace DigBuild.Engine.Worldgen
             {
                 var prototype = chunkPrototypes[i];
                 var chunk = chunks[i];
-                for (var x = 0; x < ChunkSize; x++)
-                {
-                    for (var y = 0; y < ChunkSize; y++)
-                    {
-                        for (var z = 0; z < ChunkSize; z++)
-                        {
-                            chunk.BlockStorage.Blocks[x, y, z] = prototype.BlockStorage.Blocks[x, y, z];
-                        }
-                    }
-                }
+                chunk.BlockStorage.CopyFrom(prototype.BlockStorage);
             }
         }
     }

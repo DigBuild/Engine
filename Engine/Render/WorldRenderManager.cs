@@ -62,8 +62,6 @@ namespace DigBuild.Engine.Render
         {
             _ubs.Clear();
             _ubs.Setup(context, cmd);
-            foreach (var data in _chunkRenderData.Values)
-                data.UpdateDynamicGeometry();
             foreach (var layer in _renderLayers)
             {
                 foreach (var (chunk, renderData) in _chunkRenderData)

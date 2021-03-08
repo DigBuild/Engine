@@ -5,10 +5,12 @@ namespace DigBuild.Engine.Render
 {
     public interface ICamera
     {
-        Matrix4x4 Transform { get; }
         Vector3 Position { get; }
+        Matrix4x4 Transform { get; }
+        RayCaster.Ray Ray { get; }
 
-        Matrix4x4 GetInterpolatedTransform(float partialTick);
-        public RayCaster.Ray GetInterpolatedRay(float partialTick);
+        Vector3 Forward { get; }
+        Vector3 Up { get; }
+        float FieldOfView { get; }
     }
 }

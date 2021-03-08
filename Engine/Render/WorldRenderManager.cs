@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Math;
 using DigBuild.Engine.Voxel;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Util;
@@ -56,17 +58,23 @@ namespace DigBuild.Engine.Render
             _updatedChunks.Clear();
         }
 
-        public void SubmitGeometry(RenderContext context, CommandBufferRecorder cmd, ICamera camera, float partialTick)
+        public void SubmitGeometry(RenderContext context, CommandBufferRecorder cmd, ICamera camera, ViewFrustum viewFrustum)
         {
             _ubs.Clear();
             _ubs.Setup(context, cmd);
+            foreach (var data in _chunkRenderData.Values)
+                data.UpdateDynamicGeometry();
             foreach (var layer in _renderLayers)
             {
                 foreach (var (chunk, renderData) in _chunkRenderData)
                 {
-                    var transform =
-                        Matrix4x4.CreateTranslation(chunk.Position.GetOrigin())
-                        * camera.GetInterpolatedTransform(partialTick);
+                    var min = chunk.Position.GetOrigin();
+                    var max = min + Vector3.One * 16;
+
+                    if (!viewFrustum.Test(new AABB(min, max)))
+                        continue;
+
+                    var transform = Matrix4x4.CreateTranslation(chunk.Position.GetOrigin()) * camera.Transform;
                     _ubs.AddAndUse(context, cmd, layer, transform);
                     renderData.SubmitGeometry(context, layer, cmd);
                 }

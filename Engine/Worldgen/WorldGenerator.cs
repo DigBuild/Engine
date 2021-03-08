@@ -50,18 +50,12 @@ namespace DigBuild.Engine.Worldgen
             for (var y = 0; y < height; y++)
             {
                 var prototype = chunkPrototypes[y] = _chunkPrototypeFactory(new ChunkPos(pos.X, y, pos.Z));
-                foreach (var feature in _features)
-                {
+                foreach (var feature in _features) 
                     feature.PopulateChunk(descriptor, prototype);
-                }
             }
             
             for (var i = 0; i < height; i++)
-            {
-                var prototype = chunkPrototypes[i];
-                var chunk = chunks[i];
-                chunk.BlockStorage.CopyFrom(prototype.BlockStorage);
-            }
+                chunks[i].CopyFrom(chunkPrototypes[i]);
         }
     }
 }

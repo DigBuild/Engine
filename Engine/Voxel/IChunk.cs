@@ -1,16 +1,19 @@
-﻿using DigBuild.Engine.Math;
-
-namespace DigBuild.Engine.Voxel
+﻿namespace DigBuild.Engine.Voxel
 {
-    public interface IChunk
+    public interface IChunk : IReadOnlyChunk
     {
-        public ChunkPos Position { get; }
-        public IBlockChunkStorage BlockStorage { get; }
+        // public new T Get<T>() where T : class, IChunkStorage, new();
 
-        // public T GetStorage<T>() where T : IChunkStorage;
+        public void CopyFrom(IReadOnlyChunk other);
     }
-    
-    public interface IChunkStorage
+
+    public interface IChunkStorage : IReadOnlyChunkStorage
     {
+        public IChunkStorage Copy();
+    }
+    public interface IChunkStorage<out T> : IChunkStorage where T : class, IChunkStorage<T>, new()
+    {
+        public new T Copy();
+        IChunkStorage IChunkStorage.Copy() => Copy();
     }
 }

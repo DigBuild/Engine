@@ -25,28 +25,29 @@ namespace DigBuild.Engine.Render
         {
             _gbs.Clear();
 
+            var storage = _chunk.Get<BlockChunkStorage>();
             for (var x = 0; x < 16; x++)
             {
                 for (var y = 0; y < 16; y++)
                 {
                     for (var z = 0; z < 16; z++)
                     {
-                        var block = _chunk.BlockStorage.Blocks[x, y, z];
+                        var block = storage.Blocks[x, y, z];
                         if (block == null || !_blockModels.TryGetValue(block, out var model))
                             continue;
 
                         var faces = BlockFaceFlags.None;
-                        if (x == 0 || _chunk.BlockStorage.Blocks[x - 1, y, z] == null)
+                        if (x == 0 || storage.Blocks[x - 1, y, z] == null)
                             faces |= BlockFaceFlags.NegX;
-                        if (x == 15 || _chunk.BlockStorage.Blocks[x + 1, y, z] == null)
+                        if (x == 15 || storage.Blocks[x + 1, y, z] == null)
                             faces |= BlockFaceFlags.PosX;
-                        if (y == 0 || _chunk.BlockStorage.Blocks[x, y - 1, z] == null)
+                        if (y == 0 || storage.Blocks[x, y - 1, z] == null)
                             faces |= BlockFaceFlags.NegY;
-                        if (y == 15 || _chunk.BlockStorage.Blocks[x, y + 1, z] == null)
+                        if (y == 15 || storage.Blocks[x, y + 1, z] == null)
                             faces |= BlockFaceFlags.PosY;
-                        if (z == 0 || _chunk.BlockStorage.Blocks[x, y, z - 1] == null)
+                        if (z == 0 || storage.Blocks[x, y, z - 1] == null)
                             faces |= BlockFaceFlags.NegZ;
-                        if (z == 15 || _chunk.BlockStorage.Blocks[x, y, z + 1] == null)
+                        if (z == 15 || storage.Blocks[x, y, z + 1] == null)
                             faces |= BlockFaceFlags.PosZ;
 
                         _gbs.SetTransform(Matrix4x4.CreateTranslation(x, y, z));

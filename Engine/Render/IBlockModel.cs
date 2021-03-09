@@ -26,7 +26,7 @@ namespace DigBuild.Engine.Render
 
     public static class BlockFaceFlagsExtensions
     {
-        public static bool HasFace(this BlockFaceFlags flags, BlockFace face)
+        public static bool Has(this BlockFaceFlags flags, BlockFace face)
         {
             return (flags & face.ToFlags()) != BlockFaceFlags.None;
         }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Numerics;
 using DigBuild.Engine.Render;
 
@@ -18,6 +20,11 @@ namespace DigBuild.Engine.Math
             BlockFace.NegY, BlockFace.PosY,
             BlockFace.NegZ, BlockFace.PosZ
         );
+
+        public static IEnumerable<BlockFace> In(BlockFaceFlags flags)
+        {
+            return All.Where(face => flags.Has(face));
+        }
 
         public static BlockFace FromOffset(Vector3 vector)
         {

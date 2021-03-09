@@ -56,7 +56,7 @@ namespace DigBuild.Engine.Render
                         if (z == 15 || storage.Blocks[x, y, z + 1] == null)
                             faces |= BlockFaceFlags.PosZ;
 
-                        _gbs.SetTransform(Matrix4x4.CreateTranslation(x, y, z));
+                        _gbs.Transform = Matrix4x4.CreateTranslation(x, y, z);
                         model.AddGeometry(faces, _gbs);
                         if (model.HasDynamicGeometry)
                             _dynamicModelData.Add(new DynamicModelData(x, y, z, model));
@@ -74,12 +74,12 @@ namespace DigBuild.Engine.Render
             
             foreach (var data in _dynamicModelData)
             {
-                _gbsDynamic.SetTransform(Matrix4x4.CreateTranslation(data.Position));
+                _gbsDynamic.Transform = Matrix4x4.CreateTranslation(data.Position);
                 data.Model.AddDynamicGeometry(_gbsDynamic);
             }
         }
 
-        public void SubmitGeometry(RenderContext context, IWorldRenderLayer layer, CommandBufferRecorder cmd)
+        public void SubmitGeometry(RenderContext context, IRenderLayer layer, CommandBufferRecorder cmd)
         {
             _gbs.Draw(layer, context, cmd);
             if (_dynamicModelData.Count > 0)

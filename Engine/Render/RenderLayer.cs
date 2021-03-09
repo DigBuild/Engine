@@ -6,16 +6,15 @@ using DigBuild.Platform.Util;
 
 namespace DigBuild.Engine.Render
 {
-    public sealed class WorldRenderLayer<TVertex> : IWorldRenderLayer where TVertex : unmanaged
+    public sealed class RenderLayer<TVertex> : IRenderLayer where TVertex : unmanaged
     {
-        public static WorldRenderLayer<TVertex> Create<TRes>(
+        public static RenderLayer<TVertex> Create<TRes>(
             LinearTransformerFactory transformerFactory,
             RenderStageProvider renderStageProvider,
             RenderResourceFactory<TRes> renderResourceFactory,
             Func<TRes, RenderPipeline<TVertex>> pipelineGetter,
-            Func<TRes, NativeBufferPool, IWorldRenderLayerUniforms> uniformFactory
-        ) where TRes : notnull
-            => new WorldRenderLayer<TVertex>(
+            Func<TRes, NativeBufferPool, IRenderLayerUniforms> uniformFactory
+        ) where TRes : notnull => new(
             transformerFactory,
             renderStageProvider,
             (ctx, rm, stage) => renderResourceFactory(ctx, rm, stage),
@@ -31,19 +30,17 @@ namespace DigBuild.Engine.Render
         private readonly RenderStageProvider _renderStageProvider;
         private readonly RenderResourceFactory<object> _renderResourceFactory;
         private readonly Func<object, RenderPipeline<TVertex>> _pipelineGetter;
-        private readonly Func<object, NativeBufferPool, IWorldRenderLayerUniforms> _uniformFactory;
+        private readonly Func<object, NativeBufferPool, IRenderLayerUniforms> _uniformFactory;
 
         private object? _renderResources;
         private RenderPipeline<TVertex>? _renderPipeline;
 
-        internal RenderPipeline<TVertex> Pipeline => _renderPipeline!;
-
-        private WorldRenderLayer(
+        private RenderLayer(
             LinearTransformerFactory transformerFactory,
             RenderStageProvider renderStageProvider,
             RenderResourceFactory<object> renderResourceFactory,
             Func<object, RenderPipeline<TVertex>> pipelineGetter,
-            Func<object, NativeBufferPool, IWorldRenderLayerUniforms> uniformFactory
+            Func<object, NativeBufferPool, IRenderLayerUniforms> uniformFactory
         )
         {
             _transformerFactory = transformerFactory;
@@ -65,20 +62,25 @@ namespace DigBuild.Engine.Render
             return _transformerFactory(next, transform);
         }
 
-        public IWorldRenderLayerUniforms CreateUniforms(NativeBufferPool pool)
+        public IRenderLayerUniforms CreateUniforms(NativeBufferPool pool)
         {
             return _uniformFactory(_renderResources!, pool);
         }
+
+        public void Draw(CommandBufferRecorder cmd, VertexBuffer<TVertex> vertexBuffer)
+        {
+            cmd.Draw(_renderPipeline!, vertexBuffer);
+        }
     }
     
-    public interface IWorldRenderLayer
+    public interface IRenderLayer
     {
         void Initialize(RenderContext context, ResourceManager resourceManager);
 
-        IWorldRenderLayerUniforms CreateUniforms(NativeBufferPool pool);
+        IRenderLayerUniforms CreateUniforms(NativeBufferPool pool);
     }
 
-    public interface IWorldRenderLayerUniforms : IDisposable
+    public interface IRenderLayerUniforms : IDisposable
     {
         void Setup(RenderContext context, CommandBufferRecorder cmd);
 

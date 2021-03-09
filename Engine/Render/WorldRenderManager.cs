@@ -11,14 +11,14 @@ namespace DigBuild.Engine.Render
     public sealed class WorldRenderManager
     {
         private readonly IReadOnlyDictionary<Block, IBlockModel> _blockModels;
-        private readonly IEnumerable<IWorldRenderLayer> _renderLayers;
+        private readonly IEnumerable<IRenderLayer> _renderLayers;
         private readonly NativeBufferPool _pool;
         private readonly UniformBufferSet _ubs;
 
         private readonly HashSet<IChunk> _updatedChunks = new();
         private readonly Dictionary<IChunk, ChunkRenderData> _chunkRenderData = new();
 
-        public WorldRenderManager(IReadOnlyDictionary<Block, IBlockModel> blockModels, IEnumerable<IWorldRenderLayer> renderLayers, NativeBufferPool pool)
+        public WorldRenderManager(IReadOnlyDictionary<Block, IBlockModel> blockModels, IEnumerable<IRenderLayer> renderLayers, NativeBufferPool pool)
         {
             _blockModels = blockModels;
             _renderLayers = renderLayers;

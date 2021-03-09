@@ -9,7 +9,7 @@ namespace DigBuild.Engine.Render
     public sealed class UniformBufferSet : IDisposable
     {
         private readonly NativeBufferPool _pool;
-        private readonly Dictionary<IWorldRenderLayer, LayerData> _layers = new();
+        private readonly Dictionary<IRenderLayer, LayerData> _layers = new();
 
         public UniformBufferSet(NativeBufferPool pool)
         {
@@ -22,7 +22,7 @@ namespace DigBuild.Engine.Render
                 data.Uniforms.Setup(context, cmd);
         }
 
-        public void AddAndUse(RenderContext context, CommandBufferRecorder cmd, IWorldRenderLayer layer, Matrix4x4 transform)
+        public void AddAndUse(RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, Matrix4x4 transform)
         {
             if (!_layers.TryGetValue(layer, out var data))
             {
@@ -53,9 +53,9 @@ namespace DigBuild.Engine.Render
         
         private sealed class LayerData
         {
-            internal readonly IWorldRenderLayerUniforms Uniforms;
+            internal readonly IRenderLayerUniforms Uniforms;
 
-            public LayerData(IWorldRenderLayerUniforms uniforms)
+            public LayerData(IRenderLayerUniforms uniforms)
             {
                 Uniforms = uniforms;
             }

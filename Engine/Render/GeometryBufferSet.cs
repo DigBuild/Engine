@@ -9,32 +9,26 @@ namespace DigBuild.Engine.Render
     public sealed class GeometryBufferSet : IDisposable
     {
         private readonly NativeBufferPool _pool;
-        private readonly Dictionary<IWorldRenderLayer, ILayerData> _layers = new();
-        private Matrix4x4 _transform = Matrix4x4.Identity;
+        private readonly Dictionary<IRenderLayer, ILayerData> _layers = new();
+
+        public Matrix4x4 Transform { get; set; } = Matrix4x4.Identity;
 
         public GeometryBufferSet(NativeBufferPool pool)
         {
             _pool = pool;
         }
 
-        public void SetTransform(Matrix4x4 transform)
-        {
-            _transform = transform;
-        }
-
-        public IVertexConsumer<TVertex> Get<TVertex>(WorldRenderLayer<TVertex> layer) where TVertex : unmanaged
+        public IVertexConsumer<TVertex> Get<TVertex>(RenderLayer<TVertex> layer) where TVertex : unmanaged
         {
             if (!_layers.TryGetValue(layer, out var ld))
                 _layers[layer] = ld = new LayerData<TVertex>(layer, _pool);
             var data = (LayerData<TVertex>) ld;
-
-            data.Modified = true; // TODO: Maybe implement this a bit better
             
             var vertConsumer = new NativeBufferVertexConsumer<TVertex>(data.NativeBuffer);
-            return layer.LinearTransformer(vertConsumer, _transform);
+            return layer.LinearTransformer(vertConsumer, Transform);
         }
 
-        public void Draw(IWorldRenderLayer layer, RenderContext context, CommandBufferRecorder cmd)
+        public void Draw(IRenderLayer layer, RenderContext context, CommandBufferRecorder cmd)
         {
             if (_layers.TryGetValue(layer, out var data))
                 data.Draw(context, cmd);
@@ -60,41 +54,52 @@ namespace DigBuild.Engine.Render
 
         private sealed class LayerData<TVertex> : ILayerData where TVertex : unmanaged
         {
-            private readonly WorldRenderLayer<TVertex> _layer;
-            internal readonly PooledNativeBuffer<TVertex> NativeBuffer;
-            internal bool Modified;
+            private readonly RenderLayer<TVertex> _layer;
+            private readonly NativeBufferPool _pool;
+            private PooledNativeBuffer<TVertex>? _nativeBuffer;
             
             private VertexBuffer<TVertex>? _vertexBuffer;
             private VertexBufferWriter<TVertex>? _vertexBufferWriter;
 
-            public LayerData(WorldRenderLayer<TVertex> layer, NativeBufferPool pool)
+            internal INativeBuffer<TVertex> NativeBuffer
+            {
+                get
+                {
+                    if (_nativeBuffer != null)
+                        return _nativeBuffer;
+                    return _nativeBuffer = _pool.Request<TVertex>();
+                }
+            }
+
+            public LayerData(RenderLayer<TVertex> layer, NativeBufferPool pool)
             {
                 _layer = layer;
-                NativeBuffer = pool.Request<TVertex>();
+                _pool = pool;
             }
 
             public void Draw(RenderContext context, CommandBufferRecorder cmd)
             {
-                if (Modified)
+                if (_nativeBuffer != null)
                 {
                     if (_vertexBuffer == null || _vertexBufferWriter == null)
-                        _vertexBuffer = context.CreateVertexBuffer(out _vertexBufferWriter, NativeBuffer);
+                        _vertexBuffer = context.CreateVertexBuffer(out _vertexBufferWriter, _nativeBuffer);
                     else
-                        _vertexBufferWriter.Write(NativeBuffer);
+                        _vertexBufferWriter.Write(_nativeBuffer);
+                    _nativeBuffer.Dispose();
+                    _nativeBuffer = null;
                 }
 
-                cmd.Draw(_layer.Pipeline, _vertexBuffer!);
+                _layer.Draw(cmd, _vertexBuffer!);
             }
 
             public void Clear()
             {
                 NativeBuffer.Clear();
-                Modified = true;
             }
 
             public void Dispose()
             {
-                NativeBuffer.Dispose();
+                _nativeBuffer?.Dispose();
             }
         }
     }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
@@ -9,7 +8,7 @@ using DigBuild.Platform.Util;
 
 namespace DigBuild.Engine.Render
 {
-    public class WorldRenderManager
+    public sealed class WorldRenderManager
     {
         private readonly IReadOnlyDictionary<Block, IBlockModel> _blockModels;
         private readonly IEnumerable<IWorldRenderLayer> _renderLayers;
@@ -62,21 +61,30 @@ namespace DigBuild.Engine.Render
         {
             _ubs.Clear();
             _ubs.Setup(context, cmd);
+
+            var rendered = new List<(IChunk, ChunkRenderData)>();
+            foreach (var (chunk, renderData) in _chunkRenderData)
+            {
+                var min = chunk.Position.GetOrigin();
+                var max = min + Vector3.One * 16;
+
+                if (!viewFrustum.Test(new AABB(min, max)))
+                    continue;
+
+                rendered.Add((chunk, renderData));
+                renderData.UpdateDynamicGeometry();
+            }
+
             foreach (var layer in _renderLayers)
             {
-                foreach (var (chunk, renderData) in _chunkRenderData)
+                foreach (var (chunk, renderData) in rendered)
                 {
-                    var min = chunk.Position.GetOrigin();
-                    var max = min + Vector3.One * 16;
-
-                    if (!viewFrustum.Test(new AABB(min, max)))
-                        continue;
-
                     var transform = Matrix4x4.CreateTranslation(chunk.Position.GetOrigin()) * camera.Transform;
                     _ubs.AddAndUse(context, cmd, layer, transform);
                     renderData.SubmitGeometry(context, layer, cmd);
                 }
             }
+
             _ubs.Finalize(context, cmd);
         }
     }

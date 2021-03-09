@@ -6,6 +6,9 @@ namespace DigBuild.Engine.Render
     public interface IBlockModel
     {
         void AddGeometry(BlockFaceFlags faces, GeometryBufferSet buffers);
+
+        bool HasDynamicGeometry => false;
+        void AddDynamicGeometry(GeometryBufferSet buffers) { }
     }
     
     [Flags]

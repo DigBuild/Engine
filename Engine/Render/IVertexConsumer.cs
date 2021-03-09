@@ -9,6 +9,7 @@ namespace DigBuild.Engine.Render
     {
         void Accept(T vertex);
         void Accept(IEnumerable<T> vertices);
+        void Accept(params T[] vertices) => Accept((IEnumerable<T>) vertices);
     }
 
     public sealed class VertexTransformer<T> : IVertexConsumer<T> where T : unmanaged

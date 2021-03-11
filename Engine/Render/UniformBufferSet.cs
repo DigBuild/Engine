@@ -18,8 +18,11 @@ namespace DigBuild.Engine.Render
 
         public void Setup(RenderContext context, CommandBufferRecorder cmd)
         {
-            foreach (var data in _layers.Values)
+            foreach (var (layer, data) in _layers)
+            {
+                layer.InitializeCommand(cmd);
                 data.Uniforms.Setup(context, cmd);
+            }
         }
 
         public void AddAndUse(RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, Matrix4x4 transform)
@@ -27,6 +30,7 @@ namespace DigBuild.Engine.Render
             if (!_layers.TryGetValue(layer, out var data))
             {
                 _layers[layer] = data = new LayerData(layer.CreateUniforms(_pool));
+                layer.InitializeCommand(cmd);
                 data.Uniforms.Setup(context, cmd);
             }
 

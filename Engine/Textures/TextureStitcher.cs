@@ -21,7 +21,7 @@ namespace DigBuild.Engine.Textures
             return info.Sprite;
         }
 
-        public SpriteSheet Build(RenderContext context)
+        public SpriteSheet Build(RenderContext context, string? outputFile = null)
         {
             if (_built)
                 throw new Exception("Attempted to build more than once.");
@@ -52,7 +52,8 @@ namespace DigBuild.Engine.Textures
                 y += x == 0 ? 1 : 0;
             }
 
-            bitmap.Save("spritesheet.png");
+            if (outputFile != null)
+                bitmap.Save(outputFile);
             
             _sprites.Clear();
 

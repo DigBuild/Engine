@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Engine.Reg;
+using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Blocks
 {
@@ -111,6 +112,7 @@ namespace DigBuild.Engine.Blocks
         }
 
         internal Block Build(
+            ResourceName name,
             ExtendedTypeRegistry<IBlockEvent, BlockEventInfo> eventRegistry,
             Registry<IBlockAttribute> attributeRegistry,
             Registry<IBlockCapability> capabilityRegistry
@@ -168,7 +170,7 @@ namespace DigBuild.Engine.Blocks
             foreach (var capability in capabilityRegistry.Values)
                 capabilitySuppliers.TryAdd(capability, (context, container) => capability.GenericDefaultValueDelegate(context));
 
-            return new Block(eventHandlers, attributeSuppliers, capabilitySuppliers);
+            return new Block(name, eventHandlers, attributeSuppliers, capabilitySuppliers);
         }
     }
 }

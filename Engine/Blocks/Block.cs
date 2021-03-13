@@ -22,7 +22,10 @@ namespace DigBuild.Engine.Blocks
         private readonly IReadOnlyDictionary<IBlockAttribute, GenericBlockAttributeDelegate> _attributeSuppliers;
         private readonly IReadOnlyDictionary<IBlockCapability, GenericBlockCapabilityDelegate> _capabilitySuppliers;
 
+        public ResourceName Name { get; }
+
         internal Block(
+            ResourceName name,
             IReadOnlyDictionary<Type, GenericBlockEventDelegate> eventHandlers,
             IReadOnlyDictionary<IBlockAttribute, GenericBlockAttributeDelegate> attributeSuppliers,
             IReadOnlyDictionary<IBlockCapability, GenericBlockCapabilityDelegate> capabilitySuppliers
@@ -31,6 +34,7 @@ namespace DigBuild.Engine.Blocks
             _eventHandlers = eventHandlers;
             _attributeSuppliers = attributeSuppliers;
             _capabilitySuppliers = capabilitySuppliers;
+            Name = name;
         }
 
         void IBlock.Post<TContext, TEvent>(TContext context, TEvent evt)
@@ -65,6 +69,11 @@ namespace DigBuild.Engine.Blocks
         {
             return ((IWorld)context.World).GetData(context.Pos)!;
         }
+
+        public override string ToString()
+        {
+            return $"Block({Name})";
+        }
     }
 
     public static class BlockRegistryBuilderExtensions
@@ -78,7 +87,7 @@ namespace DigBuild.Engine.Blocks
             var builder = new BlockBuilder();
             foreach (var action in buildActions)
                 action(builder);
-            return builder.Build(EventRegistry, BlockAttributes, BlockCapabilities);
+            return registry.Add(name, builder.Build(name, EventRegistry, BlockAttributes, BlockCapabilities));
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
@@ -57,7 +58,7 @@ namespace DigBuild.Engine.Render
             _updatedChunks.Clear();
         }
 
-        public void SubmitGeometry(RenderContext context, CommandBufferRecorder cmd, ICamera camera, ViewFrustum viewFrustum)
+        public void SubmitGeometry(RenderContext context, CommandBufferRecorder cmd, Matrix4x4 projection, ICamera camera, ViewFrustum viewFrustum)
         {
             _ubs.Clear();
             _ubs.Setup(context, cmd);
@@ -79,7 +80,7 @@ namespace DigBuild.Engine.Render
             {
                 foreach (var (chunk, renderData) in rendered)
                 {
-                    var transform = Matrix4x4.CreateTranslation(chunk.Position.GetOrigin()) * camera.Transform;
+                    var transform = Matrix4x4.CreateTranslation(chunk.Position.GetOrigin()) * camera.Transform * projection;
                     _ubs.AddAndUse(context, cmd, layer, transform);
                     renderData.SubmitGeometry(context, layer, cmd);
                 }

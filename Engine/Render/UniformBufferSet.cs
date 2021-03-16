@@ -21,7 +21,7 @@ namespace DigBuild.Engine.Render
             foreach (var (layer, data) in _layers)
             {
                 layer.InitializeCommand(cmd);
-                data.Uniforms.Setup(context, cmd);
+                data.Uniforms?.Setup(context, cmd);
             }
         }
 
@@ -31,35 +31,35 @@ namespace DigBuild.Engine.Render
             {
                 _layers[layer] = data = new LayerData(layer.CreateUniforms(_pool));
                 layer.InitializeCommand(cmd);
-                data.Uniforms.Setup(context, cmd);
+                data.Uniforms?.Setup(context, cmd);
             }
 
-            data.Uniforms.PushAndUseTransform(context, cmd, transform);
+            data.Uniforms?.PushAndUseTransform(context, cmd, transform);
         }
 
         public void Finalize(RenderContext context, CommandBufferRecorder cmd)
         {
             foreach (var data in _layers.Values)
-                data.Uniforms.Finalize(context, cmd);
+                data.Uniforms?.Finalize(context, cmd);
         }
 
         public void Clear()
         {
             foreach (var data in _layers.Values)
-                data.Uniforms.Clear();
+                data.Uniforms?.Clear();
         }
 
         public void Dispose()
         {
             foreach (var data in _layers.Values)
-                data.Uniforms.Dispose();
+                data.Uniforms?.Dispose();
         }
         
         private sealed class LayerData
         {
-            internal readonly IRenderLayerUniforms Uniforms;
+            internal readonly IRenderLayerUniforms? Uniforms;
 
-            public LayerData(IRenderLayerUniforms uniforms)
+            public LayerData(IRenderLayerUniforms? uniforms)
             {
                 Uniforms = uniforms;
             }

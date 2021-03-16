@@ -28,18 +28,18 @@ namespace DigBuild.Engine.UI
 
         public void Draw(RenderContext context, GeometryBufferSet buffers)
         {
-            if (_slot.Item.Count > 0 && _models.TryGetValue(_slot.Item.Item, out var model))
+            if (_slot.Item.Count > 0 && _models.TryGetValue(_slot.Item.Type, out var model))
             {
                 var originalTransform = Matrix4x4.CreateTranslation(PosX, PosY, Scale) * buffers.Transform;
                 var transform = Matrix4x4.CreateTranslation(-Vector3.One / 2) *
                                 Matrix4x4.CreateScale(Scale) *
                                 originalTransform;
                 buffers.Transform = transform;
-                model.AddGeometry(buffers);
+                model.AddGeometry(ItemModelTransform.Inventory, buffers);
                 if (model.HasDynamicGeometry)
                 {
                     buffers.Transform = transform;
-                    model.AddDynamicGeometry(buffers);
+                    model.AddDynamicGeometry(ItemModelTransform.Inventory, buffers);
                 }
                 
                 buffers.Transform = Matrix4x4.CreateTranslation(Scale / 6f, Scale / 2f, 0) * originalTransform;

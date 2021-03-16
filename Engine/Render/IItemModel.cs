@@ -2,9 +2,15 @@
 {
     public interface IItemModel
     {
-        void AddGeometry(GeometryBufferSet buffers);
+        void AddGeometry(ItemModelTransform transform, GeometryBufferSet buffers);
 
         bool HasDynamicGeometry => false;
-        void AddDynamicGeometry(GeometryBufferSet buffers) { }
+        void AddDynamicGeometry(ItemModelTransform transform, GeometryBufferSet buffers) { }
+    }
+
+    public enum ItemModelTransform
+    {
+        None,
+        Inventory
     }
 }

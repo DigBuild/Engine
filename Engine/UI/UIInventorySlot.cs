@@ -72,15 +72,15 @@ namespace DigBuild.Engine.UI
             if (_isActive != null && _isActive())
                 buffers.Get(_layer).Accept(MarkerVertices);
             
-            if (_slot.Item.Count > 0 && _models.TryGetValue(_slot.Item.Item, out var model))
+            if (_slot.Item.Count > 0 && _models.TryGetValue(_slot.Item.Type, out var model))
             {
                 var transform = Matrix4x4.CreateTranslation(-Vector3.One / 2) * buffers.Transform;
                 buffers.Transform = transform;
-                model.AddGeometry(buffers);
+                model.AddGeometry(ItemModelTransform.Inventory, buffers);
                 if (model.HasDynamicGeometry)
                 {
                     buffers.Transform = transform;
-                    model.AddDynamicGeometry(buffers);
+                    model.AddDynamicGeometry(ItemModelTransform.Inventory, buffers);
                 }
                 
                 buffers.Transform = Matrix4x4.CreateTranslation(Scale / 6f, Scale / 2f, 0) * originalTransform;

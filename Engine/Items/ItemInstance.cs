@@ -4,19 +4,19 @@
     {
         public static readonly ItemInstance Empty = new(null!, 0);
 
-        public Item Item { get; }
+        public Item Type { get; }
         public ushort Count { get; set; }
         internal ItemDataContainer DataContainer { get; } = new();
 
-        public ItemInstance(Item item, ushort count)
+        public ItemInstance(Item type, ushort count)
         {
-            Item = item;
+            Type = type;
             Count = count;
         }
 
         public override string ToString()
         {
-            return Count == 0 ? "Empty" : $"{Count}x {Item.Name}";
+            return Count == 0 ? "Empty" : $"{Count}x {Type.Name}";
         }
     }
 }

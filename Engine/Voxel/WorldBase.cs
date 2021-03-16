@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DigBuild.Engine.Entities;
 using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Voxel
@@ -18,5 +19,9 @@ namespace DigBuild.Engine.Voxel
         public abstract IChunk? GetChunk(ChunkPos pos, bool load = true);
 
         public abstract void OnBlockChanged(BlockPos pos);
+
+        public abstract void OnEntityAdded(EntityInstance entity);
+
+        public abstract void OnEntityRemoved(Guid guid);
     }
 }

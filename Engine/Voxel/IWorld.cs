@@ -1,4 +1,6 @@
-﻿using DigBuild.Engine.Math;
+﻿using System;
+using DigBuild.Engine.Entities;
+using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Voxel
 {
@@ -11,6 +13,10 @@ namespace DigBuild.Engine.Voxel
         IReadOnlyChunk? IReadOnlyWorld.GetChunk(ChunkPos pos, bool load) => GetChunk(pos, load);
 
         public void OnBlockChanged(BlockPos pos);
+
+        public void OnEntityAdded(EntityInstance entity);
+
+        public void OnEntityRemoved(Guid guid);
     }
 
     public interface IWorldStorage : IReadOnlyWorldStorage

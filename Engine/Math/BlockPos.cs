@@ -37,6 +37,8 @@ namespace DigBuild.Engine.Math
         
         public static BlockPos operator +(BlockPos a, Vector3i b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
 
+        public static implicit operator Vector3(BlockPos pos) => new(pos.X, pos.Y, pos.Z);
+
         public override string ToString()
         {
             return $"<{X}, {Y}, {Z}>";

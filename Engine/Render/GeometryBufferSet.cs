@@ -12,6 +12,7 @@ namespace DigBuild.Engine.Render
         private readonly Dictionary<IRenderLayer, ILayerData> _layers = new();
 
         public Matrix4x4 Transform { get; set; } = Matrix4x4.Identity;
+        public bool TransformNormal { get; set; } = true;
 
         public GeometryBufferSet(NativeBufferPool pool)
         {
@@ -25,7 +26,7 @@ namespace DigBuild.Engine.Render
             var data = (LayerData<TVertex>) ld;
             
             var vertConsumer = new NativeBufferVertexConsumer<TVertex>(data.NativeBuffer);
-            return layer.LinearTransformer(vertConsumer, Transform);
+            return layer.LinearTransformer(vertConsumer, Transform, TransformNormal);
         }
 
         public void Draw(IRenderLayer layer, RenderContext context, CommandBufferRecorder cmd)

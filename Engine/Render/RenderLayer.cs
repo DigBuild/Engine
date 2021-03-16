@@ -13,7 +13,7 @@ namespace DigBuild.Engine.Render
             RenderStageProvider renderStageProvider,
             RenderResourceFactory<TRes> renderResourceFactory,
             Func<TRes, RenderPipeline<TVertex>> pipelineGetter,
-            Func<TRes, NativeBufferPool, IRenderLayerUniforms> uniformFactory,
+            Func<TRes, NativeBufferPool, IRenderLayerUniforms?> uniformFactory,
             CommandInitializer<TRes> commandInitializer
         ) where TRes : notnull => new(
             transformerFactory,
@@ -24,7 +24,7 @@ namespace DigBuild.Engine.Render
             (res, cmd) => commandInitializer((TRes) res, cmd)
         );
 
-        public delegate IVertexConsumer<TVertex> LinearTransformerFactory(IVertexConsumer<TVertex> next, Matrix4x4 transform);
+        public delegate IVertexConsumer<TVertex> LinearTransformerFactory(IVertexConsumer<TVertex> next, Matrix4x4 transform, bool transformNormal);
         public delegate RenderStage RenderStageProvider(RenderContext context);
         public delegate TRes RenderResourceFactory<out TRes>(RenderContext context, ResourceManager resourceManager, RenderStage stage);
         public delegate void CommandInitializer<in TRes>(TRes res, CommandBufferRecorder cmd);
@@ -33,7 +33,7 @@ namespace DigBuild.Engine.Render
         private readonly RenderStageProvider _renderStageProvider;
         private readonly RenderResourceFactory<object> _renderResourceFactory;
         private readonly Func<object, RenderPipeline<TVertex>> _pipelineGetter;
-        private readonly Func<object, NativeBufferPool, IRenderLayerUniforms> _uniformFactory;
+        private readonly Func<object, NativeBufferPool, IRenderLayerUniforms?> _uniformFactory;
         private readonly CommandInitializer<object> _commandInitializer;
 
         private object? _renderResources;
@@ -44,7 +44,7 @@ namespace DigBuild.Engine.Render
             RenderStageProvider renderStageProvider,
             RenderResourceFactory<object> renderResourceFactory,
             Func<object, RenderPipeline<TVertex>> pipelineGetter,
-            Func<object, NativeBufferPool, IRenderLayerUniforms> uniformFactory,
+            Func<object, NativeBufferPool, IRenderLayerUniforms?> uniformFactory,
             CommandInitializer<object> commandInitializer
         )
         {
@@ -63,12 +63,12 @@ namespace DigBuild.Engine.Render
             _renderPipeline = _pipelineGetter(_renderResources);
         }
 
-        public IVertexConsumer<TVertex> LinearTransformer(IVertexConsumer<TVertex> next, Matrix4x4 transform)
+        public IVertexConsumer<TVertex> LinearTransformer(IVertexConsumer<TVertex> next, Matrix4x4 transform, bool transformNormal)
         {
-            return _transformerFactory(next, transform);
+            return _transformerFactory(next, transform, transformNormal);
         }
 
-        public IRenderLayerUniforms CreateUniforms(NativeBufferPool pool)
+        public IRenderLayerUniforms? CreateUniforms(NativeBufferPool pool)
         {
             return _uniformFactory(_renderResources!, pool);
         }
@@ -88,7 +88,7 @@ namespace DigBuild.Engine.Render
     {
         void Initialize(RenderContext context, ResourceManager resourceManager);
 
-        IRenderLayerUniforms CreateUniforms(NativeBufferPool pool);
+        IRenderLayerUniforms? CreateUniforms(NativeBufferPool pool);
 
         void InitializeCommand(CommandBufferRecorder cmd);
     }

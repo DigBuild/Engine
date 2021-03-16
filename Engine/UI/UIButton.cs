@@ -26,19 +26,23 @@ namespace DigBuild.Engine.UI
                 
                 var v1 = new UIVertex(
                     new Vector2(0, 0),
-                    sprite.GetInterpolatedUV(0, 0)
+                    sprite.GetInterpolatedUV(0, 0),
+                    Vector4.One
                 );
                 var v2 = new UIVertex(
                     new Vector2(width, 0),
-                    sprite.GetInterpolatedUV(1, 0)
+                    sprite.GetInterpolatedUV(1, 0),
+                    Vector4.One
                 );
                 var v3 = new UIVertex(
                     new Vector2(width, height),
-                    sprite.GetInterpolatedUV(1, 1)
+                    sprite.GetInterpolatedUV(1, 1),
+                    Vector4.One
                 );
                 var v4 = new UIVertex(
                     new Vector2(0, height),
-                    sprite.GetInterpolatedUV(0, 1)
+                    sprite.GetInterpolatedUV(0, 1),
+                    Vector4.One
                 );
 
                 _vertices[i] = new[] { v1, v2, v3, v3, v4, v1 };

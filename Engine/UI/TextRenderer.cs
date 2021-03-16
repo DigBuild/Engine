@@ -6,10 +6,10 @@ namespace DigBuild.Engine.UI
 {
     public sealed class TextRenderer
     {
-        private readonly RenderLayer<TextVertex> _layer;
+        private readonly RenderLayer<UIVertex> _layer;
         private readonly Dictionary<char, CharacterInfo> _characters = new();
 
-        public TextRenderer(RenderLayer<TextVertex> layer)
+        public TextRenderer(RenderLayer<UIVertex> layer)
         {
             _layer = layer;
             for (var c = 'a'; c <= 'z'; c++)
@@ -62,27 +62,31 @@ namespace DigBuild.Engine.UI
             private const uint CharBaseline = 0;
             private const uint TextureSize = 128;
 
-            internal readonly TextVertex[] Vertices;
+            internal readonly UIVertex[] Vertices;
 
             public CharacterInfo(char c)
             {
                 var (posX, posY) = GetCharacterPosition(c);
                 
-                var v1 = new TextVertex(
+                var v1 = new UIVertex(
                     new Vector2(0, -CharBaseline),
-                    new Vector2(posX * CharWidth, posY * CharHeight) / TextureSize
+                    new Vector2(posX * CharWidth, posY * CharHeight) / TextureSize,
+                    Vector4.One
                 );
-                var v2 = new TextVertex(
+                var v2 = new UIVertex(
                     new Vector2(CharWidth, -CharBaseline),
-                    new Vector2((posX + 1) * CharWidth, posY * CharHeight) / TextureSize
+                    new Vector2((posX + 1) * CharWidth, posY * CharHeight) / TextureSize,
+                    Vector4.One
                 );
-                var v3 = new TextVertex(
+                var v3 = new UIVertex(
                     new Vector2(CharWidth, -CharBaseline + CharHeight),
-                    new Vector2((posX + 1) * CharWidth, (posY + 1) * CharHeight) / TextureSize
+                    new Vector2((posX + 1) * CharWidth, (posY + 1) * CharHeight) / TextureSize,
+                    Vector4.One
                 );
-                var v4 = new TextVertex(
+                var v4 = new UIVertex(
                     new Vector2(0, -CharBaseline + CharHeight),
-                    new Vector2(posX * CharWidth, (posY + 1) * CharHeight) / TextureSize
+                    new Vector2(posX * CharWidth, (posY + 1) * CharHeight) / TextureSize,
+                    Vector4.One
                 );
 
                 Vertices = new[] { v1, v2, v3, v3, v4, v1 };

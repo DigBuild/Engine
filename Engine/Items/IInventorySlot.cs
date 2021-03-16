@@ -35,6 +35,10 @@ namespace DigBuild.Engine.Items
         public InventorySlot(ItemInstance item) : this(null, item)
         {
         }
+
+        public InventorySlot() : this(null, ItemInstance.Empty)
+        {
+        }
     }
 
     public static class InventoryExtensions

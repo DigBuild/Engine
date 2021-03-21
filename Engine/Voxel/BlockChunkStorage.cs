@@ -82,7 +82,7 @@ namespace DigBuild.Engine.Voxel
                 return false;
 
             storage.Blocks[pos.X & 15, pos.Y & 15, pos.Z & 15] = block;
-            storage.Data[pos.X & 15, pos.Y & 15, pos.Z & 15] = new BlockDataContainer();
+            storage.Data[pos.X & 15, pos.Y & 15, pos.Z & 15] = block?.CreateDataContainer(new BlockContext(null!, pos, block)); // TODO: FIX
             return true;
         }
         

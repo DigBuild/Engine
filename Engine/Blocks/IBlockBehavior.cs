@@ -2,7 +2,7 @@
 {
     public interface IBlockBehavior<TContract>
     {
-        void Init(TContract data) { }
+        void Init(IBlockContext context, TContract data) { }
         void Build(BlockBehaviorBuilder<TContract> block);
     }
 }

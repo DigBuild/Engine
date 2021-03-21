@@ -21,6 +21,7 @@ namespace DigBuild.Engine.Blocks
         private readonly IReadOnlyDictionary<Type, GenericBlockEventDelegate> _eventHandlers;
         private readonly IReadOnlyDictionary<IBlockAttribute, GenericBlockAttributeDelegate> _attributeSuppliers;
         private readonly IReadOnlyDictionary<IBlockCapability, GenericBlockCapabilityDelegate> _capabilitySuppliers;
+        private readonly Action<IBlockContext, BlockDataContainer> _dataInitializer;
 
         public ResourceName Name { get; }
 
@@ -28,12 +29,14 @@ namespace DigBuild.Engine.Blocks
             ResourceName name,
             IReadOnlyDictionary<Type, GenericBlockEventDelegate> eventHandlers,
             IReadOnlyDictionary<IBlockAttribute, GenericBlockAttributeDelegate> attributeSuppliers,
-            IReadOnlyDictionary<IBlockCapability, GenericBlockCapabilityDelegate> capabilitySuppliers
+            IReadOnlyDictionary<IBlockCapability, GenericBlockCapabilityDelegate> capabilitySuppliers,
+            Action<IBlockContext, BlockDataContainer> dataInitializer
         )
         {
             _eventHandlers = eventHandlers;
             _attributeSuppliers = attributeSuppliers;
             _capabilitySuppliers = capabilitySuppliers;
+            _dataInitializer = dataInitializer;
             Name = name;
         }
 
@@ -63,6 +66,13 @@ namespace DigBuild.Engine.Blocks
             if (!_capabilitySuppliers.TryGetValue(capability, out var supplier))
                 throw new ArgumentException($"Attempted to request unregistered capability: {capability}", nameof(capability));
             return (TCap) supplier(context, GetDataContainer(context));
+        }
+
+        internal BlockDataContainer CreateDataContainer(IBlockContext context)
+        {
+            var container = new BlockDataContainer();
+            _dataInitializer(context, container);
+            return container;
         }
 
         private BlockDataContainer GetDataContainer(IReadOnlyBlockContext context)

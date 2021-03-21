@@ -9,6 +9,8 @@ namespace DigBuild.Engine.Voxel
     {
         // public new T Get<T>() where T : IWorldStorage;
 
+        public IChunkManager ChunkManager { get; }
+
         public Scheduler TickScheduler { get; }
 
         public new IChunk? GetChunk(ChunkPos pos, bool load = true);

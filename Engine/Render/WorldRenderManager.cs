@@ -18,8 +18,9 @@ namespace DigBuild.Engine.Render
         private readonly NativeBufferPool _pool;
         private readonly UniformBufferSet _ubs;
         private readonly GeometryBufferSet _entityGbs;
-
+        
         private readonly HashSet<IChunk> _updatedChunks = new();
+        private readonly HashSet<IChunk> _removedChunks = new();
         private readonly Dictionary<IChunk, ChunkRenderData> _chunkRenderData = new();
         private readonly Dictionary<Guid, EntityInstance> _entities = new();
 
@@ -36,10 +37,15 @@ namespace DigBuild.Engine.Render
             _ubs = new UniformBufferSet(pool);
             _entityGbs = new GeometryBufferSet(pool);
         }
-
+        
         public void QueueChunkUpdate(IChunk chunk)
         {
             _updatedChunks.Add(chunk);
+        }
+
+        public void QueueChunkRemoval(IChunk chunk)
+        {
+            _removedChunks.Add(chunk);
         }
 
         public void AddEntity(EntityInstance entity)
@@ -67,6 +73,11 @@ namespace DigBuild.Engine.Render
         {
             if (_updatedChunks.Count == 0)
                 return;
+
+            foreach (var chunk in _removedChunks)
+            {
+                _chunkRenderData.Remove(chunk);
+            }
             
             foreach (var chunk in _updatedChunks)
             {
@@ -75,6 +86,7 @@ namespace DigBuild.Engine.Render
                 renderData.UpdateGeometry();
             }
 
+            _removedChunks.Clear();
             _updatedChunks.Clear();
         }
 

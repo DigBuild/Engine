@@ -17,6 +17,10 @@ namespace DigBuild.Engine.Voxel
             return (T) storage;
         }
 
+        public abstract ulong AbsoluteTime { get; }
+
+        public abstract IChunkManager ChunkManager { get; }
+
         public abstract Scheduler TickScheduler { get; }
 
         public abstract IChunk? GetChunk(ChunkPos pos, bool load = true);

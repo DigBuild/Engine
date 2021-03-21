@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Math;
+using DigBuild.Engine.Ticking;
 
 namespace DigBuild.Engine.Voxel
 {
@@ -15,6 +16,8 @@ namespace DigBuild.Engine.Voxel
                 _storage[typeof(T)] = storage = new T();
             return (T) storage;
         }
+
+        public abstract Scheduler TickScheduler { get; }
 
         public abstract IChunk? GetChunk(ChunkPos pos, bool load = true);
 

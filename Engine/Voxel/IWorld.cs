@@ -1,12 +1,15 @@
 ﻿using System;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Math;
+using DigBuild.Engine.Ticking;
 
 namespace DigBuild.Engine.Voxel
 {
     public interface IWorld : IReadOnlyWorld
     {
         // public new T Get<T>() where T : IWorldStorage;
+
+        public Scheduler TickScheduler { get; }
 
         public new IChunk? GetChunk(ChunkPos pos, bool load = true);
 

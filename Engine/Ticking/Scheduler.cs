@@ -26,10 +26,8 @@ namespace DigBuild.Engine.Ticking
         {
             if (_scheduledTicks.TryGetValue(_now + delay, out var tick))
                 return tick;
-
-            tick = new ScheduledTick(new Interpolator(this, _now, delay));
-            _scheduledTicks.Add(_now + delay, tick);
-            return tick;
+            
+            return _scheduledTicks[_now + delay] = new ScheduledTick(new Interpolator(this, _now, delay));
         }
 
         private readonly struct Interpolator : IInterpolator

@@ -9,7 +9,6 @@ namespace DigBuild.Engine.Items
 
     public sealed class InventorySlot : IInventorySlot
     {
-        private readonly Action? _notifyChange;
         private ItemInstance _item;
 
         public ItemInstance Item
@@ -18,25 +17,18 @@ namespace DigBuild.Engine.Items
             set
             {
                 _item = value;
-                _notifyChange?.Invoke();
+                Changed?.Invoke();
             }
         }
 
-        public InventorySlot(Action? notifyChange, ItemInstance item)
+        public event Action? Changed;
+        
+        public InventorySlot(ItemInstance item)
         {
-            _notifyChange = notifyChange;
             _item = item;
         }
 
-        public InventorySlot(Action notifyChange) : this(notifyChange, ItemInstance.Empty)
-        {
-        }
-
-        public InventorySlot(ItemInstance item) : this(null, item)
-        {
-        }
-
-        public InventorySlot() : this(null, ItemInstance.Empty)
+        public InventorySlot() : this(ItemInstance.Empty)
         {
         }
     }

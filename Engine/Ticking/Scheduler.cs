@@ -22,43 +22,84 @@ namespace DigBuild.Engine.Ticking
             _now++;
         }
 
-        public ScheduledTick Schedule(ulong delay)
+        public IScheduledTick After(ulong delay)
         {
             if (_scheduledTicks.TryGetValue(_now + delay, out var tick))
                 return tick;
             
-            return _scheduledTicks[_now + delay] = new ScheduledTick(new Interpolator(this, _now, delay));
+            return _scheduledTicks[_now + delay] = new ScheduledTick(this, _now, delay);
         }
 
-        private readonly struct Interpolator : IInterpolator
+        private sealed class ScheduledTick : IScheduledTick, IInterpolator
         {
             private readonly Scheduler _scheduler;
             private readonly ulong _startTime, _delay;
+            private readonly Dictionary<IJobHandle, IScheduledJob> _scheduledJobs = new();
+
+            public event Action? Tick;
+            public IInterpolator Interpolator => this;
 
             public float Value => (float) System.Math.Min((_scheduler._now + _scheduler._tickSource.CurrentTick.Value - _startTime) / (double) _delay, 1);
-            
-            public Interpolator(Scheduler scheduler, ulong startTime, ulong delay)
+
+            public ScheduledTick(Scheduler scheduler, ulong startTime, ulong delay)
             {
                 _scheduler = scheduler;
                 _startTime = startTime;
                 _delay = delay;
             }
+
+            public void Enqueue<TInput>(JobHandle<TInput> job, IEnumerable<TInput> inputs)
+            {
+                if (!_scheduledJobs.TryGetValue(job, out var scheduledJob))
+                    _scheduledJobs[job] = scheduledJob = new ScheduledJob<TInput>(job);
+
+                ((ScheduledJob<TInput>) scheduledJob).Enqueue(inputs);
+            }
+
+            internal void DoTick()
+            {
+                Tick?.Invoke();
+                foreach (var job in _scheduledJobs.Values)
+                    job.Execute(_scheduler);
+            }
+
+            private interface IScheduledJob
+            {
+                void Execute(Scheduler scheduler);
+            }
+
+            private sealed class ScheduledJob<TInput> : IScheduledJob
+            {
+                private readonly JobHandle<TInput> _handle;
+                private readonly List<TInput> _inputs = new();
+
+                public ScheduledJob(JobHandle<TInput> handle)
+                {
+                    _handle = handle;
+                }
+
+                public void Enqueue(IEnumerable<TInput> inputs)
+                {
+                    _inputs.AddRange(inputs);
+                }
+
+                public void Execute(Scheduler scheduler)
+                {
+                    _handle.Execute(scheduler, _inputs);
+                }
+            }
         }
     }
 
-    public sealed class ScheduledTick : ITickSource
+    public interface IScheduledTick : ITickSource
     {
-        public event Action? Tick;
         public IInterpolator Interpolator { get; }
 
-        public ScheduledTick(IInterpolator interpolator)
+        public void Enqueue<TInput>(JobHandle<TInput> job, params TInput[] inputs)
         {
-            Interpolator = interpolator;
+            Enqueue(job, (IEnumerable<TInput>) inputs);
         }
 
-        internal void DoTick()
-        {
-            Tick?.Invoke();
-        }
+        public void Enqueue<TInput>(JobHandle<TInput> job, IEnumerable<TInput> inputs);
     }
 }

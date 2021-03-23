@@ -6,6 +6,7 @@ namespace DigBuild.Engine.BuiltIn
 {
     public static class BuiltInRegistries
     {
+        public static Registry<IWorldStorageType> WorldStorageTypes { get; set; } = null!;
         public static Registry<IChunkStorageType> ChunkStorageTypes { get; set; } = null!;
 
         public static ExtendedTypeRegistry<IBlockEvent, BlockEventInfo> BlockEvents { get; set; } = null!;

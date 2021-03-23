@@ -10,10 +10,17 @@ namespace DigBuild.Engine
     {
         public const string Domain = "digbuildengine";
 
+        public static void Register(RegistryBuilder<IWorldStorageType> registry)
+        {
+            EntityWorldStorage.Type = registry.Create<IReadOnlyEntityWorldStorage, EntityWorldStorage>(
+                new ResourceName(Domain, "entities")
+            );
+        }
+
         public static void Register(RegistryBuilder<IChunkStorageType> registry)
         {
             BlockChunkStorage.Type = registry.Create<IReadOnlyBlockChunkStorage, BlockChunkStorage>(
-                new ResourceName(DigBuildEngine.Domain, "blocks")
+                new ResourceName(Domain, "blocks")
             );
         }
 

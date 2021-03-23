@@ -18,6 +18,8 @@ namespace DigBuild.Engine.Worlds
 
     public class EntityWorldStorage : IReadOnlyEntityWorldStorage, IWorldStorage<EntityWorldStorage>
     {
+        public static WorldStorageType<IReadOnlyEntityWorldStorage, EntityWorldStorage> Type { get; internal set; } = null!;
+        
         private readonly Dictionary<Guid, EntityInstance> _entities = new();
 
         public EntityInstance Add(Entity type)
@@ -68,18 +70,19 @@ namespace DigBuild.Engine.Worlds
     {
         public static EntityInstance? GetEntity(this IReadOnlyWorld world, Guid guid)
         {
-            return world.Get<EntityWorldStorage>().Get(guid);
+            return world.Get(EntityWorldStorage.Type).Get(guid);
         }
         
         public static EntityInstance AddEntity(this IWorld world, Entity type)
         {
-            var entity = world.Get<EntityWorldStorage>().Add(type);
+            var entity = world.Get(EntityWorldStorage.Type).Add(type);
             world.OnEntityAdded(entity);
             return entity;
         }
+
         public static void RemoveEntity(this IWorld world, Guid guid)
         {
-            world.Get<EntityWorldStorage>().Remove(guid);
+            world.Get(EntityWorldStorage.Type).Remove(guid);
             world.OnEntityRemoved(guid);
         }
     }

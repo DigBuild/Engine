@@ -7,11 +7,13 @@ namespace DigBuild.Engine.Worlds
 {
     public interface IWorld : IReadOnlyWorld
     {
-        // public new T Get<T>() where T : IWorldStorage;
-
         public IChunkManager ChunkManager { get; }
 
         public Scheduler TickScheduler { get; }
+        public new T Get<TReadOnly, T>(WorldStorageType<TReadOnly, T> type)
+            where TReadOnly : IReadOnlyWorldStorage
+            where T : TReadOnly, IWorldStorage<T>;
+        TReadOnly IReadOnlyWorld.Get<TReadOnly, T>(WorldStorageType<TReadOnly, T> type) => Get(type);
 
         public new IChunk? GetChunk(ChunkPos pos, bool load = true);
 
@@ -22,12 +24,5 @@ namespace DigBuild.Engine.Worlds
         public void OnEntityAdded(EntityInstance entity);
 
         public void OnEntityRemoved(Guid guid);
-    }
-
-    public interface IWorldStorage : IReadOnlyWorldStorage
-    {
-    }
-    public interface IWorldStorage<out T> : IWorldStorage where T : class, IWorldStorage<T>, new()
-    {
     }
 }

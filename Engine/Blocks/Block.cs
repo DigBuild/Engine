@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Worlds;
 using DigBuild.Platform.Resource;
@@ -21,7 +22,7 @@ namespace DigBuild.Engine.Blocks
         private readonly IReadOnlyDictionary<Type, GenericBlockEventDelegate> _eventHandlers;
         private readonly IReadOnlyDictionary<IBlockAttribute, GenericBlockAttributeDelegate> _attributeSuppliers;
         private readonly IReadOnlyDictionary<IBlockCapability, GenericBlockCapabilityDelegate> _capabilitySuppliers;
-        private readonly Action<IBlockContext, BlockDataContainer> _dataInitializer;
+        private readonly Action<BlockDataContainer> _dataInitializer;
 
         public ResourceName Name { get; }
 
@@ -30,7 +31,7 @@ namespace DigBuild.Engine.Blocks
             IReadOnlyDictionary<Type, GenericBlockEventDelegate> eventHandlers,
             IReadOnlyDictionary<IBlockAttribute, GenericBlockAttributeDelegate> attributeSuppliers,
             IReadOnlyDictionary<IBlockCapability, GenericBlockCapabilityDelegate> capabilitySuppliers,
-            Action<IBlockContext, BlockDataContainer> dataInitializer
+            Action<BlockDataContainer> dataInitializer
         )
         {
             _eventHandlers = eventHandlers;
@@ -68,16 +69,19 @@ namespace DigBuild.Engine.Blocks
             return (TCap) supplier(context, GetDataContainer(context));
         }
 
-        internal BlockDataContainer CreateDataContainer(IBlockContext context)
+        internal BlockDataContainer CreateDataContainer()
         {
             var container = new BlockDataContainer();
-            _dataInitializer(context, container);
+            _dataInitializer(container);
             return container;
         }
 
         private BlockDataContainer GetDataContainer(IReadOnlyBlockContext context)
         {
-            return ((IWorld)context.World).GetData(context.Pos)!;
+            return context.World
+                .GetChunk(context.Pos.ChunkPos)!
+                .Get(BlockChunkStorage.Type)
+                .GetData(context.Pos)!;
         }
 
         public override string ToString()
@@ -88,16 +92,12 @@ namespace DigBuild.Engine.Blocks
 
     public static class BlockRegistryBuilderExtensions
     {
-        public static ExtendedTypeRegistry<IBlockEvent, BlockEventInfo> EventRegistry = null!;
-        public static Registry<IBlockAttribute> BlockAttributes = null!;
-        public static Registry<IBlockCapability> BlockCapabilities = null!;
-
         public static Block Create(this IRegistryBuilder<Block> registry, ResourceName name, params Action<BlockBuilder>[] buildActions)
         {
             var builder = new BlockBuilder();
             foreach (var action in buildActions)
                 action(builder);
-            return registry.Add(name, builder.Build(name, EventRegistry, BlockAttributes, BlockCapabilities));
+            return registry.Add(name, builder.Build(name, BuiltInRegistries.BlockEvents, BuiltInRegistries.BlockAttributes, BuiltInRegistries.BlockCapabilities));
         }
     }
 }

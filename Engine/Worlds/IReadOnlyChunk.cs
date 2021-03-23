@@ -6,10 +6,8 @@ namespace DigBuild.Engine.Worlds
     {
         public ChunkPos Position { get; }
         
-        public T Get<T>() where T : class, IChunkStorage<T>, new();
-    }
-    
-    public interface IReadOnlyChunkStorage
-    {
+        public TReadOnly Get<TReadOnly, T>(ChunkStorageType<TReadOnly, T> type)
+            where TReadOnly : IReadOnlyChunkStorage
+            where T : TReadOnly, IChunkStorage<T>;
     }
 }

@@ -1,20 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Worlds
 {
     public abstract class ChunkBase : IChunk
     {
-        private readonly Dictionary<Type, IChunkStorage> _storage = new();
+        private readonly Dictionary<IChunkStorageType, IChunkStorage> _storage = new();
 
         public abstract ChunkPos Position { get; }
 
-        public T Get<T>() where T : class, IChunkStorage<T>, new()
+        protected ChunkBase()
         {
-            if (!_storage.TryGetValue(typeof(T), out var storage))
-                _storage[typeof(T)] = storage = new T();
-            return (T) storage;
+            foreach (var type in BuiltInRegistries.ChunkStorageTypes.Values)
+                _storage.Add(type, type.Create());
+        }
+
+        public T Get<TReadOnly, T>(ChunkStorageType<TReadOnly, T> type)
+            where TReadOnly : IReadOnlyChunkStorage
+            where T : TReadOnly, IChunkStorage<T>
+        {
+            return (T) _storage[type];
         }
 
         public void CopyFrom(IReadOnlyChunk other)

@@ -2,7 +2,7 @@
 
 namespace DigBuild.Engine.Blocks
 {
-    public sealed class BlockDataContainer
+    internal sealed class BlockDataContainer
     {
         private readonly Dictionary<IBlockDataHandle, object> _data = new();
 

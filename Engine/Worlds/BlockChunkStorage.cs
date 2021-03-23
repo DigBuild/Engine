@@ -1,33 +1,36 @@
 ﻿using DigBuild.Engine.Blocks;
+using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Worlds
 {
     public interface IReadOnlyBlockChunkStorage : IReadOnlyChunkStorage
     {
-        public IBlocks Blocks { get; }
-        public IData Data { get; }
-        
-        public interface IBlocks
-        {
-            public Block? this[int x, int y, int z] { get; }
-        }
-        public interface IData
-        {
-            public BlockDataContainer? this[int x, int y, int z] { get; }
-        }
+        public Block? GetBlock(SubChunkPos pos);
+        internal BlockDataContainer? GetData(SubChunkPos pos);
     }
 
     public class BlockChunkStorage : IReadOnlyBlockChunkStorage, IChunkStorage<BlockChunkStorage>
     {
         private const uint ChunkSize = 16;
-
-        public BlockContainer Blocks { get; } = new();
-        public BlockDataContainerContainer Data { get; } = new();
-
-        IReadOnlyBlockChunkStorage.IBlocks IReadOnlyBlockChunkStorage.Blocks => Blocks;
-        IReadOnlyBlockChunkStorage.IData IReadOnlyBlockChunkStorage.Data => Data;
         
+        public static ChunkStorageType<IReadOnlyBlockChunkStorage, BlockChunkStorage> Type { get; internal set; } = null!;
+        
+        private readonly Block?[,,] _blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
+        private readonly BlockDataContainer?[,,] _data = new BlockDataContainer[ChunkSize, ChunkSize, ChunkSize];
+
+        public Block? GetBlock(SubChunkPos pos) => _blocks[pos.X, pos.Y, pos.Z];
+        internal BlockDataContainer? GetData(SubChunkPos pos) => _data[pos.X, pos.Y, pos.Z];
+        BlockDataContainer? IReadOnlyBlockChunkStorage.GetData(SubChunkPos pos) => GetData(pos);
+
+        public void SetBlock(SubChunkPos pos, Block? block)
+        {
+            if (_blocks[pos.X, pos.Y, pos.Z] == block)
+                return;
+            _blocks[pos.X, pos.Y, pos.Z] = block;
+            _data[pos.X, pos.Y, pos.Z] = block?.CreateDataContainer();
+        }
+
         public BlockChunkStorage Copy()
         {
             var copy = new BlockChunkStorage();
@@ -35,33 +38,10 @@ namespace DigBuild.Engine.Worlds
             for (var y = 0; y < ChunkSize; y++)
             for (var z = 0; z < ChunkSize; z++)
             {
-                copy.Blocks[x, y, z] = Blocks[x, y, z];
-                copy.Data[x, y, z] = Data[x, y, z];
+                copy._blocks[x, y, z] = _blocks[x, y, z];
+                copy._data[x, y, z] = _data[x, y, z];
             }
-
             return copy;
-        }
-
-        public sealed class BlockContainer : IReadOnlyBlockChunkStorage.IBlocks
-        {
-            private readonly Block?[,,] _blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
-
-            public Block? this[int x, int y, int z]
-            {
-                get => _blocks[x, y, z];
-                set => _blocks[x, y, z] = value;
-            }
-        }
-
-        public sealed class BlockDataContainerContainer : IReadOnlyBlockChunkStorage.IData
-        {
-            private readonly BlockDataContainer?[,,] _data = new BlockDataContainer[ChunkSize, ChunkSize, ChunkSize];
-            
-            public BlockDataContainer? this[int x, int y, int z]
-            {
-                get => _data[x, y, z];
-                set => _data[x, y, z] = value;
-            }
         }
     }
 
@@ -69,20 +49,12 @@ namespace DigBuild.Engine.Worlds
     {
         public static Block? GetBlock(this IReadOnlyChunk chunk, BlockPos pos)
         {
-            return chunk.Get<BlockChunkStorage>().Blocks[pos.X & 15, pos.Y & 15, pos.Z & 15];
+            return chunk.Get(BlockChunkStorage.Type).GetBlock(pos);
         }
-        public static BlockDataContainer? GetData(this IReadOnlyChunk chunk, BlockPos pos)
-        {
-            return chunk.Get<BlockChunkStorage>().Data[pos.X & 15, pos.Y & 15, pos.Z & 15];
-        }
+
         public static bool SetBlock(this IChunk chunk, BlockPos pos, Block? block)
         {
-            var storage = chunk.Get<BlockChunkStorage>();
-            if (storage.Blocks[pos.X & 15, pos.Y & 15, pos.Z & 15] == block)
-                return false;
-
-            storage.Blocks[pos.X & 15, pos.Y & 15, pos.Z & 15] = block;
-            storage.Data[pos.X & 15, pos.Y & 15, pos.Z & 15] = block?.CreateDataContainer(new BlockContext(null!, pos, block)); // TODO: FIX
+            chunk.Get(BlockChunkStorage.Type).SetBlock(pos, block);
             return true;
         }
         
@@ -90,17 +62,26 @@ namespace DigBuild.Engine.Worlds
         {
             return world.GetChunk(pos.ChunkPos)?.GetBlock(pos);
         }
-        public static BlockDataContainer? GetData(this IReadOnlyWorld world, BlockPos pos)
+
+        public static bool SetBlock(this IWorld world, BlockPos pos, Block? block, bool notifyLeave = true, bool notifyJoin = true)
         {
-            return world.GetChunk(pos.ChunkPos)?.GetData(pos);
-        }
-        public static bool SetBlock(this IWorld world, BlockPos pos, Block? block)
-        {
-            var chunk = world.GetChunk(pos.ChunkPos);
-            if (chunk == null)
+            var storage = world.GetChunk(pos.ChunkPos)?.Get(BlockChunkStorage.Type);
+            if (storage == null)
                 return false;
 
-            chunk.SetBlock(pos, block);
+            if (notifyLeave)
+            {
+                var curBlock = storage.GetBlock(pos);
+                curBlock?.OnLeavingWorld(new BlockContext(world, pos, curBlock), new BuiltInBlockEvent.LeavingWorld());
+            }
+
+            storage.SetBlock(pos, block);
+
+            if (notifyJoin && block != null)
+            {
+                block.OnJoinedWorld(new BlockContext(world, pos, block), new BuiltInBlockEvent.JoinedWorld());
+            }
+
             world.OnBlockChanged(pos);
             return true;
         }

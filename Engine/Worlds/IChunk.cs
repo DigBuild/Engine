@@ -2,18 +2,11 @@
 {
     public interface IChunk : IReadOnlyChunk
     {
-        // public new T Get<T>() where T : class, IChunkStorage, new();
+        public new T Get<TReadOnly, T>(ChunkStorageType<TReadOnly, T> type)
+            where TReadOnly : IReadOnlyChunkStorage
+            where T : TReadOnly, IChunkStorage<T>;
+        TReadOnly IReadOnlyChunk.Get<TReadOnly, T>(ChunkStorageType<TReadOnly, T> type) => Get(type);
 
         public void CopyFrom(IReadOnlyChunk other);
-    }
-
-    public interface IChunkStorage : IReadOnlyChunkStorage
-    {
-        public IChunkStorage Copy();
-    }
-    public interface IChunkStorage<out T> : IChunkStorage where T : class, IChunkStorage<T>, new()
-    {
-        public new T Copy();
-        IChunkStorage IChunkStorage.Copy() => Copy();
     }
 }

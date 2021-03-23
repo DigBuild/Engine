@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using DigBuild.Engine.Math;
 
-namespace DigBuild.Engine.Voxel
+namespace DigBuild.Engine.Worlds
 {
     public interface IChunkManager
     {

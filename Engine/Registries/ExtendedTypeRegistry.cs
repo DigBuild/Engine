@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace DigBuild.Engine.Reg
+namespace DigBuild.Engine.Registries
 {
     public interface IExtendedTypeRegistry<T>// : IReadOnlySet<Type>
     {

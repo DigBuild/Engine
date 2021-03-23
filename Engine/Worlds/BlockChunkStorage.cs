@@ -1,7 +1,7 @@
 ﻿using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
 
-namespace DigBuild.Engine.Voxel
+namespace DigBuild.Engine.Worlds
 {
     public interface IReadOnlyBlockChunkStorage : IReadOnlyChunkStorage
     {

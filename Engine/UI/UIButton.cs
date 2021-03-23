@@ -4,16 +4,16 @@ using DigBuild.Engine.Textures;
 using DigBuild.Platform.Input;
 using DigBuild.Platform.Render;
 
-namespace DigBuild.Engine.UI
+namespace DigBuild.Engine.Ui
 {
-    public sealed class UIButton : IUIElement
+    public sealed class UiButton : IUiElement
     {
         private readonly uint _width, _height;
-        private readonly RenderLayer<UIVertex> _layer;
-        private readonly UIVertex[][] _vertices = new UIVertex[3][];
+        private readonly RenderLayer<UiVertex> _layer;
+        private readonly UiVertex[][] _vertices = new UiVertex[3][];
         private bool _hovered, _clicked;
 
-        public UIButton(uint width, uint height, RenderLayer<UIVertex> layer, ISprite inactiveSprite, ISprite hoveredSprite, ISprite clickedSprite)
+        public UiButton(uint width, uint height, RenderLayer<UiVertex> layer, ISprite inactiveSprite, ISprite hoveredSprite, ISprite clickedSprite)
         {
             _width = width;
             _height = height;
@@ -24,22 +24,22 @@ namespace DigBuild.Engine.UI
             {
                 var sprite = sprites[i];
                 
-                var v1 = new UIVertex(
+                var v1 = new UiVertex(
                     new Vector2(0, 0),
                     sprite.GetInterpolatedUV(0, 0),
                     Vector4.One
                 );
-                var v2 = new UIVertex(
+                var v2 = new UiVertex(
                     new Vector2(width, 0),
                     sprite.GetInterpolatedUV(1, 0),
                     Vector4.One
                 );
-                var v3 = new UIVertex(
+                var v3 = new UiVertex(
                     new Vector2(width, height),
                     sprite.GetInterpolatedUV(1, 1),
                     Vector4.One
                 );
-                var v4 = new UIVertex(
+                var v4 = new UiVertex(
                     new Vector2(0, height),
                     sprite.GetInterpolatedUV(0, 1),
                     Vector4.One
@@ -56,7 +56,7 @@ namespace DigBuild.Engine.UI
             buf.Accept(_vertices[i]);
         }
 
-        public void OnCursorMoved(IUIElementContext context, int x, int y)
+        public void OnCursorMoved(IUiElementContext context, int x, int y)
         {
             var wasHovered = _hovered;
             _hovered = x >= 0 && x < _width && y >= 0 && y < _height;
@@ -64,7 +64,7 @@ namespace DigBuild.Engine.UI
                 context.RequestRedraw();
         }
 
-        public void OnMouseEvent(IUIElementContext context, uint button, MouseAction action)
+        public void OnMouseEvent(IUiElementContext context, uint button, MouseAction action)
         {
             if (button != 0) return;
 

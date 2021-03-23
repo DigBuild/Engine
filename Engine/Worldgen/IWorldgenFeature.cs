@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
-using DigBuild.Engine.Reg;
-using DigBuild.Engine.Voxel;
+using DigBuild.Engine.Registries;
+using DigBuild.Engine.Worlds;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Worldgen

@@ -3,20 +3,20 @@ using DigBuild.Engine.Render;
 using DigBuild.Platform.Input;
 using DigBuild.Platform.Render;
 
-namespace DigBuild.Engine.UI
+namespace DigBuild.Engine.Ui
 {
-    public interface IUIElement
+    public interface IUiElement
     {
         public static TextRenderer GlobalTextRenderer { get; set; } = null!;
 
         void Draw(RenderContext context, GeometryBufferSet buffers);
 
-        void OnCursorMoved(IUIElementContext context, int x, int y) { }
+        void OnCursorMoved(IUiElementContext context, int x, int y) { }
 
-        void OnMouseEvent(IUIElementContext context, uint button, MouseAction action) { }
+        void OnMouseEvent(IUiElementContext context, uint button, MouseAction action) { }
     }
 
-    public interface IUIElementContext
+    public interface IUiElementContext
     {
         public delegate void KeyboardEventDelegate(uint code, KeyboardAction action);
 

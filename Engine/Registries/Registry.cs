@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DigBuild.Platform.Resource;
 
-namespace DigBuild.Engine.Reg
+namespace DigBuild.Engine.Registries
 {
     public sealed class Registry<T> : IReadOnlyDictionary<ResourceName, T> where T : notnull
     {

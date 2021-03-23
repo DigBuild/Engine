@@ -1,11 +1,10 @@
-﻿using System;
-using DigBuild.Engine.Render;
+﻿using DigBuild.Engine.Render;
 using DigBuild.Platform.Input;
 using DigBuild.Platform.Render;
 
-namespace DigBuild.Engine.UI
+namespace DigBuild.Engine.Ui
 {
-    public sealed class UITextbox : IUIElement
+    public sealed class UiTextbox : IUiElement
     {
         private readonly uint _width, _height;
         private readonly TextRenderer _textRenderer;
@@ -13,11 +12,11 @@ namespace DigBuild.Engine.UI
 
         public string Text { get; set; }
 
-        public UITextbox(uint width, uint height, string text = "", TextRenderer textRenderer = null!)
+        public UiTextbox(uint width, uint height, string text = "", TextRenderer textRenderer = null!)
         {
             _width = width;
             _height = height;
-            _textRenderer = textRenderer ?? IUIElement.GlobalTextRenderer;
+            _textRenderer = textRenderer ?? IUiElement.GlobalTextRenderer;
             Text = text;
         }
 
@@ -26,7 +25,7 @@ namespace DigBuild.Engine.UI
             _textRenderer.DrawLine(buffers, Text, 3);
         }
 
-        public void OnCursorMoved(IUIElementContext context, int x, int y)
+        public void OnCursorMoved(IUiElementContext context, int x, int y)
         {
             var wasHovered = _hovered;
             _hovered = x >= 0 && x < _width && y >= 0 && y < _height;
@@ -34,7 +33,7 @@ namespace DigBuild.Engine.UI
                 context.RequestRedraw();
         }
 
-        public void OnMouseEvent(IUIElementContext context, uint button, MouseAction action)
+        public void OnMouseEvent(IUiElementContext context, uint button, MouseAction action)
         {
             if (button != 0) return;
 

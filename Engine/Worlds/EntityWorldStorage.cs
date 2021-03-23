@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DigBuild.Engine.Entities;
 
-namespace DigBuild.Engine.Voxel
+namespace DigBuild.Engine.Worlds
 {
     public interface IReadOnlyEntityWorldStorage : IReadOnlyWorldStorage, IEnumerable<EntityInstance>
     {

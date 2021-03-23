@@ -1,16 +1,16 @@
 ﻿using DigBuild.Engine.Render;
 using DigBuild.Platform.Render;
 
-namespace DigBuild.Engine.UI
+namespace DigBuild.Engine.Ui
 {
-    public sealed class UILabel : IUIElement
+    public sealed class UiLabel : IUiElement
     {
         private readonly TextRenderer _textRenderer;
         public string Text { get; set; }
 
-        public UILabel(string text, TextRenderer textRenderer = null!)
+        public UiLabel(string text, TextRenderer textRenderer = null!)
         {
-            _textRenderer = textRenderer ?? IUIElement.GlobalTextRenderer;
+            _textRenderer = textRenderer ?? IUiElement.GlobalTextRenderer;
             Text = text;
         }
 

@@ -1,6 +1,6 @@
 ﻿using DigBuild.Engine.Math;
 
-namespace DigBuild.Engine.Voxel
+namespace DigBuild.Engine.Worlds
 {
     public interface IReadOnlyChunk
     {

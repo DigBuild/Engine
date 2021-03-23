@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using DigBuild.Platform.Resource;
 
-namespace DigBuild.Engine.Reg
+namespace DigBuild.Engine.Registries
 {
     // Temporary
     public sealed class RegistryManager

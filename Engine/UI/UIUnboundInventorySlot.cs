@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Render;
-using DigBuild.Platform.Input;
 using DigBuild.Platform.Render;
 
-namespace DigBuild.Engine.UI
+namespace DigBuild.Engine.Ui
 {
-    public sealed class UIUnboundInventorySlot : IUIElement
+    public sealed class UiUnboundInventorySlot : IUiElement
     {
         private const uint Scale = 48;
         
@@ -19,11 +17,11 @@ namespace DigBuild.Engine.UI
         public int PosX { get; set; }
         public int PosY { get; set; }
 
-        public UIUnboundInventorySlot(InventorySlot slot, Dictionary<Item, IItemModel> models, TextRenderer textRenderer = null!)
+        public UiUnboundInventorySlot(InventorySlot slot, Dictionary<Item, IItemModel> models, TextRenderer textRenderer = null!)
         {
             _slot = slot;
             _models = models;
-            _textRenderer = textRenderer ?? IUIElement.GlobalTextRenderer;
+            _textRenderer = textRenderer ?? IUiElement.GlobalTextRenderer;
         }
 
         public void Draw(RenderContext context, GeometryBufferSet buffers)
@@ -47,7 +45,7 @@ namespace DigBuild.Engine.UI
             }
         }
 
-        public void OnCursorMoved(IUIElementContext context, int x, int y)
+        public void OnCursorMoved(IUiElementContext context, int x, int y)
         {
             PosX = x;
             PosY = y;

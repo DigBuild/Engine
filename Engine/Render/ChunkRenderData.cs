@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Math;
-using DigBuild.Engine.Voxel;
+using DigBuild.Engine.Worlds;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Util;
 

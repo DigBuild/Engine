@@ -1,5 +1,5 @@
 ﻿using System;
-using DigBuild.Engine.Voxel;
+using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Engine.Entities
 {

@@ -6,27 +6,27 @@ using DigBuild.Engine.Render;
 using DigBuild.Platform.Input;
 using DigBuild.Platform.Render;
 
-namespace DigBuild.Engine.UI
+namespace DigBuild.Engine.Ui
 {
-    public sealed class UIInventorySlot : IUIElement
+    public sealed class UiInventorySlot : IUiElement
     {
         private const uint Scale = 48;
 
         private static readonly Vector4 Color = new(0.0f, 0.01f, 0.05f, 0.7f);
         private static readonly Vector4 MarkerColor = new(0.9f, 0.8f, 0.2f, 0.8f);
-        private static readonly UIVertex[] Vertices = new UIVertex[3 * 6];
-        private static readonly UIVertex[] MarkerVertices = new UIVertex[3 * 4];
+        private static readonly UiVertex[] Vertices = new UiVertex[3 * 6];
+        private static readonly UiVertex[] MarkerVertices = new UiVertex[3 * 4];
 
-        static UIInventorySlot()
+        static UiInventorySlot()
         {
-            var center = new UIVertex(Vector2.Zero, Vector2.Zero, Color);
+            var center = new UiVertex(Vector2.Zero, Vector2.Zero, Color);
             for (var i = 0; i < 6; i++)
             {
                 var a = -i * MathF.PI / 3;
                 Vertices[i * 3] = center;
                 Vertices[(i * 3 + 2) % Vertices.Length] =
                     Vertices[(i * 3 + 4) % Vertices.Length] =
-                        new UIVertex(new Vector2(MathF.Sin(a), MathF.Cos(a)), Vector2.Zero, Color);
+                        new UiVertex(new Vector2(MathF.Sin(a), MathF.Cos(a)), Vector2.Zero, Color);
             }
             
             var offset = new Vector2(0, -0.1f);
@@ -35,24 +35,24 @@ namespace DigBuild.Engine.UI
             var caratRight = new Vector2(MathF.Sin(MathF.PI / 3), -MathF.Cos(MathF.PI / 3)) * 0.625f - new Vector2(0, 0.375f) + offset;
 
             var topOff = new Vector2(0, -0.15f);
-            MarkerVertices[0] = MarkerVertices[3] = MarkerVertices[6] =  MarkerVertices[9] = new UIVertex(caratCenter, Vector2.Zero, MarkerColor);
-            MarkerVertices[1] = new UIVertex(caratLeft, Vector2.Zero, MarkerColor);
-            MarkerVertices[2] = MarkerVertices[4] = new UIVertex(caratLeft + topOff, Vector2.Zero, MarkerColor);
-            MarkerVertices[5] = MarkerVertices[7] = new UIVertex(caratCenter + topOff, Vector2.Zero, MarkerColor);
-            MarkerVertices[8] = MarkerVertices[10] = new UIVertex(caratRight + topOff, Vector2.Zero, MarkerColor);
-            MarkerVertices[11] = new UIVertex(caratRight, Vector2.Zero, MarkerColor);
+            MarkerVertices[0] = MarkerVertices[3] = MarkerVertices[6] =  MarkerVertices[9] = new UiVertex(caratCenter, Vector2.Zero, MarkerColor);
+            MarkerVertices[1] = new UiVertex(caratLeft, Vector2.Zero, MarkerColor);
+            MarkerVertices[2] = MarkerVertices[4] = new UiVertex(caratLeft + topOff, Vector2.Zero, MarkerColor);
+            MarkerVertices[5] = MarkerVertices[7] = new UiVertex(caratCenter + topOff, Vector2.Zero, MarkerColor);
+            MarkerVertices[8] = MarkerVertices[10] = new UiVertex(caratRight + topOff, Vector2.Zero, MarkerColor);
+            MarkerVertices[11] = new UiVertex(caratRight, Vector2.Zero, MarkerColor);
         }
         
         private readonly InventorySlot _slot, _pickedSlot;
         private readonly Dictionary<Item, IItemModel> _models;
-        private readonly RenderLayer<UIVertex> _layer;
+        private readonly RenderLayer<UiVertex> _layer;
         private readonly Func<bool>? _isActive;
         private readonly TextRenderer _textRenderer;
         private bool _hovered;
 
-        public UIInventorySlot(
+        public UiInventorySlot(
             InventorySlot slot, InventorySlot pickedSlot,
-            Dictionary<Item, IItemModel> models, RenderLayer<UIVertex> layer,
+            Dictionary<Item, IItemModel> models, RenderLayer<UiVertex> layer,
             Func<bool>? isActive = null, TextRenderer textRenderer = null!
         )
         {
@@ -61,7 +61,7 @@ namespace DigBuild.Engine.UI
             _models = models;
             _layer = layer;
             _isActive = isActive;
-            _textRenderer = textRenderer ?? IUIElement.GlobalTextRenderer;
+            _textRenderer = textRenderer ?? IUiElement.GlobalTextRenderer;
         }
 
         public void Draw(RenderContext context, GeometryBufferSet buffers)
@@ -88,12 +88,12 @@ namespace DigBuild.Engine.UI
             }
         }
 
-        public void OnCursorMoved(IUIElementContext context, int x, int y)
+        public void OnCursorMoved(IUiElementContext context, int x, int y)
         {
             _hovered = IsInsideHexagon(new Vector2(x, y), Vector2.Zero, Scale);
         }
 
-        public void OnMouseEvent(IUIElementContext context, uint button, MouseAction action)
+        public void OnMouseEvent(IUiElementContext context, uint button, MouseAction action)
         {
             if (!_hovered || button != 0 || action != MouseAction.Press) return;
 

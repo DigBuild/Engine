@@ -1,5 +1,5 @@
 ﻿using System;
-using DigBuild.Engine.Reg;
+using DigBuild.Engine.Registries;
 
 namespace DigBuild.Engine.Entities
 {

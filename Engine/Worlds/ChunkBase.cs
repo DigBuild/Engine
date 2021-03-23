@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using DigBuild.Engine.Math;
 
-namespace DigBuild.Engine.Voxel
+namespace DigBuild.Engine.Worlds
 {
     public abstract class ChunkBase : IChunk
     {

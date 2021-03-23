@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using DigBuild.Engine.Voxel;
+using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Engine.Render
 {

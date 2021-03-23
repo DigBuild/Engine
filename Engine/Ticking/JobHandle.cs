@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using DigBuild.Engine.Reg;
+using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Ticking

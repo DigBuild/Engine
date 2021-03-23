@@ -1,4 +1,4 @@
-﻿namespace DigBuild.Engine.Voxel
+﻿namespace DigBuild.Engine.Worlds
 {
     public interface IChunkLoadingTicket
     {

@@ -2,14 +2,14 @@
 using System.Numerics;
 using DigBuild.Engine.Render;
 
-namespace DigBuild.Engine.UI
+namespace DigBuild.Engine.Ui
 {
     public sealed class TextRenderer
     {
-        private readonly RenderLayer<UIVertex> _layer;
+        private readonly RenderLayer<UiVertex> _layer;
         private readonly Dictionary<char, CharacterInfo> _characters = new();
 
-        public TextRenderer(RenderLayer<UIVertex> layer)
+        public TextRenderer(RenderLayer<UiVertex> layer)
         {
             _layer = layer;
             for (var c = 'a'; c <= 'z'; c++)
@@ -62,28 +62,28 @@ namespace DigBuild.Engine.UI
             private const uint CharBaseline = 0;
             private const uint TextureSize = 128;
 
-            internal readonly UIVertex[] Vertices;
+            internal readonly UiVertex[] Vertices;
 
             public CharacterInfo(char c)
             {
                 var (posX, posY) = GetCharacterPosition(c);
                 
-                var v1 = new UIVertex(
+                var v1 = new UiVertex(
                     new Vector2(0, -CharBaseline),
                     new Vector2(posX * CharWidth, posY * CharHeight) / TextureSize,
                     Vector4.One
                 );
-                var v2 = new UIVertex(
+                var v2 = new UiVertex(
                     new Vector2(CharWidth, -CharBaseline),
                     new Vector2((posX + 1) * CharWidth, posY * CharHeight) / TextureSize,
                     Vector4.One
                 );
-                var v3 = new UIVertex(
+                var v3 = new UiVertex(
                     new Vector2(CharWidth, -CharBaseline + CharHeight),
                     new Vector2((posX + 1) * CharWidth, (posY + 1) * CharHeight) / TextureSize,
                     Vector4.One
                 );
-                var v4 = new UIVertex(
+                var v4 = new UiVertex(
                     new Vector2(0, -CharBaseline + CharHeight),
                     new Vector2(posX * CharWidth, (posY + 1) * CharHeight) / TextureSize,
                     Vector4.One

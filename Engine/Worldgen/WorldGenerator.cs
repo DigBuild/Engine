@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Engine.Math;
-using DigBuild.Engine.Voxel;
+using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Engine.Worldgen
 {

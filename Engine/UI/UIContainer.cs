@@ -4,18 +4,18 @@ using DigBuild.Engine.Render;
 using DigBuild.Platform.Input;
 using DigBuild.Platform.Render;
 
-namespace DigBuild.Engine.UI
+namespace DigBuild.Engine.Ui
 {
-    public sealed class UIContainer : IUIElement
+    public sealed class UiContainer : IUiElement
     {
         private readonly ElementContainer _children = new();
 
-        public void Add(uint x, uint y, IUIElement element)
+        public void Add(uint x, uint y, IUiElement element)
         {
             _children.Add(new UIElementData(x, y, element));
         }
 
-        public void Remove(IUIElement element)
+        public void Remove(IUiElement element)
         {
             _children.Remove(element);
         }
@@ -31,13 +31,13 @@ namespace DigBuild.Engine.UI
             buffers.Transform = transform;
         }
 
-        public void OnCursorMoved(IUIElementContext context, int x, int y)
+        public void OnCursorMoved(IUiElementContext context, int x, int y)
         {
             foreach (var child in _children)
                 child.Element.OnCursorMoved(context, (int) (x - child.X), (int) (y - child.Y));
         }
 
-        public void OnMouseEvent(IUIElementContext context, uint button, MouseAction action)
+        public void OnMouseEvent(IUiElementContext context, uint button, MouseAction action)
         {
             foreach (var child in _children)
                 child.Element.OnMouseEvent(context, button, action);
@@ -46,9 +46,9 @@ namespace DigBuild.Engine.UI
         private sealed class UIElementData
         {
             internal readonly uint X, Y;
-            internal readonly IUIElement Element;
+            internal readonly IUiElement Element;
 
-            public UIElementData(uint x, uint y, IUIElement element)
+            public UIElementData(uint x, uint y, IUiElement element)
             {
                 X = x;
                 Y = y;
@@ -56,9 +56,9 @@ namespace DigBuild.Engine.UI
             }
         }
 
-        private sealed class ElementContainer : KeyedCollection<IUIElement, UIElementData>
+        private sealed class ElementContainer : KeyedCollection<IUiElement, UIElementData>
         {
-            protected override IUIElement GetKeyForItem(UIElementData item)
+            protected override IUiElement GetKeyForItem(UIElementData item)
             {
                 return item.Element;
             }

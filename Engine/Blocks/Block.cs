@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Registries;
+using DigBuild.Engine.Storage;
 using DigBuild.Engine.Worlds;
 using DigBuild.Platform.Resource;
 
@@ -22,7 +23,7 @@ namespace DigBuild.Engine.Blocks
         private readonly IReadOnlyDictionary<Type, GenericBlockEventDelegate> _eventHandlers;
         private readonly IReadOnlyDictionary<IBlockAttribute, GenericBlockAttributeDelegate> _attributeSuppliers;
         private readonly IReadOnlyDictionary<IBlockCapability, GenericBlockCapabilityDelegate> _capabilitySuppliers;
-        private readonly Action<BlockDataContainer> _dataInitializer;
+        private readonly Action<DataContainer> _dataInitializer;
 
         public ResourceName Name { get; }
 
@@ -31,7 +32,7 @@ namespace DigBuild.Engine.Blocks
             IReadOnlyDictionary<Type, GenericBlockEventDelegate> eventHandlers,
             IReadOnlyDictionary<IBlockAttribute, GenericBlockAttributeDelegate> attributeSuppliers,
             IReadOnlyDictionary<IBlockCapability, GenericBlockCapabilityDelegate> capabilitySuppliers,
-            Action<BlockDataContainer> dataInitializer
+            Action<DataContainer> dataInitializer
         )
         {
             _eventHandlers = eventHandlers;
@@ -69,14 +70,14 @@ namespace DigBuild.Engine.Blocks
             return (TCap) supplier(context, GetDataContainer(context));
         }
 
-        internal BlockDataContainer CreateDataContainer()
+        internal DataContainer CreateDataContainer()
         {
-            var container = new BlockDataContainer();
+            var container = new DataContainer();
             _dataInitializer(container);
             return container;
         }
 
-        private BlockDataContainer GetDataContainer(IReadOnlyBlockContext context)
+        private DataContainer GetDataContainer(IReadOnlyBlockContext context)
         {
             return context.World
                 .GetChunk(context.Pos.ChunkPos)!

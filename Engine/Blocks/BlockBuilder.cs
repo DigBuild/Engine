@@ -1,37 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Engine.Registries;
+using DigBuild.Engine.Storage;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Blocks
 {
     public delegate ref TOut RefFunc<in TIn, TOut>(TIn input);
     
-    internal delegate object GenericBlockEventDelegate(IReadOnlyBlockContext context, BlockDataContainer dataContainer, IBlockEvent evt);
-    internal delegate object GenericBlockAttributeDelegate(IReadOnlyBlockContext context, BlockDataContainer dataContainer);
-    internal delegate object GenericBlockCapabilityDelegate(IBlockContext context, BlockDataContainer dataContainer);
+    internal delegate object GenericBlockEventDelegate(IReadOnlyBlockContext context, DataContainer dataContainer, IBlockEvent evt);
+    internal delegate object GenericBlockAttributeDelegate(IReadOnlyBlockContext context, DataContainer dataContainer);
+    internal delegate object GenericBlockCapabilityDelegate(IBlockContext context, DataContainer dataContainer);
 
     public sealed class BlockBuilder
     {
-        private readonly List<IBlockDataHandle> _dataHandles = new();
+        private readonly List<IDataHandle> _dataHandles = new();
         private readonly Dictionary<Type, List<BlockEventDelegate>> _eventHandlers = new();
         private readonly Dictionary<IBlockAttribute, List<BlockAttributeDelegate>> _attributeSuppliers = new();
         private readonly Dictionary<IBlockCapability, List<BlockCapabilityDelegate>> _capabilitySuppliers = new();
-        private readonly List<Action<BlockDataContainer>> _dataInitializers = new();
+        private readonly List<Action<DataContainer>> _dataInitializers = new();
 
-        public BlockDataHandle<TData> Add<TData>()
+        public DataHandle<TData> Add<TData>()
             where TData : class, new()
         {
-            var handle = new BlockDataHandle<TData>();
+            var handle = new DataHandle<TData>();
             _dataHandles.Add(handle);
             return handle;
         }
 
         public void Attach(IBlockBehavior<object> behavior) => AttachLast(behavior);
-        public void Attach<TContract, TData>(IBlockBehavior<TContract> behavior, BlockDataHandle<TData> data)
+        public void Attach<TContract, TData>(IBlockBehavior<TContract> behavior, DataHandle<TData> data)
             where TData : class, TContract, new()
             => AttachLast(behavior, data);
-        public void Attach<TContract, TData>(IBlockBehavior<TContract> behavior, BlockDataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void Attach<TContract, TData>(IBlockBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TData : class, new()
             => AttachLast(behavior, data, adapter);
         
@@ -41,7 +42,7 @@ namespace DigBuild.Engine.Blocks
             behavior.Build(builder);
             Attach(builder, false);
         }
-        public void AttachLast<TContract, TData>(IBlockBehavior<TContract> behavior, BlockDataHandle<TData> data)
+        public void AttachLast<TContract, TData>(IBlockBehavior<TContract> behavior, DataHandle<TData> data)
             where TData : class, TContract, new()
         {
             if (!_dataHandles.Contains(data))
@@ -54,7 +55,7 @@ namespace DigBuild.Engine.Blocks
             _dataInitializers.Add(container => behavior.Init(container.Get(data)));
         }
 
-        public void AttachLast<TContract, TData>(IBlockBehavior<TContract> behavior, BlockDataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void AttachLast<TContract, TData>(IBlockBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TData : class, new()
         {
             if (!_dataHandles.Contains(data))
@@ -73,7 +74,7 @@ namespace DigBuild.Engine.Blocks
             behavior.Build(builder);
             Attach(builder, true);
         }
-        public void AttachFirst<TContract, TData>(IBlockBehavior<TContract> behavior, BlockDataHandle<TData> data)
+        public void AttachFirst<TContract, TData>(IBlockBehavior<TContract> behavior, DataHandle<TData> data)
             where TData : class, TContract, new()
         {
             if (!_dataHandles.Contains(data))
@@ -85,7 +86,7 @@ namespace DigBuild.Engine.Blocks
             
             _dataInitializers.Insert(0, container => behavior.Init(container.Get(data)));
         }
-        public void AttachFirst<TContract, TData>(IBlockBehavior<TContract> behavior, BlockDataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void AttachFirst<TContract, TData>(IBlockBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TData : class, new()
         {
             if (!_dataHandles.Contains(data))
@@ -179,7 +180,7 @@ namespace DigBuild.Engine.Blocks
             foreach (var capability in capabilityRegistry.Values)
                 capabilitySuppliers.TryAdd(capability, (context, container) => capability.GenericDefaultValueDelegate(context));
             
-            void InitializeData(BlockDataContainer container)
+            void InitializeData(DataContainer container)
             {
                 foreach (var initializer in _dataInitializers)
                     initializer(container);

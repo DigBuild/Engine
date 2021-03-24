@@ -1,36 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Engine.Registries;
+using DigBuild.Engine.Storage;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Items
 {
     public delegate ref TOut RefFunc<in TIn, TOut>(TIn input);
     
-    internal delegate object GenericItemEventDelegate(IItemContext context, ItemDataContainer dataContainer, IItemEvent evt);
-    internal delegate object GenericItemAttributeDelegate(IItemContext context, ItemDataContainer dataContainer);
-    internal delegate object GenericItemCapabilityDelegate(IItemContext context, ItemDataContainer dataContainer);
+    internal delegate object GenericItemEventDelegate(IItemContext context, DataContainer dataContainer, IItemEvent evt);
+    internal delegate object GenericItemAttributeDelegate(IItemContext context, DataContainer dataContainer);
+    internal delegate object GenericItemCapabilityDelegate(IItemContext context, DataContainer dataContainer);
 
     public sealed class ItemBuilder
     {
-        private readonly List<IItemDataHandle> _dataHandles = new();
+        private readonly List<IDataHandle> _dataHandles = new();
         private readonly Dictionary<Type, List<ItemEventDelegate>> _eventHandlers = new();
         private readonly Dictionary<IItemAttribute, List<ItemAttributeDelegate>> _attributeSuppliers = new();
         private readonly Dictionary<IItemCapability, List<ItemCapabilityDelegate>> _capabilitySuppliers = new();
 
-        public ItemDataHandle<TData> Add<TData>()
+        public DataHandle<TData> Add<TData>()
             where TData : class, new()
         {
-            var handle = new ItemDataHandle<TData>();
+            var handle = new DataHandle<TData>();
             _dataHandles.Add(handle);
             return handle;
         }
 
         public void Attach(IItemBehavior<object> behavior) => AttachLast(behavior);
-        public void Attach<TContract, TData>(IItemBehavior<TContract> behavior, ItemDataHandle<TData> data)
+        public void Attach<TContract, TData>(IItemBehavior<TContract> behavior, DataHandle<TData> data)
             where TData : class, TContract, new()
             => AttachLast(behavior, data);
-        public void Attach<TContract, TData>(IItemBehavior<TContract> behavior, ItemDataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void Attach<TContract, TData>(IItemBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TData : class, new()
             => AttachLast(behavior, data, adapter);
         
@@ -40,7 +41,7 @@ namespace DigBuild.Engine.Items
             behavior.Build(builder);
             Attach(builder, false);
         }
-        public void AttachLast<TContract, TData>(IItemBehavior<TContract> behavior, ItemDataHandle<TData> data)
+        public void AttachLast<TContract, TData>(IItemBehavior<TContract> behavior, DataHandle<TData> data)
             where TData : class, TContract, new()
         {
             if (!_dataHandles.Contains(data))
@@ -51,7 +52,7 @@ namespace DigBuild.Engine.Items
             Attach(builder, false);
         }
 
-        public void AttachLast<TContract, TData>(IItemBehavior<TContract> behavior, ItemDataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void AttachLast<TContract, TData>(IItemBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TData : class, new()
         {
             if (!_dataHandles.Contains(data))
@@ -68,7 +69,7 @@ namespace DigBuild.Engine.Items
             behavior.Build(builder);
             Attach(builder, true);
         }
-        public void AttachFirst<TContract, TData>(IItemBehavior<TContract> behavior, ItemDataHandle<TData> data)
+        public void AttachFirst<TContract, TData>(IItemBehavior<TContract> behavior, DataHandle<TData> data)
             where TData : class, TContract, new()
         {
             if (!_dataHandles.Contains(data))
@@ -78,7 +79,7 @@ namespace DigBuild.Engine.Items
             behavior.Build(builder);
             Attach(builder, true);
         }
-        public void AttachFirst<TContract, TData>(IItemBehavior<TContract> behavior, ItemDataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void AttachFirst<TContract, TData>(IItemBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TData : class, new()
         {
             if (!_dataHandles.Contains(data))

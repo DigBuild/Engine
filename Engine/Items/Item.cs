@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Engine.Registries;
+using DigBuild.Engine.Storage;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Items
@@ -64,7 +65,7 @@ namespace DigBuild.Engine.Items
             return (TCap) supplier(context, GetDataContainer(context));
         }
         
-        private ItemDataContainer GetDataContainer(IItemContext context)
+        private DataContainer GetDataContainer(IItemContext context)
         {
             return context.Instance.DataContainer;
         }

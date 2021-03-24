@@ -1,37 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Engine.Registries;
+using DigBuild.Engine.Storage;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Entities
 {
     public delegate ref TOut RefFunc<in TIn, TOut>(TIn input);
     
-    internal delegate object GenericEntityEventDelegate(IEntityContext context, EntityDataContainer dataContainer, IEntityEvent evt);
-    internal delegate object GenericEntityAttributeDelegate(IEntityContext context, EntityDataContainer dataContainer);
-    internal delegate object GenericEntityCapabilityDelegate(IEntityContext context, EntityDataContainer dataContainer);
+    internal delegate object GenericEntityEventDelegate(IEntityContext context, DataContainer dataContainer, IEntityEvent evt);
+    internal delegate object GenericEntityAttributeDelegate(IEntityContext context, DataContainer dataContainer);
+    internal delegate object GenericEntityCapabilityDelegate(IEntityContext context, DataContainer dataContainer);
 
     public sealed class EntityBuilder
     {
-        private readonly List<IEntityDataHandle> _dataHandles = new();
+        private readonly List<IDataHandle> _dataHandles = new();
         private readonly Dictionary<Type, List<EntityEventDelegate>> _eventHandlers = new();
         private readonly Dictionary<IEntityAttribute, List<EntityAttributeDelegate>> _attributeSuppliers = new();
         private readonly Dictionary<IEntityCapability, List<EntityCapabilityDelegate>> _capabilitySuppliers = new();
-        private readonly List<Action<EntityDataContainer>> _dataInitializers = new();
+        private readonly List<Action<DataContainer>> _dataInitializers = new();
 
-        public EntityDataHandle<TData> Add<TData>()
+        public DataHandle<TData> Add<TData>()
             where TData : class, new()
         {
-            var handle = new EntityDataHandle<TData>();
+            var handle = new DataHandle<TData>();
             _dataHandles.Add(handle);
             return handle;
         }
 
         public void Attach(IEntityBehavior<object> behavior) => AttachLast(behavior);
-        public void Attach<TContract, TData>(IEntityBehavior<TContract> behavior, EntityDataHandle<TData> data)
+        public void Attach<TContract, TData>(IEntityBehavior<TContract> behavior, DataHandle<TData> data)
             where TData : class, TContract, new()
             => AttachLast(behavior, data);
-        public void Attach<TContract, TData>(IEntityBehavior<TContract> behavior, EntityDataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void Attach<TContract, TData>(IEntityBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TData : class, new()
             => AttachLast(behavior, data, adapter);
         
@@ -41,7 +42,7 @@ namespace DigBuild.Engine.Entities
             behavior.Build(builder);
             Attach(builder, false);
         }
-        public void AttachLast<TContract, TData>(IEntityBehavior<TContract> behavior, EntityDataHandle<TData> data)
+        public void AttachLast<TContract, TData>(IEntityBehavior<TContract> behavior, DataHandle<TData> data)
             where TData : class, TContract, new()
         {
             if (!_dataHandles.Contains(data))
@@ -54,7 +55,7 @@ namespace DigBuild.Engine.Entities
             _dataInitializers.Add(container => behavior.Init(container.Get(data)));
         }
 
-        public void AttachLast<TContract, TData>(IEntityBehavior<TContract> behavior, EntityDataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void AttachLast<TContract, TData>(IEntityBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TData : class, new()
         {
             if (!_dataHandles.Contains(data))
@@ -73,7 +74,7 @@ namespace DigBuild.Engine.Entities
             behavior.Build(builder);
             Attach(builder, true);
         }
-        public void AttachFirst<TContract, TData>(IEntityBehavior<TContract> behavior, EntityDataHandle<TData> data)
+        public void AttachFirst<TContract, TData>(IEntityBehavior<TContract> behavior, DataHandle<TData> data)
             where TData : class, TContract, new()
         {
             if (!_dataHandles.Contains(data))
@@ -85,7 +86,7 @@ namespace DigBuild.Engine.Entities
             
             _dataInitializers.Insert(0, container => behavior.Init(container.Get(data)));
         }
-        public void AttachFirst<TContract, TData>(IEntityBehavior<TContract> behavior, EntityDataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void AttachFirst<TContract, TData>(IEntityBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TData : class, new()
         {
             if (!_dataHandles.Contains(data))
@@ -179,7 +180,7 @@ namespace DigBuild.Engine.Entities
             foreach (var capability in capabilityRegistry.Values)
                 capabilitySuppliers.TryAdd(capability, (context, container) => capability.GenericDefaultValueDelegate(context));
 
-            void InitializeData(EntityDataContainer container)
+            void InitializeData(DataContainer container)
             {
                 foreach (var initializer in _dataInitializers)
                     initializer(container);

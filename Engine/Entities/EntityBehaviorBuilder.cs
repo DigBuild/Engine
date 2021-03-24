@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DigBuild.Engine.Storage;
 
 namespace DigBuild.Engine.Entities
 {
@@ -13,9 +14,9 @@ namespace DigBuild.Engine.Entities
     public delegate T EntityAttributeDelegate<in TData, T>(IEntityContext context, TData data, EntityAttribute<T> attribute, Func<T> next);
     public delegate T EntityCapabilityDelegate<in TData, T>(IEntityContext context, TData data, EntityCapability<T> capability, Func<T> next);
     
-    internal delegate object EntityEventDelegate(IEntityContext context, EntityDataContainer dataContainer, IEntityEvent evt, Func<object> next);
-    internal delegate object EntityAttributeDelegate(IEntityContext context, EntityDataContainer dataContainer, Func<object> next);
-    internal delegate object EntityCapabilityDelegate(IEntityContext context, EntityDataContainer dataContainer, Func<object> next);
+    internal delegate object EntityEventDelegate(IEntityContext context, DataContainer dataContainer, IEntityEvent evt, Func<object> next);
+    internal delegate object EntityAttributeDelegate(IEntityContext context, DataContainer dataContainer, Func<object> next);
+    internal delegate object EntityCapabilityDelegate(IEntityContext context, DataContainer dataContainer, Func<object> next);
 
     public interface IEntityBehaviorBuilder
     {
@@ -47,9 +48,9 @@ namespace DigBuild.Engine.Entities
         Dictionary<IEntityAttribute, List<EntityAttributeDelegate>> IEntityBehaviorBuilder.AttributeSuppliers => _attributeSuppliers;
         Dictionary<IEntityCapability, List<EntityCapabilityDelegate>> IEntityBehaviorBuilder.CapabilitySuppliers => _capabilitySuppliers;
 
-        private readonly Func<EntityDataContainer, TData> _dataGetter;
+        private readonly Func<DataContainer, TData> _dataGetter;
 
-        internal EntityBehaviorBuilder(Func<EntityDataContainer, TData> dataGetter)
+        internal EntityBehaviorBuilder(Func<DataContainer, TData> dataGetter)
         {
             _dataGetter = dataGetter;
         }

@@ -1,13 +1,14 @@
 ﻿using DigBuild.Engine.Blocks;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Math;
+using DigBuild.Engine.Storage;
 
 namespace DigBuild.Engine.Worlds
 {
     public interface IReadOnlyBlockChunkStorage : IReadOnlyChunkStorage
     {
         public Block? GetBlock(SubChunkPos pos);
-        internal BlockDataContainer? GetData(SubChunkPos pos);
+        internal DataContainer? GetData(SubChunkPos pos);
     }
 
     public class BlockChunkStorage : IReadOnlyBlockChunkStorage, IChunkStorage<BlockChunkStorage>
@@ -17,11 +18,11 @@ namespace DigBuild.Engine.Worlds
         public static ChunkStorageType<IReadOnlyBlockChunkStorage, BlockChunkStorage> Type { get; internal set; } = null!;
         
         private readonly Block?[,,] _blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
-        private readonly BlockDataContainer?[,,] _data = new BlockDataContainer[ChunkSize, ChunkSize, ChunkSize];
+        private readonly DataContainer?[,,] _data = new DataContainer[ChunkSize, ChunkSize, ChunkSize];
 
         public Block? GetBlock(SubChunkPos pos) => _blocks[pos.X, pos.Y, pos.Z];
-        internal BlockDataContainer? GetData(SubChunkPos pos) => _data[pos.X, pos.Y, pos.Z];
-        BlockDataContainer? IReadOnlyBlockChunkStorage.GetData(SubChunkPos pos) => GetData(pos);
+        internal DataContainer? GetData(SubChunkPos pos) => _data[pos.X, pos.Y, pos.Z];
+        DataContainer? IReadOnlyBlockChunkStorage.GetData(SubChunkPos pos) => GetData(pos);
 
         public void SetBlock(SubChunkPos pos, Block? block)
         {

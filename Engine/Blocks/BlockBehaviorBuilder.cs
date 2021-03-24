@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DigBuild.Engine.Storage;
 
 namespace DigBuild.Engine.Blocks
 {
@@ -13,9 +14,9 @@ namespace DigBuild.Engine.Blocks
     public delegate T BlockAttributeDelegate<in TData, T>(IReadOnlyBlockContext context, TData data, BlockAttribute<T> attribute, Func<T> next);
     public delegate T BlockCapabilityDelegate<in TData, T>(IBlockContext context, TData data, BlockCapability<T> capability, Func<T> next);
     
-    internal delegate object BlockEventDelegate(IReadOnlyBlockContext context, BlockDataContainer dataContainer, IBlockEvent evt, Func<object> next);
-    internal delegate object BlockAttributeDelegate(IReadOnlyBlockContext context, BlockDataContainer dataContainer, Func<object> next);
-    internal delegate object BlockCapabilityDelegate(IBlockContext context, BlockDataContainer dataContainer, Func<object> next);
+    internal delegate object BlockEventDelegate(IReadOnlyBlockContext context, DataContainer dataContainer, IBlockEvent evt, Func<object> next);
+    internal delegate object BlockAttributeDelegate(IReadOnlyBlockContext context, DataContainer dataContainer, Func<object> next);
+    internal delegate object BlockCapabilityDelegate(IBlockContext context, DataContainer dataContainer, Func<object> next);
 
     public interface IBlockBehaviorBuilder
     {
@@ -47,9 +48,9 @@ namespace DigBuild.Engine.Blocks
         Dictionary<IBlockAttribute, List<BlockAttributeDelegate>> IBlockBehaviorBuilder.AttributeSuppliers => _attributeSuppliers;
         Dictionary<IBlockCapability, List<BlockCapabilityDelegate>> IBlockBehaviorBuilder.CapabilitySuppliers => _capabilitySuppliers;
 
-        private readonly Func<BlockDataContainer, TData> _dataGetter;
+        private readonly Func<DataContainer, TData> _dataGetter;
 
-        internal BlockBehaviorBuilder(Func<BlockDataContainer, TData> dataGetter)
+        internal BlockBehaviorBuilder(Func<DataContainer, TData> dataGetter)
         {
             _dataGetter = dataGetter;
         }

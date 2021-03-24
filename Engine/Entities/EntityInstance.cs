@@ -1,4 +1,5 @@
 ﻿using System;
+using DigBuild.Engine.Storage;
 using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Engine.Entities
@@ -8,7 +9,7 @@ namespace DigBuild.Engine.Entities
         public IWorld World { get; }
         public Guid Id { get; set; }
         public Entity Type { get; }
-        internal EntityDataContainer DataContainer { get; }
+        internal DataContainer DataContainer { get; }
 
         public EntityInstance(IWorld world, Guid id, Entity type)
         {

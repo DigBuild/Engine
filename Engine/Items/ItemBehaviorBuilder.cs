@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DigBuild.Engine.Storage;
 
 namespace DigBuild.Engine.Items
 {
@@ -13,9 +14,9 @@ namespace DigBuild.Engine.Items
     public delegate T ItemAttributeDelegate<in TData, T>(IItemContext context, TData data, ItemAttribute<T> attribute, Func<T> next);
     public delegate T ItemCapabilityDelegate<in TData, T>(IItemContext context, TData data, ItemCapability<T> capability, Func<T> next);
     
-    internal delegate object ItemEventDelegate(IItemContext context, ItemDataContainer dataContainer, IItemEvent evt, Func<object> next);
-    internal delegate object ItemAttributeDelegate(IItemContext context, ItemDataContainer dataContainer, Func<object> next);
-    internal delegate object ItemCapabilityDelegate(IItemContext context, ItemDataContainer dataContainer, Func<object> next);
+    internal delegate object ItemEventDelegate(IItemContext context, DataContainer dataContainer, IItemEvent evt, Func<object> next);
+    internal delegate object ItemAttributeDelegate(IItemContext context, DataContainer dataContainer, Func<object> next);
+    internal delegate object ItemCapabilityDelegate(IItemContext context, DataContainer dataContainer, Func<object> next);
 
     public interface IItemBehaviorBuilder
     {
@@ -47,9 +48,9 @@ namespace DigBuild.Engine.Items
         Dictionary<IItemAttribute, List<ItemAttributeDelegate>> IItemBehaviorBuilder.AttributeSuppliers => _attributeSuppliers;
         Dictionary<IItemCapability, List<ItemCapabilityDelegate>> IItemBehaviorBuilder.CapabilitySuppliers => _capabilitySuppliers;
 
-        private readonly Func<ItemDataContainer, TData> _dataGetter;
+        private readonly Func<DataContainer, TData> _dataGetter;
 
-        internal ItemBehaviorBuilder(Func<ItemDataContainer, TData> dataGetter)
+        internal ItemBehaviorBuilder(Func<DataContainer, TData> dataGetter)
         {
             _dataGetter = dataGetter;
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Engine.Registries;
+using DigBuild.Engine.Storage;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Entities
@@ -20,7 +21,7 @@ namespace DigBuild.Engine.Entities
         private readonly IReadOnlyDictionary<Type, GenericEntityEventDelegate> _eventHandlers;
         private readonly IReadOnlyDictionary<IEntityAttribute, GenericEntityAttributeDelegate> _attributeSuppliers;
         private readonly IReadOnlyDictionary<IEntityCapability, GenericEntityCapabilityDelegate> _capabilitySuppliers;
-        private readonly Action<EntityDataContainer> _dataInitializer;
+        private readonly Action<DataContainer> _dataInitializer;
 
         public ResourceName Name { get; }
 
@@ -29,7 +30,7 @@ namespace DigBuild.Engine.Entities
             IReadOnlyDictionary<Type, GenericEntityEventDelegate> eventHandlers,
             IReadOnlyDictionary<IEntityAttribute, GenericEntityAttributeDelegate> attributeSuppliers,
             IReadOnlyDictionary<IEntityCapability, GenericEntityCapabilityDelegate> capabilitySuppliers,
-            Action<EntityDataContainer> dataInitializer
+            Action<DataContainer> dataInitializer
         )
         {
             _eventHandlers = eventHandlers;
@@ -67,14 +68,14 @@ namespace DigBuild.Engine.Entities
             return (TCap) supplier(context, GetDataContainer(context));
         }
 
-        internal EntityDataContainer CreateDataContainer()
+        internal DataContainer CreateDataContainer()
         {
-            var container = new EntityDataContainer();
+            var container = new DataContainer();
             _dataInitializer(container);
             return container;
         }
 
-        private EntityDataContainer GetDataContainer(IEntityContext context)
+        private DataContainer GetDataContainer(IEntityContext context)
         {
             return context.Entity.DataContainer;
         }

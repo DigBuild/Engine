@@ -1,4 +1,6 @@
-﻿namespace DigBuild.Engine.Items
+﻿using DigBuild.Engine.Storage;
+
+namespace DigBuild.Engine.Items
 {
     public sealed class ItemInstance
     {
@@ -6,7 +8,7 @@
 
         public Item Type { get; }
         public ushort Count { get; set; }
-        internal ItemDataContainer DataContainer { get; } = new();
+        internal DataContainer DataContainer { get; } = new();
 
         public ItemInstance(Item type, ushort count)
         {

@@ -28,71 +28,77 @@ namespace DigBuild.Engine.Blocks
             return handle;
         }
 
-        public void Attach(IBlockBehavior<object> behavior) => AttachLast(behavior);
-        public void Attach<TContract, TData>(IBlockBehavior<TContract> behavior, DataHandle<TData> data)
+        public void Attach(IBlockBehavior behavior) => AttachLast(behavior);
+        public void Attach<TReadOnlyContract, TContract, TData>(IBlockBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
+            where TContract : TReadOnlyContract
             where TData : class, TContract, new()
             => AttachLast(behavior, data);
-        public void Attach<TContract, TData>(IBlockBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void Attach<TReadOnlyContract, TContract, TData>(IBlockBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+            where TContract : TReadOnlyContract
             where TData : class, new()
             => AttachLast(behavior, data, adapter);
         
-        public void AttachLast(IBlockBehavior<object> behavior)
+        public void AttachLast(IBlockBehavior behavior)
         {
-            var builder = new BlockBehaviorBuilder<object>(_ => null!);
+            var builder = new BlockBehaviorBuilder<object, object>(_ => null!);
             behavior.Build(builder);
             Attach(builder, false);
         }
-        public void AttachLast<TContract, TData>(IBlockBehavior<TContract> behavior, DataHandle<TData> data)
+        public void AttachLast<TReadOnlyContract, TContract, TData>(IBlockBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
+            where TContract : TReadOnlyContract
             where TData : class, TContract, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this block.", nameof(data));
 
-            var builder = new BlockBehaviorBuilder<TContract>(container => container.Get(data));
+            var builder = new BlockBehaviorBuilder<TReadOnlyContract, TContract>(container => container.Get(data));
             behavior.Build(builder);
             Attach(builder, false);
             
             _dataInitializers.Add(container => behavior.Init(container.Get(data)));
         }
 
-        public void AttachLast<TContract, TData>(IBlockBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void AttachLast<TReadOnlyContract, TContract, TData>(IBlockBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+            where TContract : TReadOnlyContract
             where TData : class, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this block.", nameof(data));
 
-            var builder = new BlockBehaviorBuilder<TContract>(container => adapter(container.Get(data)));
+            var builder = new BlockBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container.Get(data)));
             behavior.Build(builder);
             Attach(builder, false);
             
             _dataInitializers.Add(container => behavior.Init(adapter(container.Get(data))));
         }
 
-        public void AttachFirst(IBlockBehavior<object> behavior)
+        public void AttachFirst(IBlockBehavior behavior)
         {
-            var builder = new BlockBehaviorBuilder<object>(_ => null!);
+            var builder = new BlockBehaviorBuilder<object, object>(_ => null!);
             behavior.Build(builder);
             Attach(builder, true);
         }
-        public void AttachFirst<TContract, TData>(IBlockBehavior<TContract> behavior, DataHandle<TData> data)
+        public void AttachFirst<TReadOnlyContract, TContract, TData>(IBlockBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
+            where TContract : TReadOnlyContract
             where TData : class, TContract, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this block.", nameof(data));
 
-            var builder = new BlockBehaviorBuilder<TContract>(container => container.Get(data));
+            var builder = new BlockBehaviorBuilder<TReadOnlyContract, TContract>(container => container.Get(data));
             behavior.Build(builder);
             Attach(builder, true);
             
             _dataInitializers.Insert(0, container => behavior.Init(container.Get(data)));
         }
-        public void AttachFirst<TContract, TData>(IBlockBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void AttachFirst<TReadOnlyContract, TContract, TData>(IBlockBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+            where TContract : TReadOnlyContract
             where TData : class, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this block.", nameof(data));
 
-            var builder = new BlockBehaviorBuilder<TContract>(container => adapter(container.Get(data)));
+            var builder = new BlockBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container.Get(data)));
             behavior.Build(builder);
             Attach(builder, true);
             

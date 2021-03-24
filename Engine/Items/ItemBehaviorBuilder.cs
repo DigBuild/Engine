@@ -25,7 +25,8 @@ namespace DigBuild.Engine.Items
         internal Dictionary<IItemCapability, List<ItemCapabilityDelegate>> CapabilitySuppliers { get; }
     }
 
-    public interface IItemBehaviorBuilder<out TData> : IItemBehaviorBuilder
+    public interface IItemBehaviorBuilder<out TReadOnlyData, out TData> : IItemBehaviorBuilder
+        where TData : TReadOnlyData
     {
         void Subscribe<TContext, TEvent>(ItemEventDelegate<TContext, TData, TEvent> del)
             where TContext : IItemContext
@@ -34,11 +35,12 @@ namespace DigBuild.Engine.Items
             where TContext : IItemContext
             where TEvent : IItemEvent<TContext, TResult>;
         
-        void Add<T>(ItemAttribute<T> attribute, ItemAttributeDelegate<TData, T> supplier);
+        void Add<T>(ItemAttribute<T> attribute, ItemAttributeDelegate<TReadOnlyData, T> supplier);
         void Add<T>(ItemCapability<T> capability, ItemCapabilityDelegate<TData, T> supplier);
     }
 
-    public sealed class ItemBehaviorBuilder<TData> : IItemBehaviorBuilder<TData>
+    public sealed class ItemBehaviorBuilder<TReadOnlyData, TData> : IItemBehaviorBuilder<TReadOnlyData, TData>
+        where TData : TReadOnlyData
     {
         private readonly Dictionary<Type, List<ItemEventDelegate>> _eventHandlers = new();
         private readonly Dictionary<IItemAttribute, List<ItemAttributeDelegate>> _attributeSuppliers = new();
@@ -55,7 +57,7 @@ namespace DigBuild.Engine.Items
             _dataGetter = dataGetter;
         }
 
-        void IItemBehaviorBuilder<TData>.Subscribe<TContext, TEvent>(ItemEventDelegate<TContext, TData, TEvent> del)
+        void IItemBehaviorBuilder<TReadOnlyData, TData>.Subscribe<TContext, TEvent>(ItemEventDelegate<TContext, TData, TEvent> del)
         {
             var type = typeof(TEvent);
             if (!_eventHandlers.TryGetValue(type, out var list))
@@ -67,7 +69,7 @@ namespace DigBuild.Engine.Items
             });
         }
 
-        void IItemBehaviorBuilder<TData>.Subscribe<TContext, TEvent, TResult>(ItemEventDelegate<TContext, TData, TEvent, TResult> del)
+        void IItemBehaviorBuilder<TReadOnlyData, TData>.Subscribe<TContext, TEvent, TResult>(ItemEventDelegate<TContext, TData, TEvent, TResult> del)
         {
             var type = typeof(TEvent);
             if (!_eventHandlers.TryGetValue(type, out var list))
@@ -78,7 +80,7 @@ namespace DigBuild.Engine.Items
             });
         }
 
-        public void Add<T>(ItemAttribute<T> attribute, ItemAttributeDelegate<TData, T> supplier)
+        public void Add<T>(ItemAttribute<T> attribute, ItemAttributeDelegate<TReadOnlyData, T> supplier)
         {
             if (!_attributeSuppliers.TryGetValue(attribute, out var list))
                 _attributeSuppliers[attribute] = list = new List<ItemAttributeDelegate>();

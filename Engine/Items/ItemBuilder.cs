@@ -27,65 +27,71 @@ namespace DigBuild.Engine.Items
             return handle;
         }
 
-        public void Attach(IItemBehavior<object> behavior) => AttachLast(behavior);
-        public void Attach<TContract, TData>(IItemBehavior<TContract> behavior, DataHandle<TData> data)
+        public void Attach(IItemBehavior behavior) => AttachLast(behavior);
+        public void Attach<TReadOnlyContract, TContract, TData>(IItemBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
+            where TContract : TReadOnlyContract
             where TData : class, TContract, new()
             => AttachLast(behavior, data);
-        public void Attach<TContract, TData>(IItemBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void Attach<TReadOnlyContract, TContract, TData>(IItemBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+            where TContract : TReadOnlyContract
             where TData : class, new()
             => AttachLast(behavior, data, adapter);
         
-        public void AttachLast(IItemBehavior<object> behavior)
+        public void AttachLast(IItemBehavior behavior)
         {
-            var builder = new ItemBehaviorBuilder<object>(_ => null!);
+            var builder = new ItemBehaviorBuilder<object, object>(_ => null!);
             behavior.Build(builder);
             Attach(builder, false);
         }
-        public void AttachLast<TContract, TData>(IItemBehavior<TContract> behavior, DataHandle<TData> data)
+        public void AttachLast<TReadOnlyContract, TContract, TData>(IItemBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
+            where TContract : TReadOnlyContract
             where TData : class, TContract, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this Item.", nameof(data));
 
-            var builder = new ItemBehaviorBuilder<TContract>(container => container.Get(data));
+            var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => container.Get(data));
             behavior.Build(builder);
             Attach(builder, false);
         }
 
-        public void AttachLast<TContract, TData>(IItemBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void AttachLast<TReadOnlyContract, TContract, TData>(IItemBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+            where TContract : TReadOnlyContract
             where TData : class, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this Item.", nameof(data));
 
-            var builder = new ItemBehaviorBuilder<TContract>(container => adapter(container.Get(data)));
+            var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container.Get(data)));
             behavior.Build(builder);
             Attach(builder, false);
         }
 
-        public void AttachFirst(IItemBehavior<object> behavior)
+        public void AttachFirst(IItemBehavior behavior)
         {
-            var builder = new ItemBehaviorBuilder<object>(_ => null!);
+            var builder = new ItemBehaviorBuilder<object, object>(_ => null!);
             behavior.Build(builder);
             Attach(builder, true);
         }
-        public void AttachFirst<TContract, TData>(IItemBehavior<TContract> behavior, DataHandle<TData> data)
+        public void AttachFirst<TReadOnlyContract, TContract, TData>(IItemBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
+            where TContract : TReadOnlyContract
             where TData : class, TContract, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this Item.", nameof(data));
 
-            var builder = new ItemBehaviorBuilder<TContract>(container => container.Get(data));
+            var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => container.Get(data));
             behavior.Build(builder);
             Attach(builder, true);
         }
-        public void AttachFirst<TContract, TData>(IItemBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void AttachFirst<TReadOnlyContract, TContract, TData>(IItemBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+            where TContract : TReadOnlyContract
             where TData : class, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this Item.", nameof(data));
 
-            var builder = new ItemBehaviorBuilder<TContract>(container => adapter(container.Get(data)));
+            var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container.Get(data)));
             behavior.Build(builder);
             Attach(builder, true);
         }

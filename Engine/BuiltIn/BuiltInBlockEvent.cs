@@ -15,10 +15,11 @@ namespace DigBuild.Engine.BuiltIn
 
     public static class BuiltInBlockEventExtensions
     {
-        public static void Subscribe<TData>(
-            this IBlockBehaviorBuilder<TData> builder,
+        public static void Subscribe<TReadOnlyData, TData>(
+            this IBlockBehaviorBuilder<TReadOnlyData, TData> builder,
             BlockEventDelegate<IBlockContext, TData, BuiltInBlockEvent.JoinedWorld> onJoinedWorld
         )
+            where TData : TReadOnlyData
         {
             builder.Subscribe(onJoinedWorld);
         }
@@ -28,10 +29,11 @@ namespace DigBuild.Engine.BuiltIn
             block.Post(context, evt);
         }
 
-        public static void Subscribe<TData>(
-            this IBlockBehaviorBuilder<TData> builder,
+        public static void Subscribe<TReadOnlyData, TData>(
+            this IBlockBehaviorBuilder<TReadOnlyData, TData> builder,
             BlockEventDelegate<IBlockContext, TData, BuiltInBlockEvent.LeavingWorld> onLeavingWorld
         )
+            where TData : TReadOnlyData
         {
             builder.Subscribe(onLeavingWorld);
         }

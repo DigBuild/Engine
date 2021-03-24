@@ -28,40 +28,44 @@ namespace DigBuild.Engine.Entities
             return handle;
         }
 
-        public void Attach(IEntityBehavior<object> behavior) => AttachLast(behavior);
-        public void Attach<TContract, TData>(IEntityBehavior<TContract> behavior, DataHandle<TData> data)
+        public void Attach(IEntityBehavior behavior) => AttachLast(behavior);
+        public void Attach<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
+            where TContract : TReadOnlyContract
             where TData : class, TContract, new()
             => AttachLast(behavior, data);
-        public void Attach<TContract, TData>(IEntityBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void Attach<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+            where TContract : TReadOnlyContract
             where TData : class, new()
             => AttachLast(behavior, data, adapter);
         
-        public void AttachLast(IEntityBehavior<object> behavior)
+        public void AttachLast(IEntityBehavior behavior)
         {
-            var builder = new EntityBehaviorBuilder<object>(_ => null!);
+            var builder = new EntityBehaviorBuilder<object, object>(_ => null!);
             behavior.Build(builder);
             Attach(builder, false);
         }
-        public void AttachLast<TContract, TData>(IEntityBehavior<TContract> behavior, DataHandle<TData> data)
+        public void AttachLast<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
+            where TContract : TReadOnlyContract
             where TData : class, TContract, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this entity.", nameof(data));
 
-            var builder = new EntityBehaviorBuilder<TContract>(container => container.Get(data));
+            var builder = new EntityBehaviorBuilder<TReadOnlyContract, TContract>(container => container.Get(data));
             behavior.Build(builder);
             Attach(builder, false);
             
             _dataInitializers.Add(container => behavior.Init(container.Get(data)));
         }
 
-        public void AttachLast<TContract, TData>(IEntityBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void AttachLast<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+            where TContract : TReadOnlyContract
             where TData : class, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this entity.", nameof(data));
 
-            var builder = new EntityBehaviorBuilder<TContract>(container => adapter(container.Get(data)));
+            var builder = new EntityBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container.Get(data)));
             behavior.Build(builder);
             Attach(builder, false);
             
@@ -70,29 +74,31 @@ namespace DigBuild.Engine.Entities
 
         public void AttachFirst(IEntityBehavior<object> behavior)
         {
-            var builder = new EntityBehaviorBuilder<object>(_ => null!);
+            var builder = new EntityBehaviorBuilder<object, object>(_ => null!);
             behavior.Build(builder);
             Attach(builder, true);
         }
-        public void AttachFirst<TContract, TData>(IEntityBehavior<TContract> behavior, DataHandle<TData> data)
+        public void AttachFirst<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
+            where TContract : TReadOnlyContract
             where TData : class, TContract, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this entity.", nameof(data));
 
-            var builder = new EntityBehaviorBuilder<TContract>(container => container.Get(data));
+            var builder = new EntityBehaviorBuilder<TReadOnlyContract, TContract>(container => container.Get(data));
             behavior.Build(builder);
             Attach(builder, true);
             
             _dataInitializers.Insert(0, container => behavior.Init(container.Get(data)));
         }
-        public void AttachFirst<TContract, TData>(IEntityBehavior<TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+        public void AttachFirst<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
+            where TContract : TReadOnlyContract
             where TData : class, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this entity.", nameof(data));
 
-            var builder = new EntityBehaviorBuilder<TContract>(container => adapter(container.Get(data)));
+            var builder = new EntityBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container.Get(data)));
             behavior.Build(builder);
             Attach(builder, true);
             

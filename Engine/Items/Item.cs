@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Storage;
@@ -51,7 +51,7 @@ namespace DigBuild.Engine.Items
             return (TOut) handler(context, GetDataContainer(context), evt);
         }
 
-        public TAttrib Get<TAttrib>(IItemContext context, ItemAttribute<TAttrib> attribute)
+        public TAttrib Get<TAttrib>(IReadOnlyItemContext context, ItemAttribute<TAttrib> attribute)
         {
             if (!_attributeSuppliers.TryGetValue(attribute, out var supplier))
                 throw new ArgumentException($"Attempted to request unregistered attribute: {attribute}", nameof(attribute));
@@ -66,6 +66,7 @@ namespace DigBuild.Engine.Items
         }
         
         private DataContainer GetDataContainer(IItemContext context)
+        private DataContainer GetDataContainer(IReadOnlyItemContext context)
         {
             return context.Instance.DataContainer;
         }

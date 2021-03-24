@@ -54,7 +54,7 @@ namespace DigBuild.Engine.Entities
             return (TOut) handler(context, GetDataContainer(context), evt);
         }
 
-        public TAttrib Get<TAttrib>(IEntityContext context, EntityAttribute<TAttrib> attribute)
+        public TAttrib Get<TAttrib>(IReadOnlyEntityContext context, EntityAttribute<TAttrib> attribute)
         {
             if (!_attributeSuppliers.TryGetValue(attribute, out var supplier))
                 throw new ArgumentException($"Attempted to request unregistered attribute: {attribute}", nameof(attribute));
@@ -75,7 +75,7 @@ namespace DigBuild.Engine.Entities
             return container;
         }
 
-        private DataContainer GetDataContainer(IEntityContext context)
+        private DataContainer GetDataContainer(IReadOnlyEntityContext context)
         {
             return context.Entity.DataContainer;
         }

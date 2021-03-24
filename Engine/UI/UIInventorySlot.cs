@@ -43,7 +43,7 @@ namespace DigBuild.Engine.Ui
             MarkerVertices[11] = new UiVertex(caratRight, Vector2.Zero, MarkerColor);
         }
         
-        private readonly InventorySlot _slot, _pickedSlot;
+        private readonly IInventorySlot _slot, _pickedSlot;
         private readonly Dictionary<Item, IItemModel> _models;
         private readonly RenderLayer<UiVertex> _layer;
         private readonly Func<bool>? _isActive;
@@ -51,7 +51,7 @@ namespace DigBuild.Engine.Ui
         private bool _hovered;
 
         public UiInventorySlot(
-            InventorySlot slot, InventorySlot pickedSlot,
+            IInventorySlot slot, IInventorySlot pickedSlot,
             Dictionary<Item, IItemModel> models, RenderLayer<UiVertex> layer,
             Func<bool>? isActive = null, TextRenderer textRenderer = null!
         )

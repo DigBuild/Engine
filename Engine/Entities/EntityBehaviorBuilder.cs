@@ -11,11 +11,11 @@ namespace DigBuild.Engine.Entities
         where TContext : IEntityContext
         where TEvent : IEntityEvent<TContext, TResult>;
     
-    public delegate T EntityAttributeDelegate<in TData, T>(IEntityContext context, TData data, EntityAttribute<T> attribute, Func<T> next);
+    public delegate T EntityAttributeDelegate<in TData, T>(IReadOnlyEntityContext context, TData data, EntityAttribute<T> attribute, Func<T> next);
     public delegate T EntityCapabilityDelegate<in TData, T>(IEntityContext context, TData data, EntityCapability<T> capability, Func<T> next);
     
     internal delegate object EntityEventDelegate(IEntityContext context, DataContainer dataContainer, IEntityEvent evt, Func<object> next);
-    internal delegate object EntityAttributeDelegate(IEntityContext context, DataContainer dataContainer, Func<object> next);
+    internal delegate object EntityAttributeDelegate(IReadOnlyEntityContext context, DataContainer dataContainer, Func<object> next);
     internal delegate object EntityCapabilityDelegate(IEntityContext context, DataContainer dataContainer, Func<object> next);
 
     public interface IEntityBehaviorBuilder

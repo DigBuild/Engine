@@ -16,18 +16,4 @@ namespace DigBuild.Engine.Blocks
             block = Block;
         }
     }
-
-    public sealed class BlockContext : IBlockContext
-    {
-        public IWorld World { get; }
-        public BlockPos Pos { get; }
-        public Block Block { get; }
-
-        public BlockContext(IWorld world, BlockPos pos, Block block)
-        {
-            World = world;
-            Pos = pos;
-            Block = block;
-        }
-    }
 }

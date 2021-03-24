@@ -9,7 +9,7 @@ namespace DigBuild.Engine.Entities
     public delegate ref TOut RefFunc<in TIn, TOut>(TIn input);
     
     internal delegate object GenericEntityEventDelegate(IEntityContext context, DataContainer dataContainer, IEntityEvent evt);
-    internal delegate object GenericEntityAttributeDelegate(IEntityContext context, DataContainer dataContainer);
+    internal delegate object GenericEntityAttributeDelegate(IReadOnlyEntityContext context, DataContainer dataContainer);
     internal delegate object GenericEntityCapabilityDelegate(IEntityContext context, DataContainer dataContainer);
 
     public sealed class EntityBuilder

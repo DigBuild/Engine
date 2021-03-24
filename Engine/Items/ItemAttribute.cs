@@ -6,19 +6,19 @@ namespace DigBuild.Engine.Items
 {
     public interface IItemAttribute
     {
-        internal Func<IItemContext, object> GenericDefaultValueDelegate { get; }
+        internal Func<IReadOnlyItemContext, object> GenericDefaultValueDelegate { get; }
     }
 
     public sealed class ItemAttribute<T> : IItemAttribute
     {
-        private readonly Func<IItemContext, object> _default;
+        private readonly Func<IReadOnlyItemContext, object> _default;
 
-        internal ItemAttribute(Func<IItemContext, T> defaultValueDelegate)
+        internal ItemAttribute(Func<IReadOnlyItemContext, T> defaultValueDelegate)
         {
             _default = ctx => defaultValueDelegate(ctx)!;
         }
 
-        Func<IItemContext, object> IItemAttribute.GenericDefaultValueDelegate => _default;
+        Func<IReadOnlyItemContext, object> IItemAttribute.GenericDefaultValueDelegate => _default;
     }
 
     public static class ItemAttributeRegistryBuilderExtensions
@@ -26,7 +26,7 @@ namespace DigBuild.Engine.Items
         public static ItemAttribute<TAttrib> Register<TAttrib>(
             this IRegistryBuilder<IItemAttribute> builder,
             ResourceName name,
-            Func<IItemContext, TAttrib> defaultValueDelegate
+            Func<IReadOnlyItemContext, TAttrib> defaultValueDelegate
         )
         {
             return builder.Add(name, new ItemAttribute<TAttrib>(defaultValueDelegate));

@@ -6,19 +6,19 @@ namespace DigBuild.Engine.Entities
 {
     public interface IEntityAttribute
     {
-        internal Func<IEntityContext, object> GenericDefaultValueDelegate { get; }
+        internal Func<IReadOnlyEntityContext, object> GenericDefaultValueDelegate { get; }
     }
 
     public sealed class EntityAttribute<T> : IEntityAttribute
     {
-        private readonly Func<IEntityContext, object> _default;
+        private readonly Func<IReadOnlyEntityContext, object> _default;
 
-        internal EntityAttribute(Func<IEntityContext, T> defaultValueDelegate)
+        internal EntityAttribute(Func<IReadOnlyEntityContext, T> defaultValueDelegate)
         {
             _default = ctx => defaultValueDelegate(ctx)!;
         }
 
-        Func<IEntityContext, object> IEntityAttribute.GenericDefaultValueDelegate => _default;
+        Func<IReadOnlyEntityContext, object> IEntityAttribute.GenericDefaultValueDelegate => _default;
     }
 
     public static class EntityAttributeRegistryBuilderExtensions
@@ -26,7 +26,7 @@ namespace DigBuild.Engine.Entities
         public static EntityAttribute<TAttrib> Register<TAttrib>(
             this IRegistryBuilder<IEntityAttribute> builder,
             ResourceName name,
-            Func<IEntityContext, TAttrib> defaultValueDelegate
+            Func<IReadOnlyEntityContext, TAttrib> defaultValueDelegate
         )
         {
             return builder.Add(name, new EntityAttribute<TAttrib>(defaultValueDelegate));

@@ -4,12 +4,14 @@ using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Engine.Entities
 {
-    public sealed class EntityInstance
+    public sealed class EntityInstance : IReadOnlyEntityInstance
     {
         public IWorld World { get; }
-        public Guid Id { get; set; }
+        IReadOnlyWorld IReadOnlyEntityInstance.World => World;
+        public Guid Id { get; }
         public Entity Type { get; }
         internal DataContainer DataContainer { get; }
+        DataContainer IReadOnlyEntityInstance.DataContainer => DataContainer;
 
         public EntityInstance(IWorld world, Guid id, Entity type)
         {

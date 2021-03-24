@@ -11,11 +11,11 @@ namespace DigBuild.Engine.Items
         where TContext : IItemContext
         where TEvent : IItemEvent<TContext, TResult>;
     
-    public delegate T ItemAttributeDelegate<in TData, T>(IItemContext context, TData data, ItemAttribute<T> attribute, Func<T> next);
+    public delegate T ItemAttributeDelegate<in TData, T>(IReadOnlyItemContext context, TData data, ItemAttribute<T> attribute, Func<T> next);
     public delegate T ItemCapabilityDelegate<in TData, T>(IItemContext context, TData data, ItemCapability<T> capability, Func<T> next);
     
     internal delegate object ItemEventDelegate(IItemContext context, DataContainer dataContainer, IItemEvent evt, Func<object> next);
-    internal delegate object ItemAttributeDelegate(IItemContext context, DataContainer dataContainer, Func<object> next);
+    internal delegate object ItemAttributeDelegate(IReadOnlyItemContext context, DataContainer dataContainer, Func<object> next);
     internal delegate object ItemCapabilityDelegate(IItemContext context, DataContainer dataContainer, Func<object> next);
 
     public interface IItemBehaviorBuilder

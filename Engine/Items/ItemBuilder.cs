@@ -9,7 +9,7 @@ namespace DigBuild.Engine.Items
     public delegate ref TOut RefFunc<in TIn, TOut>(TIn input);
     
     internal delegate object GenericItemEventDelegate(IItemContext context, DataContainer dataContainer, IItemEvent evt);
-    internal delegate object GenericItemAttributeDelegate(IItemContext context, DataContainer dataContainer);
+    internal delegate object GenericItemAttributeDelegate(IReadOnlyItemContext context, DataContainer dataContainer);
     internal delegate object GenericItemCapabilityDelegate(IItemContext context, DataContainer dataContainer);
 
     public sealed class ItemBuilder

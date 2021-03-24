@@ -8,7 +8,7 @@ namespace DigBuild.Engine.Blocks
 {
     public delegate ref TOut RefFunc<in TIn, TOut>(TIn input);
     
-    internal delegate object GenericBlockEventDelegate(IReadOnlyBlockContext context, DataContainer dataContainer, IBlockEvent evt);
+    internal delegate object GenericBlockEventDelegate(IBlockContext context, DataContainer dataContainer, IBlockEvent evt);
     internal delegate object GenericBlockAttributeDelegate(IReadOnlyBlockContext context, DataContainer dataContainer);
     internal delegate object GenericBlockCapabilityDelegate(IBlockContext context, DataContainer dataContainer);
 

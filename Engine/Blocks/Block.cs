@@ -11,10 +11,10 @@ namespace DigBuild.Engine.Blocks
     public interface IBlock
     {
         void Post<TContext, TEvent>(TContext context, TEvent evt)
-            where TContext : IReadOnlyBlockContext
+            where TContext : IBlockContext
             where TEvent : IBlockEvent<TContext>;
         TOut Post<TContext, TEvent, TOut>(TContext context, TEvent evt)
-            where TContext : IReadOnlyBlockContext
+            where TContext : IBlockContext
             where TEvent : IBlockEvent<TContext, TOut>;
     }
 

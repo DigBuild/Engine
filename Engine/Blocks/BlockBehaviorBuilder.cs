@@ -5,16 +5,16 @@ using DigBuild.Engine.Storage;
 namespace DigBuild.Engine.Blocks
 {
     public delegate void BlockEventDelegate<in TContext, in TData, in TEvent>(TContext context, TData data, TEvent evt, Action next)
-        where TContext : IReadOnlyBlockContext
+        where TContext : IBlockContext
         where TEvent : IBlockEvent<TContext>;
     public delegate TResult BlockEventDelegate<in TContext, in TData, in TEvent, TResult>(TContext context, TData data, TEvent evt, Func<TResult> next)
-        where TContext : IReadOnlyBlockContext
+        where TContext : IBlockContext
         where TEvent : IBlockEvent<TContext, TResult>;
     
     public delegate T BlockAttributeDelegate<in TData, T>(IReadOnlyBlockContext context, TData data, BlockAttribute<T> attribute, Func<T> next);
     public delegate T BlockCapabilityDelegate<in TData, T>(IBlockContext context, TData data, BlockCapability<T> capability, Func<T> next);
     
-    internal delegate object BlockEventDelegate(IReadOnlyBlockContext context, DataContainer dataContainer, IBlockEvent evt, Func<object> next);
+    internal delegate object BlockEventDelegate(IBlockContext context, DataContainer dataContainer, IBlockEvent evt, Func<object> next);
     internal delegate object BlockAttributeDelegate(IReadOnlyBlockContext context, DataContainer dataContainer, Func<object> next);
     internal delegate object BlockCapabilityDelegate(IBlockContext context, DataContainer dataContainer, Func<object> next);
 
@@ -28,10 +28,10 @@ namespace DigBuild.Engine.Blocks
     public interface IBlockBehaviorBuilder<out TData> : IBlockBehaviorBuilder
     {
         void Subscribe<TContext, TEvent>(BlockEventDelegate<TContext, TData, TEvent> del)
-            where TContext : IReadOnlyBlockContext
+            where TContext : IBlockContext
             where TEvent : IBlockEvent<TContext>;
         void Subscribe<TContext, TEvent, TResult>(BlockEventDelegate<TContext, TData, TEvent, TResult> del)
-            where TContext : IReadOnlyBlockContext
+            where TContext : IBlockContext
             where TEvent : IBlockEvent<TContext, TResult>;
         
         void Add<T>(BlockAttribute<T> attribute, BlockAttributeDelegate<TData, T> supplier);

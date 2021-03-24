@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Storage;
@@ -21,6 +21,7 @@ namespace DigBuild.Engine.Items
         private readonly IReadOnlyDictionary<Type, GenericItemEventDelegate> _eventHandlers;
         private readonly IReadOnlyDictionary<IItemAttribute, GenericItemAttributeDelegate> _attributeSuppliers;
         private readonly IReadOnlyDictionary<IItemCapability, GenericItemCapabilityDelegate> _capabilitySuppliers;
+        private readonly Action<DataContainer> _dataInitializer;
 
         public ResourceName Name { get; }
 
@@ -28,12 +29,14 @@ namespace DigBuild.Engine.Items
             ResourceName name,
             IReadOnlyDictionary<Type, GenericItemEventDelegate> eventHandlers,
             IReadOnlyDictionary<IItemAttribute, GenericItemAttributeDelegate> attributeSuppliers,
-            IReadOnlyDictionary<IItemCapability, GenericItemCapabilityDelegate> capabilitySuppliers
+            IReadOnlyDictionary<IItemCapability, GenericItemCapabilityDelegate> capabilitySuppliers,
+            Action<DataContainer> dataInitializer
         )
         {
             _eventHandlers = eventHandlers;
             _attributeSuppliers = attributeSuppliers;
             _capabilitySuppliers = capabilitySuppliers;
+            _dataInitializer = dataInitializer;
             Name = name;
         }
 
@@ -64,8 +67,14 @@ namespace DigBuild.Engine.Items
                 throw new ArgumentException($"Attempted to request unregistered capability: {capability}", nameof(capability));
             return (TCap) supplier(context, GetDataContainer(context));
         }
+
+        internal DataContainer CreateDataContainer()
+        {
+            var container = new DataContainer();
+            _dataInitializer(container);
+            return container;
+        }
         
-        private DataContainer GetDataContainer(IItemContext context)
         private DataContainer GetDataContainer(IReadOnlyItemContext context)
         {
             return context.Instance.DataContainer;

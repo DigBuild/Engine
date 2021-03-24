@@ -18,6 +18,7 @@ namespace DigBuild.Engine.Items
         private readonly Dictionary<Type, List<ItemEventDelegate>> _eventHandlers = new();
         private readonly Dictionary<IItemAttribute, List<ItemAttributeDelegate>> _attributeSuppliers = new();
         private readonly Dictionary<IItemCapability, List<ItemCapabilityDelegate>> _capabilitySuppliers = new();
+        private readonly List<Action<DataContainer>> _dataInitializers = new();
 
         public DataHandle<TData> Add<TData>()
             where TData : class, new()
@@ -53,6 +54,8 @@ namespace DigBuild.Engine.Items
             var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => container.Get(data));
             behavior.Build(builder);
             Attach(builder, false);
+            
+            _dataInitializers.Add(container => behavior.Init(container.Get(data)));
         }
 
         public void AttachLast<TReadOnlyContract, TContract, TData>(IItemBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
@@ -65,6 +68,8 @@ namespace DigBuild.Engine.Items
             var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container.Get(data)));
             behavior.Build(builder);
             Attach(builder, false);
+            
+            _dataInitializers.Add(container => behavior.Init(adapter(container.Get(data))));
         }
 
         public void AttachFirst(IItemBehavior behavior)
@@ -83,6 +88,8 @@ namespace DigBuild.Engine.Items
             var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => container.Get(data));
             behavior.Build(builder);
             Attach(builder, true);
+
+            _dataInitializers.Insert(0, container => behavior.Init(container.Get(data)));
         }
         public void AttachFirst<TReadOnlyContract, TContract, TData>(IItemBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TContract : TReadOnlyContract
@@ -94,6 +101,8 @@ namespace DigBuild.Engine.Items
             var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container.Get(data)));
             behavior.Build(builder);
             Attach(builder, true);
+
+            _dataInitializers.Insert(0, container => behavior.Init(adapter(container.Get(data))));
         }
 
         private void Attach(IItemBehaviorBuilder builder, bool prepend)
@@ -177,7 +186,13 @@ namespace DigBuild.Engine.Items
             foreach (var capability in capabilityRegistry.Values)
                 capabilitySuppliers.TryAdd(capability, (context, container) => capability.GenericDefaultValueDelegate(context));
 
-            return new Item(name, eventHandlers, attributeSuppliers, capabilitySuppliers);
+            void InitializeData(DataContainer container)
+            {
+                foreach (var initializer in _dataInitializers)
+                    initializer(container);
+            }
+
+            return new Item(name, eventHandlers, attributeSuppliers, capabilitySuppliers, InitializeData);
         }
     }
 }

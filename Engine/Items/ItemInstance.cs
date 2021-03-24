@@ -8,13 +8,14 @@ namespace DigBuild.Engine.Items
 
         public Item Type { get; }
         public ushort Count { get; set; }
-        internal DataContainer DataContainer { get; } = new();
+        internal DataContainer DataContainer { get; }
         DataContainer IReadOnlyItemInstance.DataContainer => DataContainer;
 
         public ItemInstance(Item type, ushort count)
         {
             Type = type;
             Count = count;
+            DataContainer = type?.CreateDataContainer()!;
         }
 
         public override string ToString()

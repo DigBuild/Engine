@@ -12,7 +12,7 @@
 
         public override string ToString()
         {
-            return $"{nameof(WorldSlicePos)}({X}, {Z})";
+            return $"<{X}, {Z}>";
         }
 
         public static WorldSlicePos operator +(WorldSlicePos pos, WorldSliceOffset offset)

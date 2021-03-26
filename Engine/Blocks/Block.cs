@@ -82,7 +82,7 @@ namespace DigBuild.Engine.Blocks
             return context.World
                 .GetChunk(context.Pos.ChunkPos)!
                 .Get(BlockChunkStorage.Type)
-                .GetData(context.Pos)!;
+                .GetData(context.Pos.SubChunkPos)!;
         }
 
         public override string ToString()

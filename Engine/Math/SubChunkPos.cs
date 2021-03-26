@@ -1,8 +1,12 @@
-﻿namespace DigBuild.Engine.Math
+﻿using System;
+
+namespace DigBuild.Engine.Math
 {
-    public readonly struct SubChunkPos
+    public readonly struct SubChunkPos : IEquatable<SubChunkPos>
     {
-        public readonly int X, Y, Z;
+        public int X { get; }
+        public int Y { get; }
+        public int Z { get; }
         
         public SubChunkPos(int x, int y, int z)
         {
@@ -18,6 +22,34 @@
             z = Z;
         }
 
-        public static implicit operator SubChunkPos(BlockPos pos) => new(pos.X, pos.Y, pos.Z);
+        public override string ToString()
+        {
+            return $"<{X}, {Y}, {Z}>";
+        }
+        
+        public bool Equals(SubChunkPos other)
+        {
+            return X == other.X && Y == other.Y && Z == other.Z;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is IVector3I other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X, Y, Z);
+        }
+
+        public static bool operator ==(SubChunkPos left, SubChunkPos right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(SubChunkPos left, SubChunkPos right)
+        {
+            return !left.Equals(right);
+        }
     }
 }

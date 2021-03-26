@@ -42,19 +42,19 @@ namespace DigBuild.Engine.Render
                         if (block == null || !_blockModels.TryGetValue(block, out var model))
                             continue;
 
-                        var faces = BlockFaceFlags.None;
+                        var faces = DirectionFlags.None;
                         if (x == 0 || storage.GetBlock(new SubChunkPos(x - 1, y, z)) == null)
-                            faces |= BlockFaceFlags.NegX;
+                            faces |= DirectionFlags.NegX;
                         if (x == 15 || storage.GetBlock(new SubChunkPos(x + 1, y, z)) == null)
-                            faces |= BlockFaceFlags.PosX;
+                            faces |= DirectionFlags.PosX;
                         if (y == 0 || storage.GetBlock(new SubChunkPos(x, y - 1, z)) == null)
-                            faces |= BlockFaceFlags.NegY;
+                            faces |= DirectionFlags.NegY;
                         if (y == 15 || storage.GetBlock(new SubChunkPos(x, y + 1, z)) == null)
-                            faces |= BlockFaceFlags.PosY;
+                            faces |= DirectionFlags.PosY;
                         if (z == 0 || storage.GetBlock(new SubChunkPos(x, y, z - 1)) == null)
-                            faces |= BlockFaceFlags.NegZ;
+                            faces |= DirectionFlags.NegZ;
                         if (z == 15 || storage.GetBlock(new SubChunkPos(x, y, z + 1)) == null)
-                            faces |= BlockFaceFlags.PosZ;
+                            faces |= DirectionFlags.PosZ;
 
                         _gbs.Transform = Matrix4x4.CreateTranslation(x, y, z);
                         model.AddGeometry(faces, _gbs);
@@ -74,7 +74,7 @@ namespace DigBuild.Engine.Render
             
             foreach (var data in _dynamicModelData)
             {
-                _gbsDynamic.Transform = Matrix4x4.CreateTranslation(data.Position);
+                _gbsDynamic.Transform = Matrix4x4.CreateTranslation((Vector3) data.Position);
                 data.Model.AddDynamicGeometry(_gbsDynamic);
             }
         }
@@ -94,12 +94,12 @@ namespace DigBuild.Engine.Render
 
         private sealed class DynamicModelData
         {
-            internal readonly Vector3i Position;
+            internal readonly Vector3I Position;
             internal readonly IBlockModel Model;
 
             public DynamicModelData(int x, int y, int z, IBlockModel model)
             {
-                Position = new Vector3i(x, y, z);
+                Position = new Vector3I(x, y, z);
                 Model = model;
             }
         }

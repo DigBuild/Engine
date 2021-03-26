@@ -34,7 +34,7 @@ namespace DigBuild.Engine.Worlds
             
             var distanceFromStart = 0d;
 
-            var pos = new Vector3i(
+            var pos = new Vector3I(
                 (int) (direction.X > 0 ? System.Math.Ceiling(ray.Start.X) - 1 : System.Math.Floor(ray.Start.X)),
                 (int) (direction.Y > 0 ? System.Math.Ceiling(ray.Start.Y) - 1 : System.Math.Floor(ray.Start.Y)),
                 (int) (direction.Z > 0 ? System.Math.Ceiling(ray.Start.Z) - 1 : System.Math.Floor(ray.Start.Z))
@@ -58,13 +58,13 @@ namespace DigBuild.Engine.Worlds
                     {
                         distanceFromStart = xDist;
                         xDist += xLen;
-                        pos += new Vector3i(direction.X > 0 ? 1 : -1, 0, 0);
+                        pos += new Vector3I(direction.X > 0 ? 1 : -1, 0, 0);
                     }
                     else
                     {
                         distanceFromStart = zDist;
                         zDist += zLen;
-                        pos += new Vector3i(0, 0, direction.Z > 0 ? 1 : -1);
+                        pos += new Vector3I(0, 0, direction.Z > 0 ? 1 : -1);
                     }
                 }
                 else
@@ -73,13 +73,13 @@ namespace DigBuild.Engine.Worlds
                     {
                         distanceFromStart = yDist;
                         yDist += yLen;
-                        pos += new Vector3i(0, direction.Y > 0 ? 1 : -1, 0);
+                        pos += new Vector3I(0, direction.Y > 0 ? 1 : -1, 0);
                     }
                     else
                     {
                         distanceFromStart = zDist;
                         zDist += zLen;
-                        pos += new Vector3i(0, 0, direction.Z > 0 ? 1 : -1);
+                        pos += new Vector3I(0, 0, direction.Z > 0 ? 1 : -1);
                     }
                 }
             }
@@ -91,6 +91,6 @@ namespace DigBuild.Engine.Worlds
 
     public interface IGridAlignedRayCastingContext<THit> where THit : class
     {
-        bool Visit(Vector3i gridPosition, Vector3 position, RayCaster.Ray ray, [NotNullWhen(true)] out THit? hit);
+        bool Visit(Vector3I gridPosition, Vector3 position, RayCaster.Ray ray, [NotNullWhen(true)] out THit? hit);
     }
 }

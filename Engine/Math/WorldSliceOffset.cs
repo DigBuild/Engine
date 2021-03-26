@@ -12,7 +12,7 @@
 
         public override string ToString()
         {
-            return $"{nameof(WorldSliceOffset)}({X}, {Z})";
+            return $"<{X}, {Z}>";
         }
     }
 }

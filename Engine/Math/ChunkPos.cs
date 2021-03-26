@@ -5,7 +5,9 @@ namespace DigBuild.Engine.Math
 {
     public readonly struct ChunkPos : IEquatable<ChunkPos>
     {
-        public readonly int X, Y, Z;
+        public int X { get; }
+        public int Y { get; }
+        public int Z { get; }
 
         public ChunkPos(int x, int y, int z)
         {
@@ -26,9 +28,9 @@ namespace DigBuild.Engine.Math
 
         public override string ToString()
         {
-            return $"{nameof(ChunkPos)}({X}, {Y}, {Z})";
+            return $"<{X}, {Y}, {Z}>";
         }
-
+        
         public bool Equals(ChunkPos other)
         {
             return X == other.X && Y == other.Y && Z == other.Z;
@@ -53,5 +55,11 @@ namespace DigBuild.Engine.Math
         {
             return !left.Equals(right);
         }
+
+        public static BlockPos operator +(ChunkPos chunkPos, SubChunkPos subChunkPos) => new(
+            (chunkPos.X << 4) | subChunkPos.X,
+            (chunkPos.Y << 4) | subChunkPos.Y,
+            (chunkPos.Z << 4) | subChunkPos.Z
+        );
     }
 }

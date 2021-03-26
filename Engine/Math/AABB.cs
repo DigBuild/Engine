@@ -76,19 +76,12 @@ namespace DigBuild.Engine.Math
 
         public IEnumerable<BlockPos> GetIntersectedBlockPositions()
         {
-            int minX = (int) MathF.Floor(Min.X), maxX = (int) MathF.Ceiling(Max.X);
-            int minY = (int) MathF.Floor(Min.Y), maxY = (int) MathF.Ceiling(Max.Y);
-            int minZ = (int) MathF.Floor(Min.Z), maxZ = (int) MathF.Ceiling(Max.Z);
+            var (minX, minY, minZ) = new BlockPos(Min);
+            var (maxX, maxY, maxZ) = new BlockPos(Max);
             for (var x = minX; x <= maxX; x++)
-            {
-                for (var y = minY; y <= maxY; y++)
-                {
-                    for (var z = minZ; z <= maxZ; z++)
-                    {
-                        yield return new BlockPos(x, y, z);
-                    }
-                }
-            }
+            for (var y = minY; y <= maxY; y++)
+            for (var z = minZ; z <= maxZ; z++)
+                yield return new BlockPos(x, y, z);
         }
     }
 }

@@ -50,12 +50,12 @@ namespace DigBuild.Engine.Worlds
     {
         public static Block? GetBlock(this IReadOnlyChunk chunk, BlockPos pos)
         {
-            return chunk.Get(BlockChunkStorage.Type).GetBlock(pos);
+            return chunk.Get(BlockChunkStorage.Type).GetBlock(pos.SubChunkPos);
         }
 
         public static bool SetBlock(this IChunk chunk, BlockPos pos, Block? block)
         {
-            chunk.Get(BlockChunkStorage.Type).SetBlock(pos, block);
+            chunk.Get(BlockChunkStorage.Type).SetBlock(pos.SubChunkPos, block);
             return true;
         }
         
@@ -72,11 +72,11 @@ namespace DigBuild.Engine.Worlds
 
             if (notifyLeave)
             {
-                var curBlock = storage.GetBlock(pos);
+                var curBlock = storage.GetBlock(pos.SubChunkPos);
                 curBlock?.OnLeavingWorld(new BlockContext(world, pos, curBlock), new BuiltInBlockEvent.LeavingWorld());
             }
 
-            storage.SetBlock(pos, block);
+            storage.SetBlock(pos.SubChunkPos, block);
 
             if (notifyJoin && block != null)
             {

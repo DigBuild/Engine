@@ -5,14 +5,14 @@ namespace DigBuild.Engine.Render
 {
     public interface IBlockModel
     {
-        void AddGeometry(BlockFaceFlags faces, GeometryBufferSet buffers);
+        void AddGeometry(DirectionFlags faces, GeometryBufferSet buffers);
 
         bool HasDynamicGeometry => false;
         void AddDynamicGeometry(GeometryBufferSet buffers) { }
     }
     
     [Flags]
-    public enum BlockFaceFlags : byte
+    public enum DirectionFlags : byte
     {
         None = 0,
         NegX = 1 << 0,
@@ -26,9 +26,9 @@ namespace DigBuild.Engine.Render
 
     public static class BlockFaceFlagsExtensions
     {
-        public static bool Has(this BlockFaceFlags flags, BlockFace face)
+        public static bool Has(this DirectionFlags flags, Direction face)
         {
-            return (flags & face.ToFlags()) != BlockFaceFlags.None;
+            return (flags & face.ToFlags()) != DirectionFlags.None;
         }
     }
 }

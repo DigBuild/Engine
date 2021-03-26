@@ -44,7 +44,7 @@ namespace DigBuild.Engine.Ui
         }
         
         private readonly IInventorySlot _slot, _pickedSlot;
-        private readonly Dictionary<Item, IItemModel> _models;
+        private readonly IReadOnlyDictionary<Item, IItemModel> _models;
         private readonly RenderLayer<UiVertex> _layer;
         private readonly Func<bool>? _isActive;
         private readonly TextRenderer _textRenderer;
@@ -52,7 +52,7 @@ namespace DigBuild.Engine.Ui
 
         public UiInventorySlot(
             IInventorySlot slot, IInventorySlot pickedSlot,
-            Dictionary<Item, IItemModel> models, RenderLayer<UiVertex> layer,
+            IReadOnlyDictionary<Item, IItemModel> models, RenderLayer<UiVertex> layer,
             Func<bool>? isActive = null, TextRenderer textRenderer = null!
         )
         {

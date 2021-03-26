@@ -18,9 +18,21 @@ namespace DigBuild.Engine.Items
             DataContainer = type?.CreateDataContainer()!;
         }
 
+        private ItemInstance(Item type, ushort count, DataContainer dataContainer)
+        {
+            Type = type;
+            Count = count;
+            DataContainer = dataContainer;
+        }
+
         public override string ToString()
         {
             return Count == 0 ? "Empty" : $"{Count}x {Type.Name}";
+        }
+
+        public ItemInstance Copy()
+        {
+            return new(Type, Count, DataContainer.Copy());
         }
     }
 }

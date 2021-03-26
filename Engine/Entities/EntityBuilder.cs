@@ -21,7 +21,7 @@ namespace DigBuild.Engine.Entities
         private readonly List<Action<DataContainer>> _dataInitializers = new();
 
         public DataHandle<TData> Add<TData>()
-            where TData : class, new()
+            where TData : class, IData<TData>, new()
         {
             var handle = new DataHandle<TData>();
             _dataHandles.Add(handle);
@@ -31,11 +31,11 @@ namespace DigBuild.Engine.Entities
         public void Attach(IEntityBehavior behavior) => AttachLast(behavior);
         public void Attach<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
             where TContract : TReadOnlyContract
-            where TData : class, TContract, new()
+            where TData : class, TContract, IData<TData>, new()
             => AttachLast(behavior, data);
         public void Attach<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TContract : TReadOnlyContract
-            where TData : class, new()
+            where TData : class, IData<TData>, new()
             => AttachLast(behavior, data, adapter);
         
         public void AttachLast(IEntityBehavior behavior)
@@ -46,7 +46,7 @@ namespace DigBuild.Engine.Entities
         }
         public void AttachLast<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
             where TContract : TReadOnlyContract
-            where TData : class, TContract, new()
+            where TData : class, TContract, IData<TData>, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this entity.", nameof(data));
@@ -60,7 +60,7 @@ namespace DigBuild.Engine.Entities
 
         public void AttachLast<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TContract : TReadOnlyContract
-            where TData : class, new()
+            where TData : class, IData<TData>, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this entity.", nameof(data));
@@ -80,7 +80,7 @@ namespace DigBuild.Engine.Entities
         }
         public void AttachFirst<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
             where TContract : TReadOnlyContract
-            where TData : class, TContract, new()
+            where TData : class, TContract, IData<TData>, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this entity.", nameof(data));
@@ -93,7 +93,7 @@ namespace DigBuild.Engine.Entities
         }
         public void AttachFirst<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TContract : TReadOnlyContract
-            where TData : class, new()
+            where TData : class, IData<TData>, new()
         {
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this entity.", nameof(data));

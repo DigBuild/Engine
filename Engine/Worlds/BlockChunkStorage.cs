@@ -40,7 +40,7 @@ namespace DigBuild.Engine.Worlds
             for (var z = 0; z < ChunkSize; z++)
             {
                 copy._blocks[x, y, z] = _blocks[x, y, z];
-                copy._data[x, y, z] = _data[x, y, z];
+                copy._data[x, y, z] = _data[x, y, z]?.Copy();
             }
             return copy;
         }

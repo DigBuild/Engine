@@ -9,6 +9,7 @@ namespace DigBuild.Engine.Items
         public Item Type { get; }
         public ushort Count { get; set; }
         internal DataContainer DataContainer { get; }
+
         DataContainer IReadOnlyItemInstance.DataContainer => DataContainer;
 
         public ItemInstance(Item type, ushort count)
@@ -25,14 +26,14 @@ namespace DigBuild.Engine.Items
             DataContainer = dataContainer;
         }
 
-        public override string ToString()
-        {
-            return Count == 0 ? "Empty" : $"{Count}x {Type.Name}";
-        }
-
         public ItemInstance Copy()
         {
             return new(Type, Count, DataContainer.Copy());
+        }
+
+        public override string ToString()
+        {
+            return Count == 0 ? "Empty" : $"{Count}x {Type.Name}";
         }
     }
 }

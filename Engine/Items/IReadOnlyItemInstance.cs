@@ -7,5 +7,7 @@ namespace DigBuild.Engine.Items
         public Item Type { get; }
         public ushort Count { get; }
         internal DataContainer DataContainer { get; }
+
+        public ItemInstance Copy();
     }
 }

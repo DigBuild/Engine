@@ -1,6 +1,8 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
+using DigBuild.Engine.Math;
 
-namespace DigBuild.Engine.Math
+namespace DigBuild.Engine.Physics
 {
     public sealed class VoxelCollider : ICollider
     {
@@ -13,20 +15,22 @@ namespace DigBuild.Engine.Math
 
         public bool Collide(AABB target, Vector3 motion, out Vector3 intersection)
         {
-            if (!target.Intersects(_bounds, out intersection))
-                return false;
-            intersection = GetLowestEffectiveComponent(intersection, motion);
-            return true;
-        }
+            var minkowski = AABB.MinkowskiDifference(target, _bounds);
 
-        private static Vector3 GetLowestEffectiveComponent(Vector3 intersection, Vector3 velocity)
-        {
-            var a = Vector3.Abs(ReplaceNaN(intersection / velocity, float.MaxValue));
-            var (ax, ay, az) = (a.X, a.Y, a.Z);
-            if (ax < ay)
-                return ax < az ? new Vector3(intersection.X, 0, 0) : new Vector3(0, 0, intersection.Z);
-            else
-                return az < ay ? new Vector3(0, 0, intersection.Z) : new Vector3(0, intersection.Y, 0);
+            // Already intersecting
+            if (minkowski.Contains(-motion, out intersection))
+                return true;
+
+            // Will intersect at some point
+            if (minkowski.IntersectRay(Vector3.Zero, -motion, out var delta, out var side))
+            {
+                intersection = -motion * side.GetAxis().AsVector() * delta;
+                return true;
+            }
+
+            // Won't intersect
+            intersection = Vector3.Zero;
+            return false;
         }
         
         public static Vector3 ReplaceNaN(Vector3 vec, float value)

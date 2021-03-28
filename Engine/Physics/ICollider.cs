@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
+using DigBuild.Engine.Math;
 
-namespace DigBuild.Engine.Math
+namespace DigBuild.Engine.Physics
 {
     public interface ICollider
     {

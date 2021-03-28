@@ -13,6 +13,11 @@ namespace DigBuild.Engine.Math
         NegZ, PosZ
     }
 
+    public enum Axis : byte
+    {
+        X, Y, Z
+    }
+
     public static class Directions
     {
         public static readonly ImmutableSortedSet<Direction> All = ImmutableSortedSet.Create(
@@ -63,12 +68,30 @@ namespace DigBuild.Engine.Math
 
     public static class DirectionExtensions
     {
-        private static readonly Vector3I[] Offsets = {
+        private static readonly Vector3[] DirectionOffsets = {
             new(-1, 0, 0),
             new(1, 0, 0),
             new(0, -1, 0),
             new(0, 1, 0),
             new(0, 0, -1),
+            new(0, 0, 1)
+        };
+        private static readonly Vector3I[] DirectionOffsetIs = {
+            new(-1, 0, 0),
+            new(1, 0, 0),
+            new(0, -1, 0),
+            new(0, 1, 0),
+            new(0, 0, -1),
+            new(0, 0, 1)
+        };
+        private static readonly Vector3[] AxisVectors = {
+            new(1, 0, 0),
+            new(0, 1, 0),
+            new(0, 0, 1)
+        };
+        private static readonly Vector3I[] AxisVectorIs = {
+            new(1, 0, 0),
+            new(0, 1, 0),
             new(0, 0, 1)
         };
 
@@ -77,9 +100,34 @@ namespace DigBuild.Engine.Math
             return (Direction) ((int) direction ^ 1);
         }
 
-        public static Vector3I GetOffset(this Direction direction)
+        public static Vector3 GetOffset(this Direction direction)
         {
-            return Offsets[(int) direction];
+            return DirectionOffsets[(int) direction];
+        }
+
+        public static Vector3I GetOffsetI(this Direction direction)
+        {
+            return DirectionOffsetIs[(int) direction];
+        }
+
+        public static Axis GetAxis(this Direction direction)
+        {
+            return (Axis) ((int) direction >> 1);
+        }
+
+        public static int GetSign(this Direction direction)
+        {
+            return ((int) direction & 1) * 2 - 1;
+        }
+
+        public static Vector3 AsVector(this Axis axis)
+        {
+            return AxisVectors[(int) axis];
+        }
+
+        public static Vector3I AsVectorI(this Axis axis)
+        {
+            return AxisVectorIs[(int) axis];
         }
 
         public static DirectionFlags ToFlags(this Direction direction)

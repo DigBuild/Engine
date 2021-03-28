@@ -46,7 +46,7 @@ namespace DigBuild.Engine.Math
 
         public BlockPos Offset(Direction face, int amount = 1)
         {
-            return this + face.GetOffset() * amount;
+            return this + face.GetOffsetI() * amount;
         }
 
         public override string ToString()

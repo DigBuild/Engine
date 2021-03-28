@@ -38,7 +38,7 @@ namespace DigBuild.Engine.Math
         
         public Vector3I Offset(Direction face, int amount = 1)
         {
-            return this + face.GetOffset() * amount;
+            return this + face.GetOffsetI() * amount;
         }
 
         public override string ToString()

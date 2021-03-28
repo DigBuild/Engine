@@ -56,7 +56,7 @@ namespace DigBuild.Engine.Blocks
             return (TOut) handler(context, GetDataContainer(context), evt);
         }
 
-        public TAttrib Get<TAttrib>(IBlockContext context, BlockAttribute<TAttrib> attribute)
+        public TAttrib Get<TAttrib>(IReadOnlyBlockContext context, BlockAttribute<TAttrib> attribute)
         {
             if (!_attributeSuppliers.TryGetValue(attribute, out var supplier))
                 throw new ArgumentException($"Attempted to request unregistered attribute: {attribute}", nameof(attribute));

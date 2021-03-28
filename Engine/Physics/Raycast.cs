@@ -2,19 +2,22 @@
 using System.Numerics;
 using DigBuild.Engine.Math;
 
-namespace DigBuild.Engine.Raycasting
+namespace DigBuild.Engine.Physics
 {
-    public static class Raycaster
+    public static class Raycast
     {
         public readonly struct Ray
         {
-            public readonly Vector3 Start, End;
+            public readonly Vector3 Origin, Magnitude;
 
-            public Ray(Vector3 start, Vector3 end)
+            public Ray(Vector3 origin, Vector3 magnitude)
             {
-                Start = start;
-                End = end;
+                Origin = origin;
+                Magnitude = magnitude;
             }
+            
+            public static Ray operator +(Ray ray, Vector3 vec) => new(ray.Origin + vec, ray.Magnitude);
+            public static Ray operator -(Ray ray, Vector3 vec) => new(ray.Origin - vec, ray.Magnitude);
         }
         
         public static THit? Cast<THit>(IGridAlignedRayCastingContext<THit> context, Ray ray) where THit : class
@@ -25,23 +28,22 @@ namespace DigBuild.Engine.Raycasting
         public static bool TryCast<THit>(IGridAlignedRayCastingContext<THit> context, Ray ray, [NotNullWhen(true)] out THit? hit)
             where THit : class
         {
-            var startToEnd = ray.End - ray.Start;
-            var direction = Vector3.Normalize(startToEnd);
+            var direction = Vector3.Normalize(ray.Magnitude);
             var xLen = (double) (direction / direction.X).Length();
             var yLen = (double) (direction / direction.Y).Length();
             var zLen = (double) (direction / direction.Z).Length();
-            var reach = (double) startToEnd.Length();
+            var reach = (double) ray.Magnitude.Length();
             
             var distanceFromStart = 0d;
 
             var pos = new Vector3I(
-                (int) (direction.X > 0 ? System.Math.Ceiling(ray.Start.X) - 1 : System.Math.Floor(ray.Start.X)),
-                (int) (direction.Y > 0 ? System.Math.Ceiling(ray.Start.Y) - 1 : System.Math.Floor(ray.Start.Y)),
-                (int) (direction.Z > 0 ? System.Math.Ceiling(ray.Start.Z) - 1 : System.Math.Floor(ray.Start.Z))
+                (int) (direction.X > 0 ? System.Math.Ceiling(ray.Origin.X) - 1 : System.Math.Floor(ray.Origin.X)),
+                (int) (direction.Y > 0 ? System.Math.Ceiling(ray.Origin.Y) - 1 : System.Math.Floor(ray.Origin.Y)),
+                (int) (direction.Z > 0 ? System.Math.Ceiling(ray.Origin.Z) - 1 : System.Math.Floor(ray.Origin.Z))
             );
-            var xOff = direction.X > 0 ? 1 + pos.X - ray.Start.X : ray.Start.X - pos.X;
-            var yOff = direction.Y > 0 ? 1 + pos.Y - ray.Start.Y : ray.Start.Y - pos.Y;
-            var zOff = direction.Z > 0 ? 1 + pos.Z - ray.Start.Z : ray.Start.Z - pos.Z;
+            var xOff = direction.X > 0 ? 1 + pos.X - ray.Origin.X : ray.Origin.X - pos.X;
+            var yOff = direction.Y > 0 ? 1 + pos.Y - ray.Origin.Y : ray.Origin.Y - pos.Y;
+            var zOff = direction.Z > 0 ? 1 + pos.Z - ray.Origin.Z : ray.Origin.Z - pos.Z;
 
             var xDist = double.IsNaN(xLen) ? double.PositiveInfinity : System.Math.Abs(xOff * xLen);
             var yDist = double.IsNaN(yLen) ? double.PositiveInfinity : System.Math.Abs(yOff * yLen);
@@ -49,7 +51,7 @@ namespace DigBuild.Engine.Raycasting
             
             while (distanceFromStart <= reach)
             {
-                if (context.Visit(pos, ray.Start + direction * (float) distanceFromStart, ray, out hit))
+                if (context.Visit(pos, ray.Origin + direction * (float) distanceFromStart, ray, out hit))
                     return true;
 
                 if (xDist < yDist)
@@ -87,10 +89,5 @@ namespace DigBuild.Engine.Raycasting
             hit = null;
             return false;
         }
-    }
-
-    public interface IGridAlignedRayCastingContext<THit> where THit : class
-    {
-        bool Visit(Vector3I gridPosition, Vector3 position, Raycaster.Ray ray, [NotNullWhen(true)] out THit? hit);
     }
 }

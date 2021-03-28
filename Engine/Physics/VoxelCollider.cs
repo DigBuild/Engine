@@ -1,5 +1,4 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Physics
@@ -31,15 +30,6 @@ namespace DigBuild.Engine.Physics
             // Won't intersect
             intersection = Vector3.Zero;
             return false;
-        }
-        
-        public static Vector3 ReplaceNaN(Vector3 vec, float value)
-        {
-            return new(
-                !float.IsNaN(vec.X) ? vec.X : value,
-                !float.IsNaN(vec.Y) ? vec.Y : value,
-                !float.IsNaN(vec.Z) ? vec.Z : value
-            );
         }
     }
 }

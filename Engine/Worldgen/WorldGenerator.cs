@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worlds;
 
@@ -9,13 +10,13 @@ namespace DigBuild.Engine.Worldgen
     {
         private readonly IReadOnlyCollection<IWorldgenFeature> _features;
         private readonly long _seed;
-        private readonly Func<ChunkPos, IChunk> _chunkPrototypeFactory;
+        private readonly Func<WorldSliceDescriptor, int> _heightGetter;
 
-        public WorldGenerator(IReadOnlyCollection<IWorldgenFeature> features, long seed, Func<ChunkPos, IChunk> chunkPrototypeFactory)
+        public WorldGenerator(IReadOnlyCollection<IWorldgenFeature> features, long seed, Func<WorldSliceDescriptor, int> heightGetter)
         {
             _features = features;
             _seed = seed;
-            _chunkPrototypeFactory = chunkPrototypeFactory;
+            _heightGetter = heightGetter;
         }
 
         public WorldSliceDescriptor DescribeSlice(WorldSlicePos pos, IWorldgenFeature stop)
@@ -33,7 +34,7 @@ namespace DigBuild.Engine.Worldgen
             return descriptionContext.CreateDescriptor();
         }
 
-        public void GenerateSlice(WorldSlicePos pos, IChunk[] chunks)
+        public IReadOnlyChunk[] GenerateSlice(WorldSlicePos pos)
         {
             WorldSliceDescriptionContext descriptionContext = new(pos, _seed);
             foreach (var feature in _features)
@@ -42,20 +43,19 @@ namespace DigBuild.Engine.Worldgen
                 feature.DescribeSlice(descriptionContext);
                 descriptionContext.Next();
             }
-
-            int height = chunks.Length;
-
-            var descriptor = descriptionContext.CreateDescriptor();
-            var chunkPrototypes = new IChunk[height];
-            for (var y = 0; y < height; y++)
-            {
-                var prototype = chunkPrototypes[y] = _chunkPrototypeFactory(new ChunkPos(pos.X, y, pos.Z));
-                foreach (var feature in _features) 
-                    feature.PopulateChunk(descriptor, prototype);
-            }
             
-            for (var i = 0; i < height; i++)
-                chunks[i].CopyFrom(chunkPrototypes[i]);
+            var descriptor = descriptionContext.CreateDescriptor();
+            var height = _heightGetter(descriptor);
+            var prototypes = new IReadOnlyChunk[height];
+            Parallel.For(0, height, y =>
+            {
+                var prototype = new ChunkPrototype(new ChunkPos(pos.X, y, pos.Z));
+                foreach (var feature in _features)
+                    feature.PopulateChunk(descriptor, prototype);
+                prototypes[y] = prototype;
+            });
+
+            return prototypes;
         }
     }
 }

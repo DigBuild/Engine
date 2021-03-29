@@ -5,6 +5,8 @@ namespace DigBuild.Engine.Worlds
     public interface IReadOnlyWorld
     {
         public ulong AbsoluteTime { get; }
+
+        public float Gravity { get; }
         
         public TReadOnly Get<TReadOnly, T>(WorldStorageType<TReadOnly, T> type)
             where TReadOnly : IReadOnlyWorldStorage

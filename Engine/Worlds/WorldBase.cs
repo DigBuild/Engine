@@ -13,6 +13,8 @@ namespace DigBuild.Engine.Worlds
 
         public abstract ulong AbsoluteTime { get; }
 
+        public abstract float Gravity { get; }
+
         public abstract IChunkManager ChunkManager { get; }
 
         public abstract Scheduler TickScheduler { get; }

@@ -18,6 +18,7 @@ namespace DigBuild.Engine.Physics
             var delta = float.MaxValue;
             var side = Direction.NegX;
             var index = 0u;
+            AABB? hitBox = null;
             var i = 0u;
             foreach (var aabb in _bounds)
             {
@@ -29,15 +30,16 @@ namespace DigBuild.Engine.Physics
                 delta = d;
                 side = s;
                 index = i;
+                hitBox = aabb;
                 i++;
             }
 
-            if (delta == float.MaxValue)
+            if (!hitBox.HasValue)
             {
                 hit = null;
                 return false;
             }
-            hit = new Hit(delta, side, index);
+            hit = new Hit(delta, side, index, hitBox.Value);
             return true;
         }
 
@@ -51,12 +53,14 @@ namespace DigBuild.Engine.Physics
             public readonly float Delta;
             public readonly Direction Side;
             public readonly uint Index;
+            public readonly AABB Bounds;
 
-            public Hit(float delta, Direction side, uint index)
+            public Hit(float delta, Direction side, uint index, AABB bounds)
             {
                 Delta = delta;
                 Side = side;
                 Index = index;
+                Bounds = bounds;
             }
         }
     }

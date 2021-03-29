@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Math;
@@ -69,7 +71,7 @@ namespace DigBuild.Engine.Render
             _chunkRenderData.Clear();
         }
 
-        public void UpdateChunks()
+        public void UpdateChunks(ICamera camera, ViewFrustum viewFrustum)
         {
             if (_updatedChunks.Count == 0)
                 return;
@@ -78,16 +80,28 @@ namespace DigBuild.Engine.Render
             {
                 _chunkRenderData.Remove(chunk);
             }
-            
-            foreach (var chunk in _updatedChunks)
+
+            var cameraPos = camera.Position;
+            var toUpdate = _updatedChunks
+                .OrderBy(c =>
+                {
+                    var min = c.Position.GetOrigin();
+                    var max = min + Vector3.One * 16;
+                    return (long) (min - cameraPos).LengthSquared() * (viewFrustum.Test(new AABB(min, max)) ? 1 : 0xF0000);
+                })
+                .Take(16)
+                .ToList();
+
+            foreach (var chunk in toUpdate)
             {
-                if (!_chunkRenderData.TryGetValue(chunk, out var renderData))
-                    _chunkRenderData[chunk] = renderData = new ChunkRenderData(chunk, _blockModels, _pool);
-                renderData.UpdateGeometry();
+                if (!_chunkRenderData.ContainsKey(chunk))
+                    _chunkRenderData[chunk] = new ChunkRenderData(chunk, _blockModels, _pool);
+                _updatedChunks.Remove(chunk);
             }
+            Parallel.ForEach(toUpdate, chunk => _chunkRenderData[chunk].UpdateGeometry());
 
             _removedChunks.Clear();
-            _updatedChunks.Clear();
+            // _updatedChunks.Clear();
         }
 
         public void SubmitGeometry(RenderContext context, CommandBufferRecorder cmd, Matrix4x4 projection, ICamera camera, ViewFrustum viewFrustum)

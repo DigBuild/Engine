@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
 
 namespace DigBuild.Engine.Worlds
@@ -22,10 +23,10 @@ namespace DigBuild.Engine.Worlds
         
         private readonly Dictionary<Guid, EntityInstance> _entities = new();
 
-        public EntityInstance Add(Entity type)
+        public EntityInstance Add(IWorld world, Entity type) // TODO: NOT THIS
         {
             var guid = Guid.NewGuid();
-            var entity = new EntityInstance(null!, guid, type);
+            var entity = new EntityInstance(world, guid, type);
             _entities.Add(guid, entity);
             return entity;
         }
@@ -75,14 +76,18 @@ namespace DigBuild.Engine.Worlds
         
         public static EntityInstance AddEntity(this IWorld world, Entity type)
         {
-            var entity = world.Get(EntityWorldStorage.Type).Add(type);
+            var entity = world.Get(EntityWorldStorage.Type).Add(world, type);
             world.OnEntityAdded(entity);
+            type.OnJoinedWorld(new EntityContext(entity), new BuiltInEntityEvent.JoinedWorld());
             return entity;
         }
 
         public static void RemoveEntity(this IWorld world, Guid guid)
         {
-            world.Get(EntityWorldStorage.Type).Remove(guid);
+            var storage = world.Get(EntityWorldStorage.Type);
+            var entity = storage.Get(guid);
+            entity?.Type.OnLeavingWorld(new EntityContext(entity), new BuiltInEntityEvent.LeavingWorld());
+            storage.Remove(guid);
             world.OnEntityRemoved(guid);
         }
     }

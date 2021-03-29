@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
 namespace DigBuild.Engine.Math
@@ -39,6 +38,17 @@ namespace DigBuild.Engine.Math
         public Vector3I Offset(Direction face, int amount = 1)
         {
             return this + face.GetOffsetI() * amount;
+        }
+
+        public long LengthSquared()
+        {
+            long x = X, y = Y, z = Z;
+            return x * x + y * y + z * z;
+        }
+
+        public double Length()
+        {
+            return System.Math.Sqrt(LengthSquared());
         }
 
         public override string ToString()

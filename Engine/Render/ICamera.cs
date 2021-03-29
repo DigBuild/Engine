@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using DigBuild.Engine.Physics;
 
 namespace DigBuild.Engine.Render
 {
@@ -7,7 +6,6 @@ namespace DigBuild.Engine.Render
     {
         Vector3 Position { get; }
         Matrix4x4 Transform { get; }
-        Raycast.Ray Ray { get; }
 
         Vector3 Forward { get; }
         Vector3 Up { get; }

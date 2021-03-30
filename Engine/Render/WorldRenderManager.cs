@@ -26,6 +26,9 @@ namespace DigBuild.Engine.Render
         private readonly Dictionary<IChunk, ChunkRenderData> _chunkRenderData = new();
         private readonly Dictionary<Guid, EntityInstance> _entities = new();
 
+        private SortedSet<(IChunk, ChunkRenderData, float)> _sortedChunks = new();
+        private ChunkPos _currentCameraPos = new(int.MaxValue, int.MaxValue, int.MaxValue);
+
         public WorldRenderManager(
             IReadOnlyDictionary<Block, IBlockModel> blockModels,
             IReadOnlyDictionary<Entity, IEntityModel> entityModels,
@@ -73,15 +76,27 @@ namespace DigBuild.Engine.Render
 
         public void UpdateChunks(ICamera camera, ViewFrustum viewFrustum)
         {
+            var cameraPos = camera.Position;
+            var cameraChunkPos = new BlockPos(cameraPos).ChunkPos;
+            if (cameraChunkPos != _currentCameraPos)
+            {
+                _currentCameraPos = cameraChunkPos;
+                _sortedChunks = new SortedSet<(IChunk, ChunkRenderData, float)>(
+                    Comparer<(IChunk, ChunkRenderData, float)>.Create(
+                        (a, b) => a.Item3.CompareTo(b.Item3)
+                    )
+                );
+                foreach (var (chunk, data) in _chunkRenderData)
+                    _sortedChunks.Add((chunk, data, (chunk.Position.GetCenter() - cameraPos).LengthSquared()));
+            }
+
+            foreach (var chunk in _removedChunks)
+                _chunkRenderData.Remove(chunk);
+            _removedChunks.Clear();
+
             if (_updatedChunks.Count == 0)
                 return;
 
-            foreach (var chunk in _removedChunks)
-            {
-                _chunkRenderData.Remove(chunk);
-            }
-
-            var cameraPos = camera.Position;
             var toUpdate = _updatedChunks
                 .OrderBy(c =>
                 {
@@ -95,13 +110,13 @@ namespace DigBuild.Engine.Render
             foreach (var chunk in toUpdate)
             {
                 if (!_chunkRenderData.ContainsKey(chunk))
-                    _chunkRenderData[chunk] = new ChunkRenderData(chunk, _blockModels, _pool);
+                {
+                    var data = _chunkRenderData[chunk] = new ChunkRenderData(chunk, _blockModels, _pool);
+                    _sortedChunks.Add((chunk, data, (chunk.Position.GetCenter() - cameraPos).LengthSquared()));
+                }
                 _updatedChunks.Remove(chunk);
             }
             Parallel.ForEach(toUpdate, chunk => _chunkRenderData[chunk].UpdateGeometry());
-
-            _removedChunks.Clear();
-            // _updatedChunks.Clear();
         }
 
         public void SubmitGeometry(RenderContext context, CommandBufferRecorder cmd, Matrix4x4 projection, ICamera camera, ViewFrustum viewFrustum)
@@ -110,7 +125,7 @@ namespace DigBuild.Engine.Render
             _ubs.Setup(context, cmd);
 
             var rendered = new List<(IChunk, ChunkRenderData)>();
-            foreach (var (chunk, renderData) in _chunkRenderData)
+            foreach (var (chunk, renderData, _) in _sortedChunks)
             {
                 var min = chunk.Position.GetOrigin();
                 var max = min + Vector3.One * 16;

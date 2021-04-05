@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
 
@@ -18,9 +19,9 @@ namespace DigBuild.Engine.Ticking
             _job = job;
         }
 
-        internal void Execute(Scheduler scheduler, List<TInput> inputs)
+        internal Task Execute(Scheduler scheduler, List<TInput> inputs)
         {
-            _job.Execute(scheduler, inputs);
+            return _job.Execute(scheduler, inputs);
         }
     }
 

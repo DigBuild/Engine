@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DigBuild.Engine.Ticking
 {
@@ -60,12 +61,12 @@ namespace DigBuild.Engine.Ticking
             {
                 Tick?.Invoke();
                 foreach (var job in _scheduledJobs.Values)
-                    job.Execute(_scheduler);
+                    job.Execute(_scheduler).Wait();
             }
 
             private interface IScheduledJob
             {
-                void Execute(Scheduler scheduler);
+                Task Execute(Scheduler scheduler);
             }
 
             private sealed class ScheduledJob<TInput> : IScheduledJob
@@ -83,9 +84,9 @@ namespace DigBuild.Engine.Ticking
                     _inputs.AddRange(inputs);
                 }
 
-                public void Execute(Scheduler scheduler)
+                public Task Execute(Scheduler scheduler)
                 {
-                    _handle.Execute(scheduler, _inputs);
+                    return _handle.Execute(scheduler, _inputs);
                 }
             }
         }

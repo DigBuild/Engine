@@ -18,6 +18,12 @@ namespace DigBuild.Engine.Math
         X, Y, Z
     }
 
+    public enum AxisDirection : byte
+    {
+        Negative,
+        Positive
+    }
+
     public static class Directions
     {
         public static readonly ImmutableSortedSet<Direction> All = ImmutableSortedSet.Create(
@@ -95,6 +101,12 @@ namespace DigBuild.Engine.Math
             new(0, 0, 1)
         };
 
+        public static void Deconstruct(this Direction direction, out Axis axis, out AxisDirection axisDirection)
+        {
+            axis = direction.GetAxis();
+            axisDirection = direction.GetAxisDirection();
+        }
+
         public static Direction GetOpposite(this Direction direction)
         {
             return (Direction) ((int) direction ^ 1);
@@ -115,6 +127,11 @@ namespace DigBuild.Engine.Math
             return (Axis) ((int) direction >> 1);
         }
 
+        public static AxisDirection GetAxisDirection(this Direction direction)
+        {
+            return (AxisDirection) ((int) direction & 1);
+        }
+
         public static int GetSign(this Direction direction)
         {
             return ((int) direction & 1) * 2 - 1;
@@ -128,6 +145,11 @@ namespace DigBuild.Engine.Math
         public static Vector3I AsVectorI(this Axis axis)
         {
             return AxisVectorIs[(int) axis];
+        }
+
+        public static char AsChar(this AxisDirection axisDirection)
+        {
+            return axisDirection == AxisDirection.Negative ? '-' : '+';
         }
 
         public static DirectionFlags ToFlags(this Direction direction)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DigBuild.Engine.Ticking
@@ -19,17 +20,23 @@ namespace DigBuild.Engine.Ticking
 
         private void Tick()
         {
-            if (_scheduledTicks.Remove(_now, out var tick))
+            if (_scheduledTicks.TryGetValue(_now, out var tick))
+            {
                 tick.DoTick();
+                _scheduledTicks.Remove(_now);
+            }
             _now++;
         }
 
         public IScheduledTick After(ulong delay)
         {
-            if (_scheduledTicks.TryGetValue(_now + delay, out var tick))
-                return tick;
+            lock (_scheduledTicks)
+            {
+                if (_scheduledTicks.TryGetValue(_now + delay, out var tick))
+                    return tick;
             
-            return _scheduledTicks[_now + delay] = new ScheduledTick(this, _now, delay);
+                return _scheduledTicks[_now + delay] = new ScheduledTick(this, _now, delay);
+            }
         }
 
         private sealed class ScheduledTick : IScheduledTick, IInterpolator
@@ -52,8 +59,13 @@ namespace DigBuild.Engine.Ticking
 
             public void Enqueue<TInput>(JobHandle<TInput> job, IEnumerable<TInput> inputs)
             {
-                if (!_scheduledJobs.TryGetValue(job, out var scheduledJob))
-                    _scheduledJobs[job] = scheduledJob = new ScheduledJob<TInput>(job);
+                IScheduledJob? scheduledJob;
+
+                lock (_scheduledJobs)
+                {
+                    if (!_scheduledJobs.TryGetValue(job, out scheduledJob))
+                        _scheduledJobs[job] = scheduledJob = new ScheduledJob<TInput>(job);
+                }
 
                 ((ScheduledJob<TInput>) scheduledJob).Enqueue(inputs);
             }
@@ -74,6 +86,7 @@ namespace DigBuild.Engine.Ticking
             {
                 private readonly JobHandle<TInput> _handle;
                 private readonly ConcurrentQueue<TInput> _inputs = new();
+                private bool _executing = false;
 
                 public ScheduledJob(JobHandle<TInput> handle)
                 {
@@ -82,12 +95,16 @@ namespace DigBuild.Engine.Ticking
 
                 public void Enqueue(IEnumerable<TInput> inputs)
                 {
+                    if (_executing)
+                        throw new Exception("Cannot enqueue inputs on the currently executing job.");
+
                     foreach (var input in inputs)
                         _inputs.Enqueue(input);
                 }
 
                 public Task Execute(Scheduler scheduler)
                 {
+                    _executing = true;
                     return _handle.Execute(scheduler, _inputs);
                 }
             }

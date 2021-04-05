@@ -29,6 +29,11 @@ namespace DigBuild.Engine.Render
             return layer.LinearTransformer(vertConsumer, Transform, TransformNormal);
         }
 
+        public bool HasGeometry(IRenderLayer layer)
+        {
+            return _layers.TryGetValue(layer, out var data) && data.HasGeometry();
+        }
+
         public void Draw(IRenderLayer layer, RenderContext context, CommandBufferRecorder cmd)
         {
             if (_layers.TryGetValue(layer, out var data))
@@ -49,6 +54,7 @@ namespace DigBuild.Engine.Render
 
         private interface ILayerData : IDisposable
         {
+            bool HasGeometry();
             void Draw(RenderContext context, CommandBufferRecorder cmd);
             void Clear();
         }
@@ -61,6 +67,7 @@ namespace DigBuild.Engine.Render
             
             private VertexBuffer<TVertex>? _vertexBuffer;
             private VertexBufferWriter<TVertex>? _vertexBufferWriter;
+            private uint _lastCount;
 
             internal INativeBuffer<TVertex> NativeBuffer
             {
@@ -78,6 +85,11 @@ namespace DigBuild.Engine.Render
                 _pool = pool;
             }
 
+            public bool HasGeometry()
+            {
+                return _nativeBuffer != null ? _nativeBuffer.Count > 0 : _lastCount > 0;
+            }
+
             public void Draw(RenderContext context, CommandBufferRecorder cmd)
             {
                 if (_nativeBuffer != null)
@@ -86,6 +98,7 @@ namespace DigBuild.Engine.Render
                         _vertexBuffer = context.CreateVertexBuffer(out _vertexBufferWriter, _nativeBuffer);
                     else
                         _vertexBufferWriter.Write(_nativeBuffer);
+                    _lastCount = _nativeBuffer.Count;
                     _nativeBuffer.Dispose();
                     _nativeBuffer = null;
                 }
@@ -101,6 +114,8 @@ namespace DigBuild.Engine.Render
             public void Dispose()
             {
                 _nativeBuffer?.Dispose();
+                _nativeBuffer = null;
+                _lastCount = 0;
             }
         }
     }

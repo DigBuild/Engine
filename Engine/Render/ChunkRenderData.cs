@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Engine.Blocks;
@@ -77,6 +77,11 @@ namespace DigBuild.Engine.Render
                 _gbsDynamic.Transform = Matrix4x4.CreateTranslation((Vector3) data.Position);
                 data.Model.AddDynamicGeometry(_gbsDynamic);
             }
+        }
+
+        public bool HasGeometry(IRenderLayer layer)
+        {
+            return _gbs.HasGeometry(layer) || (_dynamicModelData.Count > 0 && _gbsDynamic.HasGeometry(layer));
         }
 
         public void SubmitGeometry(RenderContext context, IRenderLayer layer, CommandBufferRecorder cmd)

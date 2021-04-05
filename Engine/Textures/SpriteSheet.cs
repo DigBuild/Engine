@@ -1,16 +1,19 @@
 ﻿using System.Collections.Generic;
-using DigBuild.Platform.Render;
+using System.Drawing;
+using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Textures
 {
-    public sealed class SpriteSheet
+    public sealed class SpriteSheet : IBitmapTexture
     {
-        public Texture Texture { get; }
+        public ResourceName Name { get; }
+        public Bitmap Bitmap { get; }
         public IEnumerable<ISprite> Sprites { get; }
 
-        public SpriteSheet(Texture texture, IEnumerable<ISprite> sprites)
+        public SpriteSheet(ResourceName name, Bitmap bitmap, IEnumerable<ISprite> sprites)
         {
-            Texture = texture;
+            Name = name;
+            Bitmap = bitmap;
             Sprites = sprites;
         }
     }

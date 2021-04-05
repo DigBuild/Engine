@@ -31,5 +31,12 @@ namespace DigBuild.Engine.Worlds
         {
             return registry.Add(name, new ChunkStorageType<TReadOnly, T>(() => new T()));
         }
+
+        public static ChunkStorageType<TReadOnly, T> Create<TReadOnly, T>(this IRegistryBuilder<IChunkStorageType> registry, ResourceName name, Func<T> factory)
+            where TReadOnly : IReadOnlyChunkStorage
+            where T : class, TReadOnly, IChunkStorage<T>
+        {
+            return registry.Add(name, new ChunkStorageType<TReadOnly, T>(factory));
+        }
     }
 }

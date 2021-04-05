@@ -31,5 +31,12 @@ namespace DigBuild.Engine.Worlds
         {
             return registry.Add(name, new WorldStorageType<TReadOnly, T>(() => new T()));
         }
+
+        public static WorldStorageType<TReadOnly, T> Create<TReadOnly, T>(this IRegistryBuilder<IWorldStorageType> registry, ResourceName name, Func<T> factory)
+            where TReadOnly : IReadOnlyWorldStorage
+            where T : class, TReadOnly, IWorldStorage<T>
+        {
+            return registry.Add(name, new WorldStorageType<TReadOnly, T>(factory));
+        }
     }
 }

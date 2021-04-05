@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace DigBuild.Engine.Ticking
 {
-    public interface IJob<TInput>
+    public interface IJob<in TInput>
     {
-        public Task Execute(Scheduler scheduler, [ReadOnly(true)] List<TInput> inputs);
+        public Task Execute(Scheduler scheduler, [ReadOnly(true)] IEnumerable<TInput> inputs);
     }
 
     public static class Job
@@ -31,9 +31,13 @@ namespace DigBuild.Engine.Ticking
                 _action = action;
             }
 
-            public Task Execute(Scheduler scheduler, List<TInput> inputs)
+            public Task Execute(Scheduler scheduler, IEnumerable<TInput> inputs)
             {
-                return Task.Run(() => inputs.ForEach(input => _action(scheduler, input)));
+                return Task.Run(() =>
+                {
+                    foreach (var input in inputs)
+                        _action(scheduler, input);
+                });
             }
         }
 
@@ -45,8 +49,8 @@ namespace DigBuild.Engine.Ticking
             {
                 _action = action;
             }
-
-            public Task Execute(Scheduler scheduler, List<TInput> inputs)
+            
+            public Task Execute(Scheduler scheduler, IEnumerable<TInput> inputs)
             {
                 return Task.Run(() => System.Threading.Tasks.Parallel.ForEach(inputs, input => _action(scheduler, input)));
             }

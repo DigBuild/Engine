@@ -19,7 +19,7 @@ namespace DigBuild.Engine.Ticking
             _job = job;
         }
 
-        internal Task Execute(Scheduler scheduler, List<TInput> inputs)
+        internal Task Execute(Scheduler scheduler, IEnumerable<TInput> inputs)
         {
             return _job.Execute(scheduler, inputs);
         }

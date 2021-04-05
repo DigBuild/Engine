@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -72,7 +73,7 @@ namespace DigBuild.Engine.Ticking
             private sealed class ScheduledJob<TInput> : IScheduledJob
             {
                 private readonly JobHandle<TInput> _handle;
-                private readonly List<TInput> _inputs = new();
+                private readonly ConcurrentQueue<TInput> _inputs = new();
 
                 public ScheduledJob(JobHandle<TInput> handle)
                 {
@@ -81,7 +82,8 @@ namespace DigBuild.Engine.Ticking
 
                 public void Enqueue(IEnumerable<TInput> inputs)
                 {
-                    _inputs.AddRange(inputs);
+                    foreach (var input in inputs)
+                        _inputs.Enqueue(input);
                 }
 
                 public Task Execute(Scheduler scheduler)

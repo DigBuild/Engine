@@ -14,6 +14,7 @@ namespace DigBuild.Engine.Render
 {
     public sealed class WorldRenderManager
     {
+        private readonly IReadOnlyWorld _world;
         private readonly IReadOnlyDictionary<Block, IBlockModel> _blockModels;
         private readonly IReadOnlyDictionary<Entity, IEntityModel> _entityModels;
         private readonly IEnumerable<IRenderLayer> _renderLayers;
@@ -30,11 +31,13 @@ namespace DigBuild.Engine.Render
         private ChunkPos _currentCameraPos = new(int.MaxValue, int.MaxValue, int.MaxValue);
 
         public WorldRenderManager(
+            IReadOnlyWorld world,
             IReadOnlyDictionary<Block, IBlockModel> blockModels,
             IReadOnlyDictionary<Entity, IEntityModel> entityModels,
             IEnumerable<IRenderLayer> renderLayers, NativeBufferPool pool
         )
         {
+            _world = world;
             _blockModels = blockModels;
             _renderLayers = renderLayers;
             _pool = pool;
@@ -111,7 +114,12 @@ namespace DigBuild.Engine.Render
             {
                 if (!_chunkRenderData.ContainsKey(chunk))
                 {
-                    var data = _chunkRenderData[chunk] = new ChunkRenderData(chunk, _blockModels, _pool);
+                    var data = _chunkRenderData[chunk] = new ChunkRenderData(
+                        chunk,
+                        (ox, oy, oz) => _world.GetChunk(new ChunkPos(chunk.Position.X + ox, chunk.Position.Y + oy, chunk.Position.Z + oz), false),
+                        _blockModels,
+                        _pool
+                    );
                     _sortedChunks.Add((chunk, data, (chunk.Position.GetCenter() - cameraPos).LengthSquared()));
                 }
                 _updatedChunks.Remove(chunk);
@@ -161,12 +169,18 @@ namespace DigBuild.Engine.Render
                 foreach (var (chunk, renderData) in rendered)
                 {
                     var transform = Matrix4x4.CreateTranslation(chunk.Position.GetOrigin()) * camera.Transform * projection;
-                    _ubs.AddAndUse(context, cmd, layer, transform);
-                    renderData.SubmitGeometry(context, layer, cmd);
+                    if (renderData.HasGeometry(layer))
+                    {
+                        _ubs.AddAndUse(context, cmd, layer, transform);
+                        renderData.SubmitGeometry(context, layer, cmd);
+                    }
                 }
 
-                _ubs.AddAndUse(context, cmd, layer, camera.Transform * projection);
-                _entityGbs.Draw(layer, context, cmd);
+                if (_entityGbs.HasGeometry(layer))
+                {
+                    _ubs.AddAndUse(context, cmd, layer, camera.Transform * projection);
+                    _entityGbs.Draw(layer, context, cmd);
+                }
             }
 
             _ubs.Finalize(context, cmd);

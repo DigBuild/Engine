@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Numerics;
 using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Render
 {
     public interface IBlockModel
     {
-        void AddGeometry(DirectionFlags faces, GeometryBufferSet buffers);
+        void AddGeometry(DirectionFlags faces, GeometryBufferSet buffers, Func<Direction, byte> light);
+
+        bool IsFaceSolid(Direction face);
 
         bool HasDynamicGeometry => false;
-        void AddDynamicGeometry(GeometryBufferSet buffers) { }
+        void AddDynamicGeometry(GeometryBufferSet buffers, Func<Direction, byte> light) { }
     }
     
     [Flags]

@@ -26,6 +26,8 @@ namespace DigBuild.Engine.Ui
             _characters['.'] = new CharacterInfo('.');
             _characters['('] = new CharacterInfo('(');
             _characters[')'] = new CharacterInfo(')');
+            _characters['-'] = new CharacterInfo('-');
+            _characters['+'] = new CharacterInfo('+');
         }
 
         public uint GetWidth(char c)
@@ -110,6 +112,8 @@ namespace DigBuild.Engine.Ui
                 if (c == '.') return (15u, 1u);
                 if (c == '(') return (16u, 1u);
                 if (c == ')') return (17u, 1u);
+                if (c == '-') return (18u, 1u);
+                if (c == '+') return (19u, 1u);
 
                 return (0u, 3u);
             }

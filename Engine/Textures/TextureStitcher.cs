@@ -20,6 +20,9 @@ namespace DigBuild.Engine.Textures
 
         public ISprite Add(IBitmapTexture texture)
         {
+            if (_sprites.TryGetValue(texture.Name, out var currentInfo))
+                return currentInfo.Sprite;
+
             var info = _sprites[texture.Name] = new SpriteInfo(texture);
             return info.Sprite;
         }

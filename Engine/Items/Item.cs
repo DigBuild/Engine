@@ -8,12 +8,10 @@ namespace DigBuild.Engine.Items
 {
     public interface IItem
     {
-        void Post<TContext, TEvent>(TContext context, TEvent evt)
-            where TContext : IItemContext
-            where TEvent : IItemEvent<TContext>;
-        TOut Post<TContext, TEvent, TOut>(TContext context, TEvent evt)
-            where TContext : IItemContext
-            where TEvent : IItemEvent<TContext, TOut>;
+        void Post<TEvent>(IItemContext context, TEvent evt)
+            where TEvent : IItemEvent;
+        TOut Post<TEvent, TOut>(IItemContext context, TEvent evt)
+            where TEvent : IItemEvent<TOut>;
     }
 
     public sealed class Item : IItem
@@ -40,14 +38,14 @@ namespace DigBuild.Engine.Items
             Name = name;
         }
 
-        void IItem.Post<TContext, TEvent>(TContext context, TEvent evt)
+        void IItem.Post<TEvent>(IItemContext context, TEvent evt)
         {
             if (!_eventHandlers.TryGetValue(typeof(TEvent), out var handler))
                 throw new ArgumentException($"Attempted to post unregistered event: {typeof(TEvent)}", nameof(evt));
             handler(context, GetDataContainer(context), evt);
         }
 
-        TOut IItem.Post<TContext, TEvent, TOut>(TContext context, TEvent evt)
+        TOut IItem.Post<TEvent, TOut>(IItemContext context, TEvent evt)
         {
             if (!_eventHandlers.TryGetValue(typeof(TEvent), out var handler))
                 throw new ArgumentException($"Attempted to post unregistered event: {typeof(TEvent)}", nameof(evt));

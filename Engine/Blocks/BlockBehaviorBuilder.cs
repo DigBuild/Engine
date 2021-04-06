@@ -4,12 +4,10 @@ using DigBuild.Engine.Storage;
 
 namespace DigBuild.Engine.Blocks
 {
-    public delegate void BlockEventDelegate<in TContext, in TData, in TEvent>(TContext context, TData data, TEvent evt, Action next)
-        where TContext : IBlockContext
-        where TEvent : IBlockEvent<TContext>;
-    public delegate TResult BlockEventDelegate<in TContext, in TData, in TEvent, TResult>(TContext context, TData data, TEvent evt, Func<TResult> next)
-        where TContext : IBlockContext
-        where TEvent : IBlockEvent<TContext, TResult>;
+    public delegate void BlockEventDelegate<in TData, in TEvent>(IBlockContext context, TData data, TEvent evt, Action next)
+        where TEvent : IBlockEvent;
+    public delegate TResult BlockEventDelegate<in TData, in TEvent, TResult>(IBlockContext context, TData data, TEvent evt, Func<TResult> next)
+        where TEvent : IBlockEvent<TResult>;
     
     public delegate T BlockAttributeDelegate<in TData, T>(IReadOnlyBlockContext context, TData data, BlockAttribute<T> attribute, Func<T> next);
     public delegate T BlockCapabilityDelegate<in TData, T>(IBlockContext context, TData data, BlockCapability<T> capability, Func<T> next);
@@ -28,12 +26,10 @@ namespace DigBuild.Engine.Blocks
     public interface IBlockBehaviorBuilder<out TReadOnlyData, out TData> : IBlockBehaviorBuilder
         where TData : TReadOnlyData
     {
-        void Subscribe<TContext, TEvent>(BlockEventDelegate<TContext, TData, TEvent> del)
-            where TContext : IBlockContext
-            where TEvent : IBlockEvent<TContext>;
-        void Subscribe<TContext, TEvent, TResult>(BlockEventDelegate<TContext, TData, TEvent, TResult> del)
-            where TContext : IBlockContext
-            where TEvent : IBlockEvent<TContext, TResult>;
+        void Subscribe<TEvent>(BlockEventDelegate<TData, TEvent> del)
+            where TEvent : IBlockEvent;
+        void Subscribe<TEvent, TResult>(BlockEventDelegate<TData, TEvent, TResult> del)
+            where TEvent : IBlockEvent<TResult>;
         
         void Add<T>(BlockAttribute<T> attribute, BlockAttributeDelegate<TReadOnlyData, T> supplier);
         void Add<T>(BlockCapability<T> capability, BlockCapabilityDelegate<TData, T> supplier);
@@ -57,26 +53,26 @@ namespace DigBuild.Engine.Blocks
             _dataGetter = dataGetter;
         }
 
-        void IBlockBehaviorBuilder<TReadOnlyData, TData>.Subscribe<TContext, TEvent>(BlockEventDelegate<TContext, TData, TEvent> del)
+        void IBlockBehaviorBuilder<TReadOnlyData, TData>.Subscribe<TEvent>(BlockEventDelegate<TData, TEvent> del)
         {
             var type = typeof(TEvent);
             if (!_eventHandlers.TryGetValue(type, out var list))
                 _eventHandlers[type] = list = new List<BlockEventDelegate>();
             list.Add((context, dataContainer, evt, next) =>
             {
-                del((TContext) context, _dataGetter(dataContainer), (TEvent) evt, () => next());
+                del(context, _dataGetter(dataContainer), (TEvent) evt, () => next());
                 return null!;
             });
         }
 
-        void IBlockBehaviorBuilder<TReadOnlyData, TData>.Subscribe<TContext, TEvent, TResult>(BlockEventDelegate<TContext, TData, TEvent, TResult> del)
+        void IBlockBehaviorBuilder<TReadOnlyData, TData>.Subscribe<TEvent, TResult>(BlockEventDelegate<TData, TEvent, TResult> del)
         {
             var type = typeof(TEvent);
             if (!_eventHandlers.TryGetValue(type, out var list))
                 _eventHandlers[type] = list = new List<BlockEventDelegate>();
             list.Add((context, dataContainer, evt, next) =>
             {
-                return del((TContext) context, _dataGetter(dataContainer), (TEvent) evt, () => (TResult) next())!;
+                return del(context, _dataGetter(dataContainer), (TEvent) evt, () => (TResult) next())!;
             });
         }
 

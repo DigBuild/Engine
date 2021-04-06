@@ -10,12 +10,10 @@ namespace DigBuild.Engine.Blocks
 {
     public interface IBlock
     {
-        void Post<TContext, TEvent>(TContext context, TEvent evt)
-            where TContext : IBlockContext
-            where TEvent : IBlockEvent<TContext>;
-        TOut Post<TContext, TEvent, TOut>(TContext context, TEvent evt)
-            where TContext : IBlockContext
-            where TEvent : IBlockEvent<TContext, TOut>;
+        void Post<TEvent>(IBlockContext context, TEvent evt)
+            where TEvent : IBlockEvent;
+        TOut Post<TEvent, TOut>(IBlockContext context, TEvent evt)
+            where TEvent : IBlockEvent<TOut>;
     }
 
     public sealed class Block : IBlock
@@ -42,14 +40,14 @@ namespace DigBuild.Engine.Blocks
             Name = name;
         }
 
-        void IBlock.Post<TContext, TEvent>(TContext context, TEvent evt)
+        void IBlock.Post<TEvent>(IBlockContext context, TEvent evt)
         {
             if (!_eventHandlers.TryGetValue(typeof(TEvent), out var handler))
                 throw new ArgumentException($"Attempted to post unregistered event: {typeof(TEvent)}", nameof(evt));
             handler(context, GetDataContainer(context), evt);
         }
 
-        TOut IBlock.Post<TContext, TEvent, TOut>(TContext context, TEvent evt)
+        TOut IBlock.Post<TEvent, TOut>(IBlockContext context, TEvent evt)
         {
             if (!_eventHandlers.TryGetValue(typeof(TEvent), out var handler))
                 throw new ArgumentException($"Attempted to post unregistered event: {typeof(TEvent)}", nameof(evt));

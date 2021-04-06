@@ -4,11 +4,11 @@ namespace DigBuild.Engine.BuiltIn
 {
     public static class BuiltInEntityEvent
     {
-        public class JoinedWorld : IEntityEvent<IEntityContext>
+        public class JoinedWorld : IEntityEvent
         {
         }
 
-        public class LeavingWorld : IEntityEvent<IEntityContext>
+        public class LeavingWorld : IEntityEvent
         {
         }
     }
@@ -17,7 +17,7 @@ namespace DigBuild.Engine.BuiltIn
     {
         public static void Subscribe<TReadOnlyData, TData>(
             this IEntityBehaviorBuilder<TReadOnlyData, TData> builder,
-            EntityEventDelegate<IEntityContext, TData, BuiltInEntityEvent.JoinedWorld> onJoinedWorld
+            EntityEventDelegate<TData, BuiltInEntityEvent.JoinedWorld> onJoinedWorld
         )
             where TData : TReadOnlyData
         {
@@ -31,7 +31,7 @@ namespace DigBuild.Engine.BuiltIn
 
         public static void Subscribe<TReadOnlyData, TData>(
             this IEntityBehaviorBuilder<TReadOnlyData, TData> builder,
-            EntityEventDelegate<IEntityContext, TData, BuiltInEntityEvent.LeavingWorld> onLeavingWorld
+            EntityEventDelegate<TData, BuiltInEntityEvent.LeavingWorld> onLeavingWorld
         )
             where TData : TReadOnlyData
         {

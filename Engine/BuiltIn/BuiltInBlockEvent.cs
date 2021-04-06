@@ -4,11 +4,11 @@ namespace DigBuild.Engine.BuiltIn
 {
     public static class BuiltInBlockEvent
     {
-        public class JoinedWorld : IBlockEvent<IBlockContext>
+        public class JoinedWorld : IBlockEvent
         {
         }
 
-        public class LeavingWorld : IBlockEvent<IBlockContext>
+        public class LeavingWorld : IBlockEvent
         {
         }
     }
@@ -17,7 +17,7 @@ namespace DigBuild.Engine.BuiltIn
     {
         public static void Subscribe<TReadOnlyData, TData>(
             this IBlockBehaviorBuilder<TReadOnlyData, TData> builder,
-            BlockEventDelegate<IBlockContext, TData, BuiltInBlockEvent.JoinedWorld> onJoinedWorld
+            BlockEventDelegate<TData, BuiltInBlockEvent.JoinedWorld> onJoinedWorld
         )
             where TData : TReadOnlyData
         {
@@ -31,7 +31,7 @@ namespace DigBuild.Engine.BuiltIn
 
         public static void Subscribe<TReadOnlyData, TData>(
             this IBlockBehaviorBuilder<TReadOnlyData, TData> builder,
-            BlockEventDelegate<IBlockContext, TData, BuiltInBlockEvent.LeavingWorld> onLeavingWorld
+            BlockEventDelegate<TData, BuiltInBlockEvent.LeavingWorld> onLeavingWorld
         )
             where TData : TReadOnlyData
         {

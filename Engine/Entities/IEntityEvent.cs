@@ -7,11 +7,7 @@ namespace DigBuild.Engine.Entities
     {
     }
 
-    public interface IEntityEvent<TContext> : IEntityEvent where TContext : IEntityContext
-    {
-    }
-
-    public interface IEntityEvent<TContext, TOut> : IEntityEvent where TContext : IEntityContext
+    public interface IEntityEvent<TOut> : IEntityEvent
     {
     }
 
@@ -27,28 +23,26 @@ namespace DigBuild.Engine.Entities
     
     public static class EntityEventRegistryBuilderExtensions
     {
-        public static void Register<TContext, TEvent>(
+        public static void Register<TEvent>(
             this IExtendedTypeRegistryBuilder<IEntityEvent, EntityEventInfo> registry,
-            Action<TContext, TEvent> defaultHandler
+            Action<IEntityContext, TEvent> defaultHandler
         )
-            where TContext : IEntityContext
-            where TEvent : IEntityEvent<TContext>
+            where TEvent : IEntityEvent
         {
             registry.Add(typeof(TEvent), new EntityEventInfo((context, _, evt) =>
             {
-                defaultHandler((TContext) context, (TEvent) evt);
+                defaultHandler(context, (TEvent) evt);
                 return null!;
             }));
         }
 
-        public static void Register<TContext, TEvent, TResult>(
+        public static void Register<TEvent, TResult>(
             this IExtendedTypeRegistryBuilder<IEntityEvent, EntityEventInfo> registry,
-            Func<TContext, TEvent, TResult> defaultHandler
+            Func<IEntityContext, TEvent, TResult> defaultHandler
         )
-            where TContext : IEntityContext
-            where TEvent : IEntityEvent<TContext, TResult>
+            where TEvent : IEntityEvent<TResult>
         {
-            registry.Add(typeof(TEvent), new EntityEventInfo((context, _, evt) => defaultHandler((TContext) context, (TEvent) evt)!));
+            registry.Add(typeof(TEvent), new EntityEventInfo((context, _, evt) => defaultHandler(context, (TEvent) evt)!));
         }
     }
 }

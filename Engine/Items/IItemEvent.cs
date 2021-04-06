@@ -6,12 +6,8 @@ namespace DigBuild.Engine.Items
     public interface IItemEvent
     {
     }
-
-    public interface IItemEvent<TContext> : IItemEvent where TContext : IItemContext
-    {
-    }
-
-    public interface IItemEvent<TContext, TOut> : IItemEvent where TContext : IItemContext
+    
+    public interface IItemEvent<TOut> : IItemEvent
     {
     }
 
@@ -27,28 +23,26 @@ namespace DigBuild.Engine.Items
     
     public static class ItemEventRegistryBuilderExtensions
     {
-        public static void Register<TContext, TEvent>(
+        public static void Register<TEvent>(
             this IExtendedTypeRegistryBuilder<IItemEvent, ItemEventInfo> registry,
-            Action<TContext, TEvent> defaultHandler
+            Action<IItemContext, TEvent> defaultHandler
         )
-            where TContext : IItemContext
-            where TEvent : IItemEvent<TContext>
+            where TEvent : IItemEvent
         {
             registry.Add(typeof(TEvent), new ItemEventInfo((context, _, evt) =>
             {
-                defaultHandler((TContext) context, (TEvent) evt);
+                defaultHandler(context, (TEvent) evt);
                 return null!;
             }));
         }
 
-        public static void Register<TContext, TEvent, TResult>(
+        public static void Register<TEvent, TResult>(
             this IExtendedTypeRegistryBuilder<IItemEvent, ItemEventInfo> registry,
-            Func<TContext, TEvent, TResult> defaultHandler
+            Func<IItemContext, TEvent, TResult> defaultHandler
         )
-            where TContext : IItemContext
-            where TEvent : IItemEvent<TContext, TResult>
+            where TEvent : IItemEvent<TResult>
         {
-            registry.Add(typeof(TEvent), new ItemEventInfo((context, _, evt) => defaultHandler((TContext) context, (TEvent) evt)!));
+            registry.Add(typeof(TEvent), new ItemEventInfo((context, _, evt) => defaultHandler(context, (TEvent) evt)!));
         }
     }
 }

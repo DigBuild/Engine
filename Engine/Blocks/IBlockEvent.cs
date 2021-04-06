@@ -7,11 +7,7 @@ namespace DigBuild.Engine.Blocks
     {
     }
 
-    public interface IBlockEvent<TContext> : IBlockEvent where TContext : IBlockContext
-    {
-    }
-
-    public interface IBlockEvent<TContext, TOut> : IBlockEvent where TContext : IBlockContext
+    public interface IBlockEvent<TOut> : IBlockEvent
     {
     }
 
@@ -27,28 +23,26 @@ namespace DigBuild.Engine.Blocks
     
     public static class BlockEventRegistryBuilderExtensions
     {
-        public static void Register<TContext, TEvent>(
+        public static void Register<TEvent>(
             this IExtendedTypeRegistryBuilder<IBlockEvent, BlockEventInfo> registry,
-            Action<TContext, TEvent> defaultHandler
+            Action<IBlockContext, TEvent> defaultHandler
         )
-            where TContext : IBlockContext
-            where TEvent : IBlockEvent<TContext>
+            where TEvent : IBlockEvent
         {
             registry.Add(typeof(TEvent), new BlockEventInfo((context, _, evt) =>
             {
-                defaultHandler((TContext) context, (TEvent) evt);
+                defaultHandler(context, (TEvent) evt);
                 return null!;
             }));
         }
 
-        public static void Register<TContext, TEvent, TResult>(
+        public static void Register<TEvent, TResult>(
             this IExtendedTypeRegistryBuilder<IBlockEvent, BlockEventInfo> registry,
-            Func<TContext, TEvent, TResult> defaultHandler
+            Func<IBlockContext, TEvent, TResult> defaultHandler
         )
-            where TContext : IBlockContext
-            where TEvent : IBlockEvent<TContext, TResult>
+            where TEvent : IBlockEvent<TResult>
         {
-            registry.Add(typeof(TEvent), new BlockEventInfo((context, _, evt) => defaultHandler((TContext) context, (TEvent) evt)!));
+            registry.Add(typeof(TEvent), new BlockEventInfo((context, _, evt) => defaultHandler(context, (TEvent) evt)!));
         }
     }
 }

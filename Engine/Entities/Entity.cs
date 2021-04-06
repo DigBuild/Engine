@@ -8,12 +8,10 @@ namespace DigBuild.Engine.Entities
 {
     public interface IEntity
     {
-        void Post<TContext, TEvent>(TContext context, TEvent evt)
-            where TContext : IEntityContext
-            where TEvent : IEntityEvent<TContext>;
-        TOut Post<TContext, TEvent, TOut>(TContext context, TEvent evt)
-            where TContext : IEntityContext
-            where TEvent : IEntityEvent<TContext, TOut>;
+        void Post<TEvent>(IEntityContext context, TEvent evt)
+            where TEvent : IEntityEvent;
+        TOut Post<TEvent, TOut>(IEntityContext context, TEvent evt)
+            where TEvent : IEntityEvent<TOut>;
     }
 
     public sealed class Entity : IEntity
@@ -40,14 +38,14 @@ namespace DigBuild.Engine.Entities
             Name = name;
         }
 
-        void IEntity.Post<TContext, TEvent>(TContext context, TEvent evt)
+        void IEntity.Post<TEvent>(IEntityContext context, TEvent evt)
         {
             if (!_eventHandlers.TryGetValue(typeof(TEvent), out var handler))
                 throw new ArgumentException($"Attempted to post unregistered event: {typeof(TEvent)}", nameof(evt));
             handler(context, GetDataContainer(context), evt);
         }
 
-        TOut IEntity.Post<TContext, TEvent, TOut>(TContext context, TEvent evt)
+        TOut IEntity.Post<TEvent, TOut>(IEntityContext context, TEvent evt)
         {
             if (!_eventHandlers.TryGetValue(typeof(TEvent), out var handler))
                 throw new ArgumentException($"Attempted to post unregistered event: {typeof(TEvent)}", nameof(evt));

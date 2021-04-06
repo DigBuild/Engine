@@ -4,12 +4,10 @@ using DigBuild.Engine.Storage;
 
 namespace DigBuild.Engine.Entities
 {
-    public delegate void EntityEventDelegate<in TContext, in TData, in TEvent>(TContext context, TData data, TEvent evt, Action next)
-        where TContext : IEntityContext
-        where TEvent : IEntityEvent<TContext>;
-    public delegate TResult EntityEventDelegate<in TContext, in TData, in TEvent, TResult>(TContext context, TData data, TEvent evt, Func<TResult> next)
-        where TContext : IEntityContext
-        where TEvent : IEntityEvent<TContext, TResult>;
+    public delegate void EntityEventDelegate<in TData, in TEvent>(IEntityContext context, TData data, TEvent evt, Action next)
+        where TEvent : IEntityEvent;
+    public delegate TResult EntityEventDelegate<in TData, in TEvent, TResult>(IEntityContext context, TData data, TEvent evt, Func<TResult> next)
+        where TEvent : IEntityEvent<TResult>;
     
     public delegate T EntityAttributeDelegate<in TData, T>(IReadOnlyEntityContext context, TData data, EntityAttribute<T> attribute, Func<T> next);
     public delegate T EntityCapabilityDelegate<in TData, T>(IEntityContext context, TData data, EntityCapability<T> capability, Func<T> next);
@@ -28,12 +26,10 @@ namespace DigBuild.Engine.Entities
     public interface IEntityBehaviorBuilder<out TReadOnlyData, out TData> : IEntityBehaviorBuilder
         where TData : TReadOnlyData
     {
-        void Subscribe<TContext, TEvent>(EntityEventDelegate<TContext, TData, TEvent> del)
-            where TContext : IEntityContext
-            where TEvent : IEntityEvent<TContext>;
-        void Subscribe<TContext, TEvent, TResult>(EntityEventDelegate<TContext, TData, TEvent, TResult> del)
-            where TContext : IEntityContext
-            where TEvent : IEntityEvent<TContext, TResult>;
+        void Subscribe<TEvent>(EntityEventDelegate<TData, TEvent> del)
+            where TEvent : IEntityEvent;
+        void Subscribe<TEvent, TResult>(EntityEventDelegate<TData, TEvent, TResult> del)
+            where TEvent : IEntityEvent<TResult>;
         
         void Add<T>(EntityAttribute<T> attribute, EntityAttributeDelegate<TReadOnlyData, T> supplier);
         void Add<T>(EntityCapability<T> capability, EntityCapabilityDelegate<TData, T> supplier);
@@ -57,26 +53,26 @@ namespace DigBuild.Engine.Entities
             _dataGetter = dataGetter;
         }
 
-        void IEntityBehaviorBuilder<TReadOnlyData, TData>.Subscribe<TContext, TEvent>(EntityEventDelegate<TContext, TData, TEvent> del)
+        void IEntityBehaviorBuilder<TReadOnlyData, TData>.Subscribe<TEvent>(EntityEventDelegate<TData, TEvent> del)
         {
             var type = typeof(TEvent);
             if (!_eventHandlers.TryGetValue(type, out var list))
                 _eventHandlers[type] = list = new List<EntityEventDelegate>();
             list.Add((context, dataContainer, evt, next) =>
             {
-                del((TContext) context, _dataGetter(dataContainer), (TEvent) evt, () => next());
+                del(context, _dataGetter(dataContainer), (TEvent) evt, () => next());
                 return null!;
             });
         }
 
-        void IEntityBehaviorBuilder<TReadOnlyData, TData>.Subscribe<TContext, TEvent, TResult>(EntityEventDelegate<TContext, TData, TEvent, TResult> del)
+        void IEntityBehaviorBuilder<TReadOnlyData, TData>.Subscribe<TEvent, TResult>(EntityEventDelegate<TData, TEvent, TResult> del)
         {
             var type = typeof(TEvent);
             if (!_eventHandlers.TryGetValue(type, out var list))
                 _eventHandlers[type] = list = new List<EntityEventDelegate>();
             list.Add((context, dataContainer, evt, next) =>
             {
-                return del((TContext) context, _dataGetter(dataContainer), (TEvent) evt, () => (TResult) next())!;
+                return del(context, _dataGetter(dataContainer), (TEvent) evt, () => (TResult) next())!;
             });
         }
 

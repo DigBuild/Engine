@@ -48,20 +48,20 @@ namespace DigBuild.Engine.Worlds
 
     public static class BlockChunkStorageWorldExtensions
     {
-        public static Block? GetBlock(this IReadOnlyChunk chunk, BlockPos pos)
+        public static Block? GetBlock(this IReadOnlyChunk chunk, SubChunkPos pos)
         {
-            return chunk.Get(BlockChunkStorage.Type).GetBlock(pos.SubChunkPos);
+            return chunk.Get(BlockChunkStorage.Type).GetBlock(pos);
         }
 
-        public static bool SetBlock(this IChunk chunk, BlockPos pos, Block? block)
+        public static bool SetBlock(this IChunk chunk, SubChunkPos pos, Block? block)
         {
-            chunk.Get(BlockChunkStorage.Type).SetBlock(pos.SubChunkPos, block);
+            chunk.Get(BlockChunkStorage.Type).SetBlock(pos, block);
             return true;
         }
         
         public static Block? GetBlock(this IReadOnlyWorld world, BlockPos pos)
         {
-            return world.GetChunk(pos.ChunkPos)?.GetBlock(pos);
+            return world.GetChunk(pos.ChunkPos)?.GetBlock(pos.SubChunkPos);
         }
 
         public static bool SetBlock(this IWorld world, BlockPos pos, Block? block, bool notifyLeave = true, bool notifyJoin = true)

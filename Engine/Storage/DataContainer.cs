@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using DigBuild.Engine.Serialization;
 
 namespace DigBuild.Engine.Storage
 {
@@ -20,5 +21,10 @@ namespace DigBuild.Engine.Storage
                 copy._data[handle] = data.Copy();
             return copy;
         }
+
+        public static ISerdes<DataContainer> Serdes { get; } = new SimpleSerdes<DataContainer>(
+            (stream, container) => { },
+            stream => new DataContainer()
+        );
     }
 }

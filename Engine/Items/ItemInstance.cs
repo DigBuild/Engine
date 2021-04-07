@@ -1,4 +1,8 @@
-﻿using DigBuild.Engine.Storage;
+﻿using System.IO;
+using DigBuild.Engine.BuiltIn;
+using DigBuild.Engine.Serialization;
+using DigBuild.Engine.Storage;
+using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Items
 {
@@ -35,5 +39,36 @@ namespace DigBuild.Engine.Items
         {
             return Count == 0 ? "Empty" : $"{Count}x {Type.Name}";
         }
+
+        public static ISerdes<ItemInstance> Serdes { get; } = new SimpleSerdes<ItemInstance>(
+            (stream, item) =>
+            {
+                var bw = new BinaryWriter(stream);
+
+                bw.Write(item.Count);
+                if (item.Count == 0)
+                    return;
+
+                var itemName = BuiltInRegistries.Items.GetNameOrNull(item.Type)!.Value;
+                bw.Write(itemName.ToString());
+
+                Storage.DataContainer.Serdes.Serialize(stream, item.DataContainer);
+            },
+            stream =>
+            {
+                var br = new BinaryReader(stream);
+
+                var count = br.ReadUInt16();
+                if (count == 0)
+                    return Empty;
+
+                var itemName = ResourceName.Parse(br.ReadString())!.Value;
+                var item = BuiltInRegistries.Items.GetOrNull(itemName)!;
+
+                var data = Storage.DataContainer.Serdes.Deserialize(stream);
+
+                return new ItemInstance(item, count, data);
+            }
+        );
     }
 }

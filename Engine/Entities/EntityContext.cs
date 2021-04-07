@@ -1,6 +1,6 @@
 ﻿namespace DigBuild.Engine.Entities
 {
-    public sealed class EntityContext : IEntityContext
+    public class EntityContext : IEntityContext
     {
         public EntityInstance Entity { get; }
 

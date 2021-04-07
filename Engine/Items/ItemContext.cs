@@ -1,6 +1,6 @@
 ﻿namespace DigBuild.Engine.Items
 {
-    public sealed class ItemContext : IItemContext
+    public class ItemContext : IItemContext
     {
         public ItemInstance Instance { get; }
 

@@ -3,11 +3,15 @@ using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Engine.Blocks
 {
-    public sealed class BlockContext : IBlockContext
+    public class BlockContext : IBlockContext
     {
         public IWorld World { get; }
         public BlockPos Pos { get; }
         public Block Block { get; }
+
+        public BlockContext(IBlockContext context) : this(context.World, context.Pos, context.Block)
+        {
+        }
 
         public BlockContext(IWorld world, BlockPos pos, Block block)
         {

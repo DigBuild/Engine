@@ -3,7 +3,7 @@ using DigBuild.Engine.Registries;
 
 namespace DigBuild.Engine.Items
 {
-    public interface IItemEvent
+    public interface IItemEvent : IItemContext
     {
     }
     
@@ -25,24 +25,24 @@ namespace DigBuild.Engine.Items
     {
         public static void Register<TEvent>(
             this IExtendedTypeRegistryBuilder<IItemEvent, ItemEventInfo> registry,
-            Action<IItemContext, TEvent> defaultHandler
+            Action<TEvent> defaultHandler
         )
             where TEvent : IItemEvent
         {
-            registry.Add(typeof(TEvent), new ItemEventInfo((context, _, evt) =>
+            registry.Add(typeof(TEvent), new ItemEventInfo((evt, _) =>
             {
-                defaultHandler(context, (TEvent) evt);
+                defaultHandler((TEvent) evt);
                 return null!;
             }));
         }
 
         public static void Register<TEvent, TResult>(
             this IExtendedTypeRegistryBuilder<IItemEvent, ItemEventInfo> registry,
-            Func<IItemContext, TEvent, TResult> defaultHandler
+            Func<TEvent, TResult> defaultHandler
         )
             where TEvent : IItemEvent<TResult>
         {
-            registry.Add(typeof(TEvent), new ItemEventInfo((context, _, evt) => defaultHandler(context, (TEvent) evt)!));
+            registry.Add(typeof(TEvent), new ItemEventInfo((evt, _) => defaultHandler((TEvent) evt)!));
         }
     }
 }

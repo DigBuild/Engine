@@ -1,15 +1,23 @@
 ﻿using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Math;
+using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Engine.BuiltIn
 {
     public static class BuiltInBlockEvent
     {
-        public class JoinedWorld : IBlockEvent
+        public class JoinedWorld : BlockContext, IBlockEvent
         {
+            public JoinedWorld(IWorld world, BlockPos pos, Block block) : base(world, pos, block)
+            {
+            }
         }
 
-        public class LeavingWorld : IBlockEvent
+        public class LeavingWorld : BlockContext, IBlockEvent
         {
+            public LeavingWorld(IWorld world, BlockPos pos, Block block) : base(world, pos, block)
+            {
+            }
         }
     }
 
@@ -24,9 +32,9 @@ namespace DigBuild.Engine.BuiltIn
             builder.Subscribe(onJoinedWorld);
         }
 
-        public static void OnJoinedWorld(this IBlock block, IBlockContext context, BuiltInBlockEvent.JoinedWorld evt)
+        public static void OnJoinedWorld(this Block block, IWorld world, BlockPos pos)
         {
-            block.Post(context, evt);
+            block.Post(new BuiltInBlockEvent.JoinedWorld(world, pos, block));
         }
 
         public static void Subscribe<TReadOnlyData, TData>(
@@ -38,9 +46,9 @@ namespace DigBuild.Engine.BuiltIn
             builder.Subscribe(onLeavingWorld);
         }
 
-        public static void OnLeavingWorld(this IBlock block, IBlockContext context, BuiltInBlockEvent.LeavingWorld evt)
+        public static void OnLeavingWorld(this Block block, IWorld world, BlockPos pos)
         {
-            block.Post(context, evt);
+            block.Post(new BuiltInBlockEvent.LeavingWorld(world, pos, block));
         }
     }
 }

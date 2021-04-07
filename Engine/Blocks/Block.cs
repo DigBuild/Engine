@@ -8,15 +8,7 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Blocks
 {
-    public interface IBlock
-    {
-        void Post<TEvent>(IBlockContext context, TEvent evt)
-            where TEvent : IBlockEvent;
-        TOut Post<TEvent, TOut>(IBlockContext context, TEvent evt)
-            where TEvent : IBlockEvent<TOut>;
-    }
-
-    public sealed class Block : IBlock
+    public sealed class Block
     {
         private readonly IReadOnlyDictionary<Type, GenericBlockEventDelegate> _eventHandlers;
         private readonly IReadOnlyDictionary<IBlockAttribute, GenericBlockAttributeDelegate> _attributeSuppliers;
@@ -40,18 +32,18 @@ namespace DigBuild.Engine.Blocks
             Name = name;
         }
 
-        void IBlock.Post<TEvent>(IBlockContext context, TEvent evt)
+        public void Post<TEvent>(TEvent evt) where TEvent : IBlockEvent
         {
             if (!_eventHandlers.TryGetValue(typeof(TEvent), out var handler))
                 throw new ArgumentException($"Attempted to post unregistered event: {typeof(TEvent)}", nameof(evt));
-            handler(context, GetDataContainer(context), evt);
+            handler(evt, GetDataContainer(evt));
         }
 
-        TOut IBlock.Post<TEvent, TOut>(IBlockContext context, TEvent evt)
+        public TOut Post<TEvent, TOut>(TEvent evt) where TEvent : IBlockEvent<TOut>
         {
             if (!_eventHandlers.TryGetValue(typeof(TEvent), out var handler))
                 throw new ArgumentException($"Attempted to post unregistered event: {typeof(TEvent)}", nameof(evt));
-            return (TOut) handler(context, GetDataContainer(context), evt);
+            return (TOut) handler(evt, GetDataContainer(evt));
         }
 
         public TAttrib Get<TAttrib>(IReadOnlyBlockContext context, BlockAttribute<TAttrib> attribute)

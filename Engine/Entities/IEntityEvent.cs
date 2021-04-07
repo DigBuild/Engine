@@ -1,9 +1,10 @@
 ﻿using System;
+using DigBuild.Engine.Events;
 using DigBuild.Engine.Registries;
 
 namespace DigBuild.Engine.Entities
 {
-    public interface IEntityEvent
+    public interface IEntityEvent : IEvent, IEntityContext
     {
     }
 
@@ -25,24 +26,24 @@ namespace DigBuild.Engine.Entities
     {
         public static void Register<TEvent>(
             this IExtendedTypeRegistryBuilder<IEntityEvent, EntityEventInfo> registry,
-            Action<IEntityContext, TEvent> defaultHandler
+            Action<TEvent> defaultHandler
         )
             where TEvent : IEntityEvent
         {
-            registry.Add(typeof(TEvent), new EntityEventInfo((context, _, evt) =>
+            registry.Add(typeof(TEvent), new EntityEventInfo((evt, _) =>
             {
-                defaultHandler(context, (TEvent) evt);
+                defaultHandler((TEvent) evt);
                 return null!;
             }));
         }
 
         public static void Register<TEvent, TResult>(
             this IExtendedTypeRegistryBuilder<IEntityEvent, EntityEventInfo> registry,
-            Func<IEntityContext, TEvent, TResult> defaultHandler
+            Func<TEvent, TResult> defaultHandler
         )
             where TEvent : IEntityEvent<TResult>
         {
-            registry.Add(typeof(TEvent), new EntityEventInfo((context, _, evt) => defaultHandler(context, (TEvent) evt)!));
+            registry.Add(typeof(TEvent), new EntityEventInfo((evt, _) => defaultHandler((TEvent) evt)!));
         }
     }
 }

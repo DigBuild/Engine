@@ -8,7 +8,7 @@ namespace DigBuild.Engine.Entities
 {
     public delegate ref TOut RefFunc<in TIn, TOut>(TIn input);
     
-    internal delegate object GenericEntityEventDelegate(IEntityContext context, DataContainer dataContainer, IEntityEvent evt);
+    internal delegate object GenericEntityEventDelegate(IEntityEvent evt, DataContainer dataContainer);
     internal delegate object GenericEntityAttributeDelegate(IReadOnlyEntityContext context, DataContainer dataContainer);
     internal delegate object GenericEntityCapabilityDelegate(IEntityContext context, DataContainer dataContainer);
 
@@ -140,11 +140,11 @@ namespace DigBuild.Engine.Entities
                 var defaultHandler = eventRegistry[evtType].DefaultHandler;
                 GenericEntityEventDelegate GetDelegate(int i)
                 {
-                    return (context, dataContainer, evt) =>
+                    return (evt, dataContainer) =>
                     {
                         if (i >= handlers.Count)
-                            return defaultHandler(context, dataContainer, evt);
-                        return handlers[i](context, dataContainer, evt, () => GetDelegate(i + 1)(context, dataContainer, evt));
+                            return defaultHandler(evt, dataContainer);
+                        return handlers[i](evt, dataContainer, () => GetDelegate(i + 1)(evt, dataContainer));
                     };
                 }
                 eventHandlers[evtType] = GetDelegate(0);

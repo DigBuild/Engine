@@ -6,15 +6,7 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Items
 {
-    public interface IItem
-    {
-        void Post<TEvent>(IItemContext context, TEvent evt)
-            where TEvent : IItemEvent;
-        TOut Post<TEvent, TOut>(IItemContext context, TEvent evt)
-            where TEvent : IItemEvent<TOut>;
-    }
-
-    public sealed class Item : IItem
+    public sealed class Item
     {
         private readonly IReadOnlyDictionary<Type, GenericItemEventDelegate> _eventHandlers;
         private readonly IReadOnlyDictionary<IItemAttribute, GenericItemAttributeDelegate> _attributeSuppliers;
@@ -38,18 +30,18 @@ namespace DigBuild.Engine.Items
             Name = name;
         }
 
-        void IItem.Post<TEvent>(IItemContext context, TEvent evt)
+        public void Post<TEvent>(TEvent evt) where TEvent : IItemEvent
         {
             if (!_eventHandlers.TryGetValue(typeof(TEvent), out var handler))
                 throw new ArgumentException($"Attempted to post unregistered event: {typeof(TEvent)}", nameof(evt));
-            handler(context, GetDataContainer(context), evt);
+            handler(evt, GetDataContainer(evt));
         }
 
-        TOut IItem.Post<TEvent, TOut>(IItemContext context, TEvent evt)
+        public TOut Post<TEvent, TOut>(TEvent evt) where TEvent : IItemEvent<TOut>
         {
             if (!_eventHandlers.TryGetValue(typeof(TEvent), out var handler))
                 throw new ArgumentException($"Attempted to post unregistered event: {typeof(TEvent)}", nameof(evt));
-            return (TOut) handler(context, GetDataContainer(context), evt);
+            return (TOut) handler(evt, GetDataContainer(evt));
         }
 
         public TAttrib Get<TAttrib>(IReadOnlyItemContext context, ItemAttribute<TAttrib> attribute)

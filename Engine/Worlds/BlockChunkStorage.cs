@@ -73,14 +73,14 @@ namespace DigBuild.Engine.Worlds
             if (notifyLeave)
             {
                 var curBlock = storage.GetBlock(pos.SubChunkPos);
-                curBlock?.OnLeavingWorld(new BlockContext(world, pos, curBlock), new BuiltInBlockEvent.LeavingWorld());
+                curBlock?.OnLeavingWorld(world, pos);
             }
 
             storage.SetBlock(pos.SubChunkPos, block);
 
             if (notifyJoin && block != null)
             {
-                block.OnJoinedWorld(new BlockContext(world, pos, block), new BuiltInBlockEvent.JoinedWorld());
+                block.OnJoinedWorld(world, pos);
             }
 
             world.OnBlockChanged(pos);

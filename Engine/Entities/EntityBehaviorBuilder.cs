@@ -4,15 +4,15 @@ using DigBuild.Engine.Storage;
 
 namespace DigBuild.Engine.Entities
 {
-    public delegate void EntityEventDelegate<in TData, in TEvent>(IEntityContext context, TData data, TEvent evt, Action next)
+    public delegate void EntityEventDelegate<in TData, in TEvent>(TEvent evt, TData data, Action next)
         where TEvent : IEntityEvent;
-    public delegate TResult EntityEventDelegate<in TData, in TEvent, TResult>(IEntityContext context, TData data, TEvent evt, Func<TResult> next)
+    public delegate TResult EntityEventDelegate<in TData, in TEvent, TResult>(TEvent evt, TData data, Func<TResult> next)
         where TEvent : IEntityEvent<TResult>;
     
-    public delegate T EntityAttributeDelegate<in TData, T>(IReadOnlyEntityContext context, TData data, EntityAttribute<T> attribute, Func<T> next);
-    public delegate T EntityCapabilityDelegate<in TData, T>(IEntityContext context, TData data, EntityCapability<T> capability, Func<T> next);
+    public delegate T EntityAttributeDelegate<in TData, T>(IReadOnlyEntityContext context, TData data, Func<T> next);
+    public delegate T EntityCapabilityDelegate<in TData, T>(IEntityContext context, TData data, Func<T> next);
     
-    internal delegate object EntityEventDelegate(IEntityContext context, DataContainer dataContainer, IEntityEvent evt, Func<object> next);
+    internal delegate object EntityEventDelegate(IEntityEvent evt, DataContainer dataContainer, Func<object> next);
     internal delegate object EntityAttributeDelegate(IReadOnlyEntityContext context, DataContainer dataContainer, Func<object> next);
     internal delegate object EntityCapabilityDelegate(IEntityContext context, DataContainer dataContainer, Func<object> next);
 
@@ -58,9 +58,9 @@ namespace DigBuild.Engine.Entities
             var type = typeof(TEvent);
             if (!_eventHandlers.TryGetValue(type, out var list))
                 _eventHandlers[type] = list = new List<EntityEventDelegate>();
-            list.Add((context, dataContainer, evt, next) =>
+            list.Add((evt, dataContainer, next) =>
             {
-                del(context, _dataGetter(dataContainer), (TEvent) evt, () => next());
+                del((TEvent) evt, _dataGetter(dataContainer), () => next());
                 return null!;
             });
         }
@@ -70,9 +70,9 @@ namespace DigBuild.Engine.Entities
             var type = typeof(TEvent);
             if (!_eventHandlers.TryGetValue(type, out var list))
                 _eventHandlers[type] = list = new List<EntityEventDelegate>();
-            list.Add((context, dataContainer, evt, next) =>
+            list.Add((evt, dataContainer, next) =>
             {
-                return del(context, _dataGetter(dataContainer), (TEvent) evt, () => (TResult) next())!;
+                return del((TEvent) evt, _dataGetter(dataContainer), () => (TResult) next())!;
             });
         }
 
@@ -82,7 +82,7 @@ namespace DigBuild.Engine.Entities
                 _attributeSuppliers[attribute] = list = new List<EntityAttributeDelegate>();
             list.Add((context, dataContainer, next) =>
             {
-                return supplier(context, _dataGetter(dataContainer), attribute, () => (T) next())!;
+                return supplier(context, _dataGetter(dataContainer), () => (T) next())!;
             });
         }
 
@@ -92,7 +92,7 @@ namespace DigBuild.Engine.Entities
                 _capabilitySuppliers[capability] = list = new List<EntityCapabilityDelegate>();
             list.Add((context, dataContainer, next) =>
             {
-                return supplier(context, _dataGetter(dataContainer), capability, () => (T) next())!;
+                return supplier(context, _dataGetter(dataContainer), () => (T) next())!;
             });
         }
     }

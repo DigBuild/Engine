@@ -78,7 +78,7 @@ namespace DigBuild.Engine.Worlds
         {
             var entity = world.Get(EntityWorldStorage.Type).Add(world, type);
             world.OnEntityAdded(entity);
-            type.OnJoinedWorld(new EntityContext(entity), new BuiltInEntityEvent.JoinedWorld());
+            type.OnJoinedWorld(entity);
             return entity;
         }
 
@@ -86,7 +86,7 @@ namespace DigBuild.Engine.Worlds
         {
             var storage = world.Get(EntityWorldStorage.Type);
             var entity = storage.Get(guid);
-            entity?.Type.OnLeavingWorld(new EntityContext(entity), new BuiltInEntityEvent.LeavingWorld());
+            entity?.Type.OnLeavingWorld(entity);
             storage.Remove(guid);
             world.OnEntityRemoved(guid);
         }

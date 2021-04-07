@@ -4,15 +4,15 @@ using DigBuild.Engine.Storage;
 
 namespace DigBuild.Engine.Blocks
 {
-    public delegate void BlockEventDelegate<in TData, in TEvent>(IBlockContext context, TData data, TEvent evt, Action next)
+    public delegate void BlockEventDelegate<in TData, in TEvent>(TEvent evt, TData data, Action next)
         where TEvent : IBlockEvent;
-    public delegate TResult BlockEventDelegate<in TData, in TEvent, TResult>(IBlockContext context, TData data, TEvent evt, Func<TResult> next)
+    public delegate TResult BlockEventDelegate<in TData, in TEvent, TResult>(TEvent evt, TData data, Func<TResult> next)
         where TEvent : IBlockEvent<TResult>;
     
-    public delegate T BlockAttributeDelegate<in TData, T>(IReadOnlyBlockContext context, TData data, BlockAttribute<T> attribute, Func<T> next);
-    public delegate T BlockCapabilityDelegate<in TData, T>(IBlockContext context, TData data, BlockCapability<T> capability, Func<T> next);
+    public delegate T BlockAttributeDelegate<in TData, T>(IReadOnlyBlockContext context, TData data, Func<T> next);
+    public delegate T BlockCapabilityDelegate<in TData, T>(IBlockContext context, TData data, Func<T> next);
     
-    internal delegate object BlockEventDelegate(IBlockContext context, DataContainer dataContainer, IBlockEvent evt, Func<object> next);
+    internal delegate object BlockEventDelegate(IBlockEvent evt, DataContainer dataContainer, Func<object> next);
     internal delegate object BlockAttributeDelegate(IReadOnlyBlockContext context, DataContainer dataContainer, Func<object> next);
     internal delegate object BlockCapabilityDelegate(IBlockContext context, DataContainer dataContainer, Func<object> next);
 
@@ -58,9 +58,9 @@ namespace DigBuild.Engine.Blocks
             var type = typeof(TEvent);
             if (!_eventHandlers.TryGetValue(type, out var list))
                 _eventHandlers[type] = list = new List<BlockEventDelegate>();
-            list.Add((context, dataContainer, evt, next) =>
+            list.Add((evt, dataContainer, next) =>
             {
-                del(context, _dataGetter(dataContainer), (TEvent) evt, () => next());
+                del((TEvent) evt, _dataGetter(dataContainer), () => next());
                 return null!;
             });
         }
@@ -70,9 +70,9 @@ namespace DigBuild.Engine.Blocks
             var type = typeof(TEvent);
             if (!_eventHandlers.TryGetValue(type, out var list))
                 _eventHandlers[type] = list = new List<BlockEventDelegate>();
-            list.Add((context, dataContainer, evt, next) =>
+            list.Add((evt, dataContainer, next) =>
             {
-                return del(context, _dataGetter(dataContainer), (TEvent) evt, () => (TResult) next())!;
+                return del((TEvent) evt, _dataGetter(dataContainer), () => (TResult) next())!;
             });
         }
 
@@ -82,7 +82,7 @@ namespace DigBuild.Engine.Blocks
                 _attributeSuppliers[attribute] = list = new List<BlockAttributeDelegate>();
             list.Add((context, dataContainer, next) =>
             {
-                return supplier(context, _dataGetter(dataContainer), attribute, () => (T) next())!;
+                return supplier(context, _dataGetter(dataContainer), () => (T) next())!;
             });
         }
 
@@ -92,7 +92,7 @@ namespace DigBuild.Engine.Blocks
                 _capabilitySuppliers[capability] = list = new List<BlockCapabilityDelegate>();
             list.Add((context, dataContainer, next) =>
             {
-                return supplier(context, _dataGetter(dataContainer), capability, () => (T) next())!;
+                return supplier(context, _dataGetter(dataContainer), () => (T) next())!;
             });
         }
     }

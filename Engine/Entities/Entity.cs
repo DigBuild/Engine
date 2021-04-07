@@ -6,15 +6,7 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Entities
 {
-    public interface IEntity
-    {
-        void Post<TEvent>(IEntityContext context, TEvent evt)
-            where TEvent : IEntityEvent;
-        TOut Post<TEvent, TOut>(IEntityContext context, TEvent evt)
-            where TEvent : IEntityEvent<TOut>;
-    }
-
-    public sealed class Entity : IEntity
+    public sealed class Entity
     {
         private readonly IReadOnlyDictionary<Type, GenericEntityEventDelegate> _eventHandlers;
         private readonly IReadOnlyDictionary<IEntityAttribute, GenericEntityAttributeDelegate> _attributeSuppliers;
@@ -38,18 +30,18 @@ namespace DigBuild.Engine.Entities
             Name = name;
         }
 
-        void IEntity.Post<TEvent>(IEntityContext context, TEvent evt)
+        public void Post<TEvent>(TEvent evt) where TEvent : IEntityEvent
         {
             if (!_eventHandlers.TryGetValue(typeof(TEvent), out var handler))
                 throw new ArgumentException($"Attempted to post unregistered event: {typeof(TEvent)}", nameof(evt));
-            handler(context, GetDataContainer(context), evt);
+            handler(evt, GetDataContainer(evt));
         }
 
-        TOut IEntity.Post<TEvent, TOut>(IEntityContext context, TEvent evt)
+        public TOut Post<TEvent, TOut>(TEvent evt) where TEvent : IEntityEvent<TOut>
         {
             if (!_eventHandlers.TryGetValue(typeof(TEvent), out var handler))
                 throw new ArgumentException($"Attempted to post unregistered event: {typeof(TEvent)}", nameof(evt));
-            return (TOut) handler(context, GetDataContainer(context), evt);
+            return (TOut) handler(evt, GetDataContainer(evt));
         }
 
         public TAttrib Get<TAttrib>(IReadOnlyEntityContext context, EntityAttribute<TAttrib> attribute)

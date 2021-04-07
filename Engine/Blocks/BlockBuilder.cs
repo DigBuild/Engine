@@ -8,7 +8,7 @@ namespace DigBuild.Engine.Blocks
 {
     public delegate ref TOut RefFunc<in TIn, TOut>(TIn input);
     
-    internal delegate object GenericBlockEventDelegate(IBlockContext context, DataContainer dataContainer, IBlockEvent evt);
+    internal delegate object GenericBlockEventDelegate(IBlockEvent evt, DataContainer dataContainer);
     internal delegate object GenericBlockAttributeDelegate(IReadOnlyBlockContext context, DataContainer dataContainer);
     internal delegate object GenericBlockCapabilityDelegate(IBlockContext context, DataContainer dataContainer);
 
@@ -140,11 +140,11 @@ namespace DigBuild.Engine.Blocks
                 var defaultHandler = eventRegistry[evtType].DefaultHandler;
                 GenericBlockEventDelegate GetDelegate(int i)
                 {
-                    return (context, dataContainer, evt) =>
+                    return (evt, dataContainer) =>
                     {
                         if (i >= handlers.Count)
-                            return defaultHandler(context, dataContainer, evt);
-                        return handlers[i](context, dataContainer, evt, () => GetDelegate(i + 1)(context, dataContainer, evt));
+                            return defaultHandler(evt, dataContainer);
+                        return handlers[i](evt, dataContainer, () => GetDelegate(i + 1)(evt, dataContainer));
                     };
                 }
                 eventHandlers[evtType] = GetDelegate(0);

@@ -8,7 +8,7 @@ namespace DigBuild.Engine.Items
 {
     public delegate ref TOut RefFunc<in TIn, TOut>(TIn input);
     
-    internal delegate object GenericItemEventDelegate(IItemContext context, DataContainer dataContainer, IItemEvent evt);
+    internal delegate object GenericItemEventDelegate(IItemEvent evt, DataContainer dataContainer);
     internal delegate object GenericItemAttributeDelegate(IReadOnlyItemContext context, DataContainer dataContainer);
     internal delegate object GenericItemCapabilityDelegate(IItemContext context, DataContainer dataContainer);
 
@@ -140,11 +140,11 @@ namespace DigBuild.Engine.Items
                 var defaultHandler = eventRegistry[evtType].DefaultHandler;
                 GenericItemEventDelegate GetDelegate(int i)
                 {
-                    return (context, dataContainer, evt) =>
+                    return (evt, dataContainer) =>
                     {
                         if (i >= handlers.Count)
-                            return defaultHandler(context, dataContainer, evt);
-                        return handlers[i](context, dataContainer, evt, () => GetDelegate(i + 1)(context, dataContainer, evt));
+                            return defaultHandler(evt, dataContainer);
+                        return handlers[i](evt, dataContainer, () => GetDelegate(i + 1)(evt, dataContainer));
                     };
                 }
                 eventHandlers[evtType] = GetDelegate(0);

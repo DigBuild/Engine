@@ -4,12 +4,18 @@ namespace DigBuild.Engine.BuiltIn
 {
     public static class BuiltInEntityEvent
     {
-        public class JoinedWorld : IEntityEvent
+        public class JoinedWorld : EntityContext, IEntityEvent
         {
+            public JoinedWorld(EntityInstance entity) : base(entity)
+            {
+            }
         }
 
-        public class LeavingWorld : IEntityEvent
+        public class LeavingWorld : EntityContext, IEntityEvent
         {
+            public LeavingWorld(EntityInstance entity) : base(entity)
+            {
+            }
         }
     }
 
@@ -24,9 +30,9 @@ namespace DigBuild.Engine.BuiltIn
             builder.Subscribe(onJoinedWorld);
         }
 
-        public static void OnJoinedWorld(this IEntity entity, IEntityContext context, BuiltInEntityEvent.JoinedWorld evt)
+        public static void OnJoinedWorld(this Entity entity, EntityInstance instance)
         {
-            entity.Post(context, evt);
+            entity.Post(new BuiltInEntityEvent.JoinedWorld(instance));
         }
 
         public static void Subscribe<TReadOnlyData, TData>(
@@ -38,9 +44,9 @@ namespace DigBuild.Engine.BuiltIn
             builder.Subscribe(onLeavingWorld);
         }
 
-        public static void OnLeavingWorld(this IEntity entity, IEntityContext context, BuiltInEntityEvent.LeavingWorld evt)
+        public static void OnLeavingWorld(this Entity entity, EntityInstance instance)
         {
-            entity.Post(context, evt);
+            entity.Post(new BuiltInEntityEvent.LeavingWorld(instance));
         }
     }
 }

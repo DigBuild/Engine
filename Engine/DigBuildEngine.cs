@@ -27,14 +27,14 @@ namespace DigBuild.Engine
 
         public static void Register(ExtendedTypeRegistryBuilder<IBlockEvent, BlockEventInfo> registry)
         {
-            registry.Register((IBlockContext context, BuiltInBlockEvent.JoinedWorld evt) => { });
-            registry.Register((IBlockContext context, BuiltInBlockEvent.LeavingWorld evt) => { });
+            registry.Register((BuiltInBlockEvent.JoinedWorld evt) => { });
+            registry.Register((BuiltInBlockEvent.LeavingWorld evt) => { });
         }
 
         public static void Register(ExtendedTypeRegistryBuilder<IEntityEvent, EntityEventInfo> registry)
         {
-            registry.Register((IEntityContext context, BuiltInEntityEvent.JoinedWorld evt) => { });
-            registry.Register((IEntityContext context, BuiltInEntityEvent.LeavingWorld evt) => { });
+            registry.Register((BuiltInEntityEvent.JoinedWorld evt) => { });
+            registry.Register((BuiltInEntityEvent.LeavingWorld evt) => { });
         }
     }
 }

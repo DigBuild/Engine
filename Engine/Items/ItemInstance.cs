@@ -48,9 +48,8 @@ namespace DigBuild.Engine.Items
                 bw.Write(item.Count);
                 if (item.Count == 0)
                     return;
-
-                var itemName = BuiltInRegistries.Items.GetNameOrNull(item.Type)!.Value;
-                bw.Write(itemName.ToString());
+                
+                bw.Write(item.Type.Name.ToString());
 
                 Storage.DataContainer.Serdes.Serialize(stream, item.DataContainer);
             },

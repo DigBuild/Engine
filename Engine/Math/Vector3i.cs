@@ -1,14 +1,17 @@
-﻿using System;
+using System;
 using System.Numerics;
 
 namespace DigBuild.Engine.Math
 {
     public readonly struct Vector3I : IVector3I, IEquatable<Vector3I>
     {
+        public static Vector3I Zero = new(0, 0, 0);
+        public static Vector3I One = new(1, 1, 1);
+
         public int X { get; }
         public int Y { get; }
         public int Z { get; }
-        
+
         public Vector3I(int x, int y, int z)
         {
             X = x;
@@ -86,6 +89,7 @@ namespace DigBuild.Engine.Math
             return !left.Equals(right);
         }
         
+        public static Vector3I operator -(Vector3I vec) => new(-vec.X, -vec.Y, -vec.Z);
         public static Vector3I operator +(Vector3I a, IVector3I b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
         public static Vector3I operator -(Vector3I a, IVector3I b) => new(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
         public static Vector3I operator *(Vector3I vec, int amount) => new(vec.X * amount, vec.Y * amount, vec.Z * amount);
@@ -95,6 +99,24 @@ namespace DigBuild.Engine.Math
         public static Vector3I Abs(IVector3I vector)
         {
             return new(System.Math.Abs(vector.X), System.Math.Abs(vector.Y), System.Math.Abs(vector.Z));
+        }
+
+        public static Vector3I Min(IVector3I a, IVector3I b)
+        {
+            return new(
+                System.Math.Min(a.X, b.X),
+                System.Math.Min(a.Y, b.Y),
+                System.Math.Min(a.Z, b.Z)
+            );
+        }
+
+        public static Vector3I Max(IVector3I a, IVector3I b)
+        {
+            return new(
+                System.Math.Max(a.X, b.X),
+                System.Math.Max(a.Y, b.Y),
+                System.Math.Max(a.Z, b.Z)
+            );
         }
     }
 }

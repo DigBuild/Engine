@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Worlds;
 using DigBuild.Platform.Render;
@@ -37,13 +38,13 @@ namespace DigBuild.Engine.Render
             var lighting = new byte[18, 18, 18];
 
             {
-                var blockStorage = _chunk.Get(BlockChunkStorage.Type);
-                var lightingStorage = _chunk.Get(IBlockLightStorage.Type);
+                var blockStorage = _chunk.Get(ChunkBlocks.Type);
+                var lightingStorage = _chunk.Get(IChunkBlockLight.Type);
                 for (var x = 0; x < 16; x++)
                 for (var y = 0; y < 16; y++)
                 for (var z = 0; z < 16; z++)
                 {
-                    var subChunkPos = new SubChunkPos(x, y, z);
+                    var subChunkPos = new ChunkBlockPosition(x, y, z);
                     var block = blockStorage.GetBlock(subChunkPos);
                     if (block != null && _blockModels.TryGetValue(block, out var model))
                         models[x + 1, y + 1, z + 1] = model;
@@ -55,34 +56,46 @@ namespace DigBuild.Engine.Render
                 var negXNeighbor = _neighborGetter(-1, 0, 0);
                 if (negXNeighbor != null)
                 {
-                    var blockStorage = negXNeighbor.Get(BlockChunkStorage.Type);
-                    var lightingStorage = negXNeighbor.Get(IBlockLightStorage.Type);
+                    var blockStorage = negXNeighbor.Get(ChunkBlocks.Type);
+                    var lightingStorage = negXNeighbor.Get(IChunkBlockLight.Type);
                     for (var y = 0; y < 16; y++)
                     for (var z = 0; z < 16; z++)
                     {
-                        var subChunkPos = new SubChunkPos(15, y, z);
+                        var subChunkPos = new ChunkBlockPosition(15, y, z);
                         var block = blockStorage.GetBlock(subChunkPos);
                         if (block != null && _blockModels.TryGetValue(block, out var model))
                             models[0, y + 1, z + 1] = model;
                         lighting[0, y + 1, z + 1] = lightingStorage.Get(subChunkPos);
                     }
                 }
+                else
+                {
+                    for (var y = 0; y < 16; y++)
+                    for (var z = 0; z < 16; z++)
+                        models[0, y + 1, z + 1] = SolidBlockModel.Instance;
+                }
             }
             {
                 var posXNeighbor = _neighborGetter(1, 0, 0);
                 if (posXNeighbor != null)
                 {
-                    var blockStorage = posXNeighbor.Get(BlockChunkStorage.Type);
-                    var lightingStorage = posXNeighbor.Get(IBlockLightStorage.Type);
+                    var blockStorage = posXNeighbor.Get(ChunkBlocks.Type);
+                    var lightingStorage = posXNeighbor.Get(IChunkBlockLight.Type);
                     for (var y = 0; y < 16; y++)
                     for (var z = 0; z < 16; z++)
                     {
-                        var subChunkPos = new SubChunkPos(0, y, z);
+                        var subChunkPos = new ChunkBlockPosition(0, y, z);
                         var block = blockStorage.GetBlock(subChunkPos);
                         if (block != null && _blockModels.TryGetValue(block, out var model))
                             models[17, y + 1, z + 1] = model;
                         lighting[17, y + 1, z + 1] = lightingStorage.Get(subChunkPos);
                     }
+                }
+                else
+                {
+                    for (var y = 0; y < 16; y++)
+                    for (var z = 0; z < 16; z++)
+                        models[17, y + 1, z + 1] = SolidBlockModel.Instance;
                 }
             }
             
@@ -90,34 +103,46 @@ namespace DigBuild.Engine.Render
                 var negYNeighbor = _neighborGetter(0, -1, 0);
                 if (negYNeighbor != null)
                 {
-                    var blockStorage = negYNeighbor.Get(BlockChunkStorage.Type);
-                    var lightingStorage = negYNeighbor.Get(IBlockLightStorage.Type);
+                    var blockStorage = negYNeighbor.Get(ChunkBlocks.Type);
+                    var lightingStorage = negYNeighbor.Get(IChunkBlockLight.Type);
                     for (var x = 0; x < 16; x++)
                     for (var z = 0; z < 16; z++)
                     {
-                        var subChunkPos = new SubChunkPos(x, 15, z);
+                        var subChunkPos = new ChunkBlockPosition(x, 15, z);
                         var block = blockStorage.GetBlock(subChunkPos);
                         if (block != null && _blockModels.TryGetValue(block, out var model))
                             models[x + 1, 0, z + 1] = model;
                         lighting[x + 1, 0, z + 1] = lightingStorage.Get(subChunkPos);
                     }
                 }
+                else
+                {
+                    for (var x = 0; x < 16; x++)
+                    for (var z = 0; z < 16; z++)
+                        models[x + 1, 0, z + 1] = SolidBlockModel.Instance;
+                }
             }
             {
                 var posYNeighbor = _neighborGetter(0, 1, 0);
                 if (posYNeighbor != null)
                 {
-                    var blockStorage = posYNeighbor.Get(BlockChunkStorage.Type);
-                    var lightingStorage = posYNeighbor.Get(IBlockLightStorage.Type);
+                    var blockStorage = posYNeighbor.Get(ChunkBlocks.Type);
+                    var lightingStorage = posYNeighbor.Get(IChunkBlockLight.Type);
                     for (var x = 0; x < 16; x++)
                     for (var z = 0; z < 16; z++)
                     {
-                        var subChunkPos = new SubChunkPos(x, 0, z);
+                        var subChunkPos = new ChunkBlockPosition(x, 0, z);
                         var block = blockStorage.GetBlock(subChunkPos);
                         if (block != null && _blockModels.TryGetValue(block, out var model))
                             models[x + 1, 17, z + 1] = model;
                         lighting[x + 1, 17, z + 1] = lightingStorage.Get(subChunkPos);
                     }
+                }
+                else
+                {
+                    for (var x = 0; x < 16; x++)
+                    for (var z = 0; z < 16; z++)
+                        models[x + 1, 17, z + 1] = SolidBlockModel.Instance;
                 }
             }
 
@@ -125,17 +150,23 @@ namespace DigBuild.Engine.Render
                 var negZNeighbor = _neighborGetter(0, 0, -1);
                 if (negZNeighbor != null)
                 {
-                    var blockStorage = negZNeighbor.Get(BlockChunkStorage.Type);
-                    var lightingStorage = negZNeighbor.Get(IBlockLightStorage.Type);
+                    var blockStorage = negZNeighbor.Get(ChunkBlocks.Type);
+                    var lightingStorage = negZNeighbor.Get(IChunkBlockLight.Type);
                     for (var x = 0; x < 16; x++)
                     for (var y = 0; y < 16; y++)
                     {
-                        var subChunkPos = new SubChunkPos(x, y, 15);
+                        var subChunkPos = new ChunkBlockPosition(x, y, 15);
                         var block = blockStorage.GetBlock(subChunkPos);
                         if (block != null && _blockModels.TryGetValue(block, out var model))
                             models[x + 1, y + 1, 0] = model;
                         lighting[x + 1, y + 1, 0] = lightingStorage.Get(subChunkPos);
                     }
+                }
+                else
+                {
+                    for (var x = 0; x < 16; x++)
+                    for (var y = 0; y < 16; y++)
+                        models[x + 1, y + 1, 0] = SolidBlockModel.Instance;
                 }
             }
 
@@ -143,17 +174,23 @@ namespace DigBuild.Engine.Render
                 var posZNeighbor = _neighborGetter(0, 0, 1);
                 if (posZNeighbor != null)
                 {
-                    var blockStorage = posZNeighbor.Get(BlockChunkStorage.Type);
-                    var lightingStorage = posZNeighbor.Get(IBlockLightStorage.Type);
+                    var blockStorage = posZNeighbor.Get(ChunkBlocks.Type);
+                    var lightingStorage = posZNeighbor.Get(IChunkBlockLight.Type);
                     for (var x = 0; x < 16; x++)
                     for (var y = 0; y < 16; y++)
                     {
-                        var subChunkPos = new SubChunkPos(x, y, 0);
+                        var subChunkPos = new ChunkBlockPosition(x, y, 0);
                         var block = blockStorage.GetBlock(subChunkPos);
                         if (block != null && _blockModels.TryGetValue(block, out var model))
                             models[x + 1, y + 1, 17] = model;
                         lighting[x + 1, y + 1, 17] = lightingStorage.Get(subChunkPos);
                     }
+                }
+                else
+                {
+                    for (var x = 0; x < 16; x++)
+                    for (var y = 0; y < 16; y++)
+                        models[x + 1, y + 1, 17] = SolidBlockModel.Instance;
                 }
             }
             

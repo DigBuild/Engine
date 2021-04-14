@@ -9,11 +9,20 @@ namespace DigBuild.Engine.Math
         public int Y { get; }
         public int Z { get; }
 
+        public RegionPos RegionPos => new(X >> 6, Y >> 6, Z >> 6);
+        public RegionChunkPos RegionChunkPos => new(X & 63, Y & 63, Z & 63);
+
         public ChunkPos(int x, int y, int z)
         {
             X = x;
             Y = y;
             Z = z;
+        }
+        
+        public void Deconstruct(out RegionPos regionPos, out RegionChunkPos chunkPos)
+        {
+            regionPos = RegionPos;
+            chunkPos = RegionChunkPos;
         }
 
         public Vector3 GetCenter()
@@ -56,7 +65,7 @@ namespace DigBuild.Engine.Math
             return !left.Equals(right);
         }
 
-        public static BlockPos operator +(ChunkPos chunkPos, SubChunkPos subChunkPos) => new(
+        public static BlockPos operator +(ChunkPos chunkPos, ChunkBlockPosition subChunkPos) => new(
             (chunkPos.X << 4) | subChunkPos.X,
             (chunkPos.Y << 4) | subChunkPos.Y,
             (chunkPos.Z << 4) | subChunkPos.Z

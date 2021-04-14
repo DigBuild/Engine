@@ -1,25 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
-using DigBuild.Engine.Worlds;
+using DigBuild.Engine.Ticking;
+using DigBuild.Engine.Utils;
 
 namespace DigBuild.Engine.Worldgen
 {
-    public class WorldGenerator
+    public class WorldGenerator : IChunkProvider
     {
+        public const ulong DescriptorExpirationDelay = 20;
+
+        private readonly Cache<WorldSlicePos, WorldSliceDescriptor> _sliceDescriptors;
         private readonly IReadOnlyCollection<IWorldgenFeature> _features;
         private readonly long _seed;
-        private readonly Func<WorldSliceDescriptor, int> _heightGetter;
 
-        public WorldGenerator(IReadOnlyCollection<IWorldgenFeature> features, long seed, Func<WorldSliceDescriptor, int> heightGetter)
+        public WorldGenerator(ITickSource tickSource, IReadOnlyCollection<IWorldgenFeature> features, long seed)
         {
+            _sliceDescriptors = new Cache<WorldSlicePos, WorldSliceDescriptor>(tickSource, DescriptorExpirationDelay);
             _features = features;
             _seed = seed;
-            _heightGetter = heightGetter;
         }
 
-        public WorldSliceDescriptor DescribeSlice(WorldSlicePos pos, IWorldgenFeature stop)
+        public WorldSliceDescriptor DescribeSlice(WorldSlicePos pos, IWorldgenFeature? stop)
         {
             WorldSliceDescriptionContext descriptionContext = new(pos, _seed);
             foreach (var feature in _features)
@@ -34,28 +37,26 @@ namespace DigBuild.Engine.Worldgen
             return descriptionContext.CreateDescriptor();
         }
 
-        public IReadOnlyChunk[] GenerateSlice(WorldSlicePos pos)
+        public Chunk GenerateChunk(ChunkPos pos)
         {
-            WorldSliceDescriptionContext descriptionContext = new(pos, _seed);
-            foreach (var feature in _features)
+            WorldSliceDescriptor? descriptor;
+            lock (_sliceDescriptors)
             {
-                descriptionContext.NeighborDescriptor = p => DescribeSlice(p, feature);
-                feature.DescribeSlice(descriptionContext);
-                descriptionContext.Next();
+                var slicePos = new WorldSlicePos(pos.X, pos.Z);
+                if (!_sliceDescriptors.TryGetValue(slicePos, out descriptor))
+                    _sliceDescriptors[slicePos] = descriptor = DescribeSlice(slicePos, null);
             }
-            
-            var descriptor = descriptionContext.CreateDescriptor();
-            var height = _heightGetter(descriptor);
-            var prototypes = new IReadOnlyChunk[height];
-            Parallel.For(0, height, y =>
-            {
-                var prototype = new ChunkPrototype(new ChunkPos(pos.X, y, pos.Z));
-                foreach (var feature in _features)
-                    feature.PopulateChunk(descriptor, prototype);
-                prototypes[y] = prototype;
-            });
 
-            return prototypes;
+            var chunk = new Chunk(pos);
+            foreach (var feature in _features)
+                feature.PopulateChunk(descriptor, chunk);
+            return chunk;
+        }
+
+        public bool TryGet(ChunkPos pos, [NotNullWhen(true)] out Chunk? chunk)
+        {
+            chunk = GenerateChunk(pos);
+            return true;
         }
     }
 }

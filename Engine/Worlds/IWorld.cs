@@ -1,6 +1,7 @@
 ﻿using System;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Math;
+using DigBuild.Engine.Storage;
 using DigBuild.Engine.Ticking;
 
 namespace DigBuild.Engine.Worlds
@@ -10,14 +11,13 @@ namespace DigBuild.Engine.Worlds
         public IChunkManager ChunkManager { get; }
 
         public Scheduler TickScheduler { get; }
-        public new T Get<TReadOnly, T>(WorldStorageType<TReadOnly, T> type)
-            where TReadOnly : IReadOnlyWorldStorage
-            where T : TReadOnly, IWorldStorage<T>;
-        TReadOnly IReadOnlyWorld.Get<TReadOnly, T>(WorldStorageType<TReadOnly, T> type) => Get(type);
+        public new T Get<TReadOnly, T>(DataHandle<IWorld, TReadOnly, T> type)
+            where T : TReadOnly, IData<T>, IChangeNotifier;
+        TReadOnly IReadOnlyWorld.Get<TReadOnly, T>(DataHandle<IWorld, TReadOnly, T> type) => Get(type);
 
-        public new IChunk? GetChunk(ChunkPos pos, bool load = true);
+        public new IChunk? GetChunk(ChunkPos pos, bool loadOrGenerate = true);
 
-        IReadOnlyChunk? IReadOnlyWorld.GetChunk(ChunkPos pos, bool load) => GetChunk(pos, load);
+        IReadOnlyChunk? IReadOnlyWorld.GetChunk(ChunkPos pos, bool loadOrGenerate) => GetChunk(pos, loadOrGenerate);
 
         public void OnBlockChanged(BlockPos pos);
 

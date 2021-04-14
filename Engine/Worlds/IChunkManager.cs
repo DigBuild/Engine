@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using DigBuild.Engine.Math;
 
@@ -6,11 +7,9 @@ namespace DigBuild.Engine.Worlds
 {
     public interface IChunkManager
     {
-        public bool RequestLoadingTicket([MaybeNullWhen(false)] out IChunkLoadingTicket ticket, params ChunkPos[] chunkPositions)
-        {
-            return RequestLoadingTicket(out ticket, (IEnumerable<ChunkPos>) chunkPositions);
-        }
+        bool TryLoad(IEnumerable<ChunkPos> chunks, bool immediate, [MaybeNullWhen(false)] out IChunkClaim claim);
 
-        public bool RequestLoadingTicket([MaybeNullWhen(false)] out IChunkLoadingTicket ticket, IEnumerable<ChunkPos> chunkPositions);
+        event Action<IChunk> ChunkChanged;
+        event Action<IChunk> ChunkUnloaded;
     }
 }

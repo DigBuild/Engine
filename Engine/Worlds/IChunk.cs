@@ -1,12 +1,23 @@
-﻿namespace DigBuild.Engine.Worlds
-{
-    public interface IChunk : IReadOnlyChunk
-    {
-        public new T Get<TReadOnly, T>(ChunkStorageType<TReadOnly, T> type)
-            where TReadOnly : IReadOnlyChunkStorage
-            where T : TReadOnly, IChunkStorage<T>;
-        TReadOnly IReadOnlyChunk.Get<TReadOnly, T>(ChunkStorageType<TReadOnly, T> type) => Get(type);
+﻿using DigBuild.Engine.Math;
+using DigBuild.Engine.Storage;
 
-        public void CopyFrom(IReadOnlyChunk other);
+namespace DigBuild.Engine.Worlds
+{
+    public interface IReadOnlyChunk
+    {
+        ChunkPos Position { get; }
+
+        TReadOnly Get<TReadOnly, T>(DataHandle<IChunk, TReadOnly, T> type)
+            where T : TReadOnly, IData<T>, IChangeNotifier;
+    }
+
+    public interface IChunk : IReadOnlyChunk, IChangeNotifier
+    {
+        public const uint Size = WorldDimensions.ChunkSize;
+        
+        new T Get<TReadOnly, T>(DataHandle<IChunk, TReadOnly, T> type)
+            where T : TReadOnly, IData<T>, IChangeNotifier;
+        
+        TReadOnly IReadOnlyChunk.Get<TReadOnly, T>(DataHandle<IChunk, TReadOnly, T> type) => Get(type);
     }
 }

@@ -2,24 +2,17 @@
 
 namespace DigBuild.Engine.Math
 {
-    public readonly struct SubChunkPos : IEquatable<SubChunkPos>
+    public readonly struct RegionChunkPos : IEquatable<RegionChunkPos>
     {
         public int X { get; }
         public int Y { get; }
         public int Z { get; }
-        
-        public SubChunkPos(int x, int y, int z)
+
+        public RegionChunkPos(int x, int y, int z)
         {
-            X = x & 15;
-            Y = y & 15;
-            Z = z & 15;
-        }
-        
-        public void Deconstruct(out int x, out int y, out int z)
-        {
-            x = X;
-            y = Y;
-            z = Z;
+            X = x;
+            Y = y;
+            Z = z;
         }
 
         public override string ToString()
@@ -27,14 +20,14 @@ namespace DigBuild.Engine.Math
             return $"<{X}, {Y}, {Z}>";
         }
         
-        public bool Equals(SubChunkPos other)
+        public bool Equals(RegionChunkPos other)
         {
             return X == other.X && Y == other.Y && Z == other.Z;
         }
 
         public override bool Equals(object? obj)
         {
-            return obj is IVector3I other && Equals(other);
+            return obj is ChunkPos other && Equals(other);
         }
 
         public override int GetHashCode()
@@ -42,12 +35,12 @@ namespace DigBuild.Engine.Math
             return HashCode.Combine(X, Y, Z);
         }
 
-        public static bool operator ==(SubChunkPos left, SubChunkPos right)
+        public static bool operator ==(RegionChunkPos left, RegionChunkPos right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(SubChunkPos left, SubChunkPos right)
+        public static bool operator !=(RegionChunkPos left, RegionChunkPos right)
         {
             return !left.Equals(right);
         }

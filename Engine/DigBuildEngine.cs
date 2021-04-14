@@ -1,7 +1,9 @@
 ﻿using DigBuild.Engine.Blocks;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Registries;
+using DigBuild.Engine.Storage;
 using DigBuild.Engine.Worlds;
 using DigBuild.Platform.Resource;
 
@@ -11,16 +13,16 @@ namespace DigBuild.Engine
     {
         public const string Domain = "digbuildengine";
 
-        public static void Register(RegistryBuilder<IWorldStorageType> registry)
+        public static void Register(RegistryBuilder<IDataHandle<IWorld>> registry)
         {
-            EntityWorldStorage.Type = registry.Create<IReadOnlyEntityWorldStorage, EntityWorldStorage>(
+            World.Type = registry.Create<IWorld, IReadOnlyWorldEntities, World>(
                 new ResourceName(Domain, "entities")
             );
         }
 
-        public static void Register(RegistryBuilder<IChunkStorageType> registry)
+        public static void Register(RegistryBuilder<IDataHandle<IChunk>> registry)
         {
-            BlockChunkStorage.Type = registry.Create<IReadOnlyBlockChunkStorage, BlockChunkStorage>(
+            ChunkBlocks.Type = registry.Create<IChunk, IReadOnlyChunkBlocks, ChunkBlocks>(
                 new ResourceName(Domain, "blocks")
             );
         }

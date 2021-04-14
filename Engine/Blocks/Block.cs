@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Engine.BuiltIn;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Storage;
 using DigBuild.Engine.Worlds;
@@ -71,7 +72,7 @@ namespace DigBuild.Engine.Blocks
         {
             return context.World
                 .GetChunk(context.Pos.ChunkPos)!
-                .Get(BlockChunkStorage.Type)
+                .Get(ChunkBlocks.Type)
                 .GetData(context.Pos.SubChunkPos)!;
         }
 

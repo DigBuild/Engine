@@ -23,7 +23,7 @@ namespace DigBuild.Engine.Entities
         public DataHandle<TData> Add<TData>()
             where TData : class, IData<TData>, new()
         {
-            var handle = new DataHandle<TData>();
+            var handle = new DataHandle<TData>(() => new TData());
             _dataHandles.Add(handle);
             return handle;
         }

@@ -48,22 +48,34 @@ namespace DigBuild.Engine.Render
         
         public void QueueChunkUpdate(IChunk chunk)
         {
-            _updatedChunks.Add(chunk);
+            lock (_updatedChunks)
+            {
+                _updatedChunks.Add(chunk);
+            }
         }
 
         public void QueueChunkRemoval(IChunk chunk)
         {
-            _removedChunks.Add(chunk);
+            lock (_removedChunks)
+            {
+                _removedChunks.Add(chunk);
+            }
         }
 
         public void AddEntity(EntityInstance entity)
         {
-            _entities.Add(entity.Id, entity);
+            lock (_entities)
+            {
+                _entities.Add(entity.Id, entity);
+            }
         }
 
         public void RemoveEntity(Guid guid)
         {
-            _entities.Remove(guid);
+            lock (_entities)
+            {
+                _entities.Remove(guid);
+            }
         }
 
         public void ReRender(bool queueRenderedChunks)
@@ -92,38 +104,46 @@ namespace DigBuild.Engine.Render
                 foreach (var (chunk, data) in _chunkRenderData)
                     _sortedChunks.Add((chunk, data, (chunk.Position.GetCenter() - cameraPos).LengthSquared()));
             }
-
-            foreach (var chunk in _removedChunks)
-                _chunkRenderData.Remove(chunk);
-            _removedChunks.Clear();
-
-            if (_updatedChunks.Count == 0)
-                return;
-
-            var toUpdate = _updatedChunks
-                .OrderBy(c =>
-                {
-                    var min = c.Position.GetOrigin();
-                    var max = min + Vector3.One * 16;
-                    return (long) (min - cameraPos).LengthSquared() * (viewFrustum.Test(new AABB(min, max)) ? 1 : 0xF0000);
-                })
-                .Take(16)
-                .ToList();
-
-            foreach (var chunk in toUpdate)
+            
+            List<IChunk> toUpdate;
+            lock(_removedChunks)
             {
-                if (!_chunkRenderData.ContainsKey(chunk))
-                {
-                    var data = _chunkRenderData[chunk] = new ChunkRenderData(
-                        chunk,
-                        (ox, oy, oz) => _world.GetChunk(new ChunkPos(chunk.Position.X + ox, chunk.Position.Y + oy, chunk.Position.Z + oz), false),
-                        _blockModels,
-                        _pool
-                    );
-                    _sortedChunks.Add((chunk, data, (chunk.Position.GetCenter() - cameraPos).LengthSquared()));
-                }
-                _updatedChunks.Remove(chunk);
+                foreach (var chunk in _removedChunks)
+                    _chunkRenderData.Remove(chunk);
+                _removedChunks.Clear();
             }
+
+            lock (_updatedChunks)
+            {
+                if (_updatedChunks.Count == 0)
+                    return;
+
+                toUpdate = _updatedChunks
+                    .OrderBy(c =>
+                    {
+                        var min = c.Position.GetOrigin();
+                        var max = min + Vector3.One * 16;
+                        return (long) (min - cameraPos).LengthSquared() * (viewFrustum.Test(new AABB(min, max)) ? 1 : 0xF0000);
+                    })
+                    .Take(16)
+                    .ToList();
+
+                foreach (var chunk in toUpdate)
+                {
+                    if (!_chunkRenderData.ContainsKey(chunk))
+                    {
+                        var data = _chunkRenderData[chunk] = new ChunkRenderData(
+                            chunk,
+                            (ox, oy, oz) => _world.GetChunk(new ChunkPos(chunk.Position.X + ox, chunk.Position.Y + oy, chunk.Position.Z + oz), false),
+                            _blockModels,
+                            _pool
+                        );
+                        _sortedChunks.Add((chunk, data, (chunk.Position.GetCenter() - cameraPos).LengthSquared()));
+                    }
+                    _updatedChunks.Remove(chunk);
+                }
+            }
+
             Parallel.ForEach(toUpdate, chunk => _chunkRenderData[chunk].UpdateGeometry());
         }
 

@@ -1,4 +1,5 @@
 ﻿using DigBuild.Engine.Math;
+using DigBuild.Engine.Storage;
 
 namespace DigBuild.Engine.Worlds
 {
@@ -8,9 +9,8 @@ namespace DigBuild.Engine.Worlds
 
         public float Gravity { get; }
         
-        public TReadOnly Get<TReadOnly, T>(WorldStorageType<TReadOnly, T> type)
-            where TReadOnly : IReadOnlyWorldStorage
-            where T : TReadOnly, IWorldStorage<T>;
+        public TReadOnly Get<TReadOnly, T>(DataHandle<IWorld, TReadOnly, T> type)
+            where T : TReadOnly, IData<T>, IChangeNotifier;
 
         IReadOnlyChunk? GetChunk(ChunkPos pos, bool load = true);
     }

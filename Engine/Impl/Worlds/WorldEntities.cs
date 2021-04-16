@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
+using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Engine.Worlds;
 
@@ -19,10 +20,10 @@ namespace DigBuild.Engine.Impl.Worlds
         IEnumerable<EntityInstance> OfType(Entity entity);
     }
 
-    public class World : IReadOnlyWorldEntities, IData<World>, IChangeNotifier
+    public class WorldEntities : IReadOnlyWorldEntities, IData<WorldEntities>, IChangeNotifier
     {
-        public static DataHandle<IWorld, IReadOnlyWorldEntities, World> Type { get; internal set; } = null!;
-        
+        public static DataHandle<IWorld, IReadOnlyWorldEntities, WorldEntities> Type { get; internal set; } = null!;
+
         private readonly Dictionary<Guid, EntityInstance> _entities = new();
 
         public event Action? Changed;
@@ -55,9 +56,9 @@ namespace DigBuild.Engine.Impl.Worlds
             return this.Where(instance => instance.Type == entity);
         }
 
-        public World Copy()
+        public WorldEntities Copy()
         {
-            var ews = new World();
+            var ews = new WorldEntities();
             foreach (var (guid, instance) in _entities)
                 ews._entities.Add(guid, instance);
             return ews;
@@ -69,18 +70,23 @@ namespace DigBuild.Engine.Impl.Worlds
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public static ISerdes<WorldEntities> Serdes { get; } = new SimpleSerdes<WorldEntities>(
+            (stream, entities) => { },
+            stream => new WorldEntities()
+        );
     }
 
     public static class WorldEntitiesExtensions
     {
         public static EntityInstance? GetEntity(this IReadOnlyWorld world, Guid guid)
         {
-            return world.Get(World.Type).Get(guid);
+            return world.Get(WorldEntities.Type).Get(guid);
         }
         
         public static EntityInstance AddEntity(this IWorld world, Entity type)
         {
-            var entity = world.Get(World.Type).Add(world, type);
+            var entity = world.Get(WorldEntities.Type).Add(world, type);
             world.OnEntityAdded(entity);
             type.OnJoinedWorld(entity);
             return entity;
@@ -88,7 +94,7 @@ namespace DigBuild.Engine.Impl.Worlds
 
         public static void RemoveEntity(this IWorld world, Guid guid)
         {
-            var storage = world.Get(World.Type);
+            var storage = world.Get(WorldEntities.Type);
             var entity = storage.Get(guid);
             entity?.Type.OnLeavingWorld(entity);
             storage.Remove(guid);

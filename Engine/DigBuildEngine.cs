@@ -15,15 +15,15 @@ namespace DigBuild.Engine
 
         public static void Register(RegistryBuilder<IDataHandle<IWorld>> registry)
         {
-            World.Type = registry.Create<IWorld, IReadOnlyWorldEntities, World>(
-                new ResourceName(Domain, "entities")
+            WorldEntities.Type = registry.Create<IWorld, IReadOnlyWorldEntities, WorldEntities>(
+                new ResourceName(Domain, "entities"), WorldEntities.Serdes
             );
         }
 
         public static void Register(RegistryBuilder<IDataHandle<IChunk>> registry)
         {
             ChunkBlocks.Type = registry.Create<IChunk, IReadOnlyChunkBlocks, ChunkBlocks>(
-                new ResourceName(Domain, "blocks")
+                new ResourceName(Domain, "blocks"), ChunkBlocks.Serdes
             );
         }
 

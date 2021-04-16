@@ -2,14 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DigBuild.Engine.Registries
 {
-    public interface IExtendedTypeRegistry<T>// : IReadOnlySet<Type>
+    public interface IExtendedTypeRegistry<T, TValue> : IReadOnlyDictionary<Type, TValue>// : IReadOnlySet<Type>
     {
     }
 
-    public sealed class ExtendedTypeRegistry<T, TValue> : IReadOnlyDictionary<Type, TValue>, IExtendedTypeRegistry<T>
+    public sealed class ExtendedTypeRegistry<T, TValue> : IExtendedTypeRegistry<T, TValue>
     {
         private readonly IReadOnlyDictionary<Type, TValue> _types;
 
@@ -24,7 +25,7 @@ namespace DigBuild.Engine.Registries
 
         public bool ContainsKey(Type key) => _types.ContainsKey(key);
 
-        public bool TryGetValue(Type key, out TValue value) => _types.TryGetValue(key, out value);
+        public bool TryGetValue(Type key, [MaybeNullWhen(false)] out TValue value) => _types.TryGetValue(key, out value);
 
         public TValue this[Type key] => _types[key];
 
@@ -34,7 +35,7 @@ namespace DigBuild.Engine.Registries
 
     public interface IExtendedTypeRegistryBuilder<T, in TValue>
     {
-        void Add(Type type, TValue value);
+        T2 Add<T2>(Type type, T2 value) where T2 : TValue;
     }
 
     public sealed class ExtendedTypeRegistryBuilder<T, TValue> : IExtendedTypeRegistryBuilder<T, TValue>
@@ -47,14 +48,15 @@ namespace DigBuild.Engine.Registries
         {
             _typeValidator = typeValidator;
         }
-
-        void IExtendedTypeRegistryBuilder<T, TValue>.Add(Type type, TValue value)
+        
+        T2 IExtendedTypeRegistryBuilder<T, TValue>.Add<T2>(Type type, T2 value)
         {
             if (!_typeValidator(type))
                 throw new ArgumentException($"Incompatible type: {type.FullName}", nameof(type));
             if (Types.ContainsKey(type))
                 throw new ArgumentException($"Type was already registered: {type.FullName}", nameof(type));
             Types[type] = value;
+            return value;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Physics
@@ -23,7 +23,7 @@ namespace DigBuild.Engine.Physics
             // Will intersect at some point
             if (minkowski.IntersectRay(Vector3.Zero, -motion, out var delta, out var side))
             {
-                intersection = -motion * side.GetAxis().AsVector() * delta;
+                intersection = -motion * side.GetAxis().AsVector() * (1 - delta);
                 return true;
             }
 

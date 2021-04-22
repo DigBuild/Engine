@@ -30,7 +30,11 @@ namespace DigBuild.Engine.Impl.Worlds
 
         public EntityInstance Add(IWorld world, Entity type) // TODO: NOT THIS
         {
-            var guid = Guid.NewGuid();
+            return Add(world, type, Guid.NewGuid());
+        }
+
+        public EntityInstance Add(IWorld world, Entity type, Guid guid) // TODO: NOT THIS
+        {
             var entity = new EntityInstance(world, guid, type);
             _entities.Add(guid, entity);
             return entity;
@@ -87,6 +91,14 @@ namespace DigBuild.Engine.Impl.Worlds
         public static EntityInstance AddEntity(this IWorld world, Entity type)
         {
             var entity = world.Get(WorldEntities.Type).Add(world, type);
+            world.OnEntityAdded(entity);
+            type.OnJoinedWorld(entity);
+            return entity;
+        }
+        
+        public static EntityInstance AddEntity(this IWorld world, Entity type, Guid guid)
+        {
+            var entity = world.Get(WorldEntities.Type).Add(world, type, guid);
             world.OnEntityAdded(entity);
             type.OnJoinedWorld(entity);
             return entity;

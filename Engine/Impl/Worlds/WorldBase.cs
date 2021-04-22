@@ -21,7 +21,11 @@ namespace DigBuild.Engine.Impl.Worlds
 
         public abstract Scheduler TickScheduler { get; }
 
-        protected WorldBase(IChunkProvider chunkProvider, Func<RegionPos, IRegionStorage> storageProvider, ITickSource tickSource)
+        protected WorldBase(
+            ITickSource tickSource,
+            IChunkProvider chunkProvider,
+            Func<RegionPos, IRegionStorage> storageProvider
+        )
         {
             RegionManager = new RegionManager(chunkProvider, storageProvider, tickSource);
         }
@@ -37,7 +41,10 @@ namespace DigBuild.Engine.Impl.Worlds
             return _storage.Get(type);
         }
 
-        public abstract IChunk? GetChunk(ChunkPos pos, bool loadOrGenerate = true);
+        public virtual IChunk? GetChunk(ChunkPos pos, bool loadOrGenerate = true)
+        {
+            return RegionManager.Get(pos.RegionPos)?.Get(pos.RegionChunkPos, loadOrGenerate);
+        }
 
         public abstract void OnBlockChanged(BlockPos pos);
 

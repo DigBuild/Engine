@@ -7,25 +7,17 @@ using System.Reflection;
 
 namespace DigBuild.Engine.Serialization
 {
-    public sealed class CompositeSerdes<T> : ISerdes<T>, IEnumerable
+    public sealed class CompositeSerdes<T> : ISerdes<T>, IEnumerable where T : new()
     {
-        private readonly Func<T> _factory;
-        private readonly Dictionary<uint, IMemberSerializer> _serializers = new();
-        private readonly SortedSet<IMemberSerializer> _sortedSerializers = new(
+        private readonly SortedSet<IMemberSerializer> _serializers = new(
             Comparer<IMemberSerializer>.Create((a, b) => a.Index.CompareTo(b.Index))
         );
         private readonly Dictionary<uint, IMemberDeserializer> _deserializers = new();
 
-        public CompositeSerdes(Func<T> factory)
-        {
-            _factory = factory;
-        }
-
         public void Add<TVal>(uint index, Expression<Func<T, TVal>> member, ISerdes<TVal> serdes)
         {
             var ser = new MemberSerializer<TVal>(index, member, serdes);
-            _serializers[index] = ser;
-            _sortedSerializers.Add(ser);
+            _serializers.Add(ser);
             _deserializers[index] = new MemberDeserializer<TVal>(member, serdes);
         }
 
@@ -37,8 +29,8 @@ namespace DigBuild.Engine.Serialization
         public void Serialize(Stream stream, T obj)
         {
             var writer = new BinaryWriter(stream);
-            writer.Write(_sortedSerializers.Count);
-            foreach (var serializer in _sortedSerializers)
+            writer.Write(_serializers.Count);
+            foreach (var serializer in _serializers)
             {
                 writer.Write(serializer.Index);
                 serializer.Serialize(obj, stream);
@@ -47,7 +39,7 @@ namespace DigBuild.Engine.Serialization
 
         public T Deserialize(Stream stream)
         {
-            var obj = _factory();
+            var obj = new T();
 
             var reader = new BinaryReader(stream);
             var members = reader.ReadInt32();

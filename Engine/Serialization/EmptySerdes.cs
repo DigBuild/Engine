@@ -6,6 +6,10 @@ namespace DigBuild.Engine.Serialization
     {
         public static ISerdes<T> Instance = new EmptySerdes<T>();
 
+        private EmptySerdes()
+        {
+        }
+
         public void Serialize(Stream stream, T obj)
         {
         }

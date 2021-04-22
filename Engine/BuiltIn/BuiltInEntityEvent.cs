@@ -4,14 +4,14 @@ namespace DigBuild.Engine.BuiltIn
 {
     public static class BuiltInEntityEvent
     {
-        public class JoinedWorld : EntityContext, IEntityEvent
+        public class JoinedWorld : EntityEventBase
         {
             public JoinedWorld(EntityInstance entity) : base(entity)
             {
             }
         }
 
-        public class LeavingWorld : EntityContext, IEntityEvent
+        public class LeavingWorld : EntityEventBase
         {
             public LeavingWorld(EntityInstance entity) : base(entity)
             {

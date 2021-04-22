@@ -1,10 +1,10 @@
 ﻿namespace DigBuild.Engine.Entities
 {
-    public class EntityContext : IEntityContext
+    public abstract class EntityEventBase : IEntityEvent
     {
         public EntityInstance Entity { get; }
 
-        public EntityContext(EntityInstance entity)
+        protected EntityEventBase(EntityInstance entity)
         {
             Entity = entity;
         }

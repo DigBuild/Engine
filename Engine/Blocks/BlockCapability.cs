@@ -36,12 +36,12 @@ namespace DigBuild.Engine.Blocks
             this IRegistryBuilder<IBlockCapability> builder,
             ResourceName name,
             Func<TCap> defaultValueDelegate
-        ) => Register(builder, name, ctx => defaultValueDelegate());
+        ) => Register(builder, name, _ => defaultValueDelegate());
 
         public static BlockCapability<TCap> Register<TCap>(
             this IRegistryBuilder<IBlockCapability> builder,
             ResourceName name,
             TCap defaultValue
-        ) => Register(builder, name, ctx => defaultValue);
+        ) => Register(builder, name, _ => defaultValue);
     }
 }

@@ -9,12 +9,12 @@ namespace DigBuild.Engine.Items
     public delegate TResult ItemEventDelegate<in TData, in TEvent, TResult>(TEvent evt, TData data, Func<TResult> next)
         where TEvent : IItemEvent<TResult>;
     
-    public delegate T ItemAttributeDelegate<in TData, T>(IReadOnlyItemContext context, TData data, Func<T> next);
-    public delegate T ItemCapabilityDelegate<in TData, T>(IItemContext context, TData data, Func<T> next);
+    public delegate T ItemAttributeDelegate<in TData, T>(IReadOnlyItemInstance instance, TData data, Func<T> next);
+    public delegate T ItemCapabilityDelegate<in TData, T>(ItemInstance instance, TData data, Func<T> next);
     
-    internal delegate object ItemEventDelegate(IItemEvent evt, DataContainer dataContainer, Func<object> next);
-    internal delegate object ItemAttributeDelegate(IReadOnlyItemContext context, DataContainer dataContainer, Func<object> next);
-    internal delegate object ItemCapabilityDelegate(IItemContext context, DataContainer dataContainer, Func<object> next);
+    internal delegate object ItemEventDelegate(IItemEvent evt, Func<object> next);
+    internal delegate object ItemAttributeDelegate(IReadOnlyItemInstance instance, Func<object> next);
+    internal delegate object ItemCapabilityDelegate(ItemInstance instance, Func<object> next);
 
     public interface IItemBehaviorBuilder
     {
@@ -58,9 +58,9 @@ namespace DigBuild.Engine.Items
             var type = typeof(TEvent);
             if (!_eventHandlers.TryGetValue(type, out var list))
                 _eventHandlers[type] = list = new List<ItemEventDelegate>();
-            list.Add((evt, dataContainer, next) =>
+            list.Add((evt, next) =>
             {
-                del((TEvent) evt, _dataGetter(dataContainer), () => next());
+                del((TEvent) evt, _dataGetter(evt.Item.DataContainer), () => next());
                 return null!;
             });
         }
@@ -70,9 +70,9 @@ namespace DigBuild.Engine.Items
             var type = typeof(TEvent);
             if (!_eventHandlers.TryGetValue(type, out var list))
                 _eventHandlers[type] = list = new List<ItemEventDelegate>();
-            list.Add((evt, dataContainer, next) =>
+            list.Add((evt, next) =>
             {
-                return del((TEvent) evt, _dataGetter(dataContainer), () => (TResult) next())!;
+                return del((TEvent) evt, _dataGetter(evt.Item.DataContainer), () => (TResult) next())!;
             });
         }
 
@@ -80,9 +80,9 @@ namespace DigBuild.Engine.Items
         {
             if (!_attributeSuppliers.TryGetValue(attribute, out var list))
                 _attributeSuppliers[attribute] = list = new List<ItemAttributeDelegate>();
-            list.Add((context, dataContainer, next) =>
+            list.Add((instance, next) =>
             {
-                return supplier(context, _dataGetter(dataContainer), () => (T) next())!;
+                return supplier(instance, _dataGetter(instance.DataContainer), () => (T) next())!;
             });
         }
 
@@ -90,9 +90,9 @@ namespace DigBuild.Engine.Items
         {
             if (!_capabilitySuppliers.TryGetValue(capability, out var list))
                 _capabilitySuppliers[capability] = list = new List<ItemCapabilityDelegate>();
-            list.Add((context, dataContainer, next) =>
+            list.Add((instance, next) =>
             {
-                return supplier(context, _dataGetter(dataContainer), () => (T) next())!;
+                return supplier(instance, _dataGetter(instance.DataContainer), () => (T) next())!;
             });
         }
     }

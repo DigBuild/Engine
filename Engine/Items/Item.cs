@@ -34,28 +34,28 @@ namespace DigBuild.Engine.Items
         {
             if (!_eventHandlers.TryGetValue(typeof(TEvent), out var handler))
                 throw new ArgumentException($"Attempted to post unregistered event: {typeof(TEvent)}", nameof(evt));
-            handler(evt, GetDataContainer(evt));
+            handler(evt);
         }
 
         public TOut Post<TEvent, TOut>(TEvent evt) where TEvent : IItemEvent<TOut>
         {
             if (!_eventHandlers.TryGetValue(typeof(TEvent), out var handler))
                 throw new ArgumentException($"Attempted to post unregistered event: {typeof(TEvent)}", nameof(evt));
-            return (TOut) handler(evt, GetDataContainer(evt));
+            return (TOut) handler(evt);
         }
 
-        public TAttrib Get<TAttrib>(IReadOnlyItemContext context, ItemAttribute<TAttrib> attribute)
+        public TAttrib Get<TAttrib>(IReadOnlyItemInstance instance, ItemAttribute<TAttrib> attribute)
         {
             if (!_attributeSuppliers.TryGetValue(attribute, out var supplier))
                 throw new ArgumentException($"Attempted to request unregistered attribute: {attribute}", nameof(attribute));
-            return (TAttrib) supplier(context, GetDataContainer(context));
+            return (TAttrib) supplier(instance);
         }
 
-        public TCap Get<TCap>(IItemContext context, ItemCapability<TCap> capability)
+        public TCap Get<TCap>(ItemInstance instance, ItemCapability<TCap> capability)
         {
             if (!_capabilitySuppliers.TryGetValue(capability, out var supplier))
                 throw new ArgumentException($"Attempted to request unregistered capability: {capability}", nameof(capability));
-            return (TCap) supplier(context, GetDataContainer(context));
+            return (TCap) supplier(instance);
         }
 
         internal DataContainer CreateDataContainer()
@@ -63,11 +63,6 @@ namespace DigBuild.Engine.Items
             var container = new DataContainer();
             _dataInitializer(container);
             return container;
-        }
-        
-        private DataContainer GetDataContainer(IReadOnlyItemContext context)
-        {
-            return context.Instance.DataContainer;
         }
 
         public override string ToString()

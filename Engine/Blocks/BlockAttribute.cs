@@ -36,12 +36,12 @@ namespace DigBuild.Engine.Blocks
             this IRegistryBuilder<IBlockAttribute> builder,
             ResourceName name,
             Func<TAttrib> defaultValueDelegate
-        ) => Register(builder, name, ctx => defaultValueDelegate());
+        ) => Register(builder, name, _ => defaultValueDelegate());
 
         public static BlockAttribute<TAttrib> Register<TAttrib>(
             this IRegistryBuilder<IBlockAttribute> builder,
             ResourceName name,
             TAttrib defaultValue
-        ) => Register(builder, name, ctx => defaultValue);
+        ) => Register(builder, name, _ => defaultValue);
     }
 }

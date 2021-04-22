@@ -8,9 +8,9 @@ namespace DigBuild.Engine.Items
 {
     public delegate ref TOut RefFunc<in TIn, TOut>(TIn input);
     
-    internal delegate object GenericItemEventDelegate(IItemEvent evt, DataContainer dataContainer);
-    internal delegate object GenericItemAttributeDelegate(IReadOnlyItemContext context, DataContainer dataContainer);
-    internal delegate object GenericItemCapabilityDelegate(IItemContext context, DataContainer dataContainer);
+    internal delegate object GenericItemEventDelegate(IItemEvent evt);
+    internal delegate object GenericItemAttributeDelegate(IReadOnlyItemInstance instance);
+    internal delegate object GenericItemCapabilityDelegate(ItemInstance instance);
 
     public sealed class ItemBuilder
     {
@@ -140,11 +140,11 @@ namespace DigBuild.Engine.Items
                 var defaultHandler = eventRegistry[evtType].DefaultHandler;
                 GenericItemEventDelegate GetDelegate(int i)
                 {
-                    return (evt, dataContainer) =>
+                    return evt =>
                     {
                         if (i >= handlers.Count)
-                            return defaultHandler(evt, dataContainer);
-                        return handlers[i](evt, dataContainer, () => GetDelegate(i + 1)(evt, dataContainer));
+                            return defaultHandler(evt);
+                        return handlers[i](evt, () => GetDelegate(i + 1)(evt));
                     };
                 }
                 eventHandlers[evtType] = GetDelegate(0);
@@ -157,34 +157,34 @@ namespace DigBuild.Engine.Items
             {
                 GenericItemAttributeDelegate GetDelegate(int i)
                 {
-                    return (context, dataContainer) =>
+                    return instance =>
                     {
                         if (i >= suppliers.Count)
-                            return attribute.GenericDefaultValueDelegate(context);
-                        return suppliers[i](context, dataContainer, () => GetDelegate(i + 1)(context, dataContainer));
+                            return attribute.GenericDefaultValueDelegate(instance);
+                        return suppliers[i](instance, () => GetDelegate(i + 1)(instance));
                     };
                 }
                 attributeSuppliers[attribute] = GetDelegate(0);
             }
             foreach (var attribute in attributeRegistry.Values)
-                attributeSuppliers.TryAdd(attribute, (context, container) => attribute.GenericDefaultValueDelegate(context));
+                attributeSuppliers.TryAdd(attribute, instance => attribute.GenericDefaultValueDelegate(instance));
 
             var capabilitySuppliers = new Dictionary<IItemCapability, GenericItemCapabilityDelegate>();
             foreach (var (capability, suppliers) in _capabilitySuppliers)
             {
                 GenericItemCapabilityDelegate GetDelegate(int i)
                 {
-                    return (context, dataContainer) =>
+                    return instance =>
                     {
                         if (i >= suppliers.Count)
-                            return capability.GenericDefaultValueDelegate(context);
-                        return suppliers[i](context, dataContainer, () => GetDelegate(i + 1)(context, dataContainer));
+                            return capability.GenericDefaultValueDelegate(instance);
+                        return suppliers[i](instance, () => GetDelegate(i + 1)(instance));
                     };
                 }
                 capabilitySuppliers[capability] = GetDelegate(0);
             }
             foreach (var capability in capabilityRegistry.Values)
-                capabilitySuppliers.TryAdd(capability, (context, container) => capability.GenericDefaultValueDelegate(context));
+                capabilitySuppliers.TryAdd(capability, instance => capability.GenericDefaultValueDelegate(instance));
 
             void InitializeData(DataContainer container)
             {

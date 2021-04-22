@@ -6,19 +6,19 @@ namespace DigBuild.Engine.Entities
 {
     public interface IEntityCapability
     {
-        internal Func<IEntityContext, object> GenericDefaultValueDelegate { get; }
+        internal Func<EntityInstance, object> GenericDefaultValueDelegate { get; }
     }
 
     public sealed class EntityCapability<T> : IEntityCapability
     {
-        private readonly Func<IEntityContext, object> _default;
+        private readonly Func<EntityInstance, object> _default;
 
-        internal EntityCapability(Func<IEntityContext, T> defaultValueDelegate)
+        internal EntityCapability(Func<EntityInstance, T> defaultValueDelegate)
         {
             _default = ctx => defaultValueDelegate(ctx)!;
         }
 
-        Func<IEntityContext, object> IEntityCapability.GenericDefaultValueDelegate => _default;
+        Func<EntityInstance, object> IEntityCapability.GenericDefaultValueDelegate => _default;
     }
 
     public static class EntityCapabilityRegistryBuilderExtensions
@@ -26,7 +26,7 @@ namespace DigBuild.Engine.Entities
         public static EntityCapability<TCap> Register<TCap>(
             this IRegistryBuilder<IEntityCapability> builder,
             ResourceName name,
-            Func<IEntityContext, TCap> defaultValueDelegate
+            Func<EntityInstance, TCap> defaultValueDelegate
         )
         {
             return builder.Add(name, new EntityCapability<TCap>(defaultValueDelegate));
@@ -36,12 +36,12 @@ namespace DigBuild.Engine.Entities
             this IRegistryBuilder<IEntityCapability> builder,
             ResourceName name,
             Func<TCap> defaultValueDelegate
-        ) => Register(builder, name, ctx => defaultValueDelegate());
+        ) => Register(builder, name, _ => defaultValueDelegate());
 
         public static EntityCapability<TCap> Register<TCap>(
             this IRegistryBuilder<IEntityCapability> builder,
             ResourceName name,
             TCap defaultValue
-        ) => Register(builder, name, ctx => defaultValue);
+        ) => Register(builder, name, _ => defaultValue);
     }
 }

@@ -6,19 +6,19 @@ namespace DigBuild.Engine.Entities
 {
     public interface IEntityAttribute
     {
-        internal Func<IReadOnlyEntityContext, object> GenericDefaultValueDelegate { get; }
+        internal Func<IReadOnlyEntityInstance, object> GenericDefaultValueDelegate { get; }
     }
 
     public sealed class EntityAttribute<T> : IEntityAttribute
     {
-        private readonly Func<IReadOnlyEntityContext, object> _default;
+        private readonly Func<IReadOnlyEntityInstance, object> _default;
 
-        internal EntityAttribute(Func<IReadOnlyEntityContext, T> defaultValueDelegate)
+        internal EntityAttribute(Func<IReadOnlyEntityInstance, T> defaultValueDelegate)
         {
             _default = ctx => defaultValueDelegate(ctx)!;
         }
 
-        Func<IReadOnlyEntityContext, object> IEntityAttribute.GenericDefaultValueDelegate => _default;
+        Func<IReadOnlyEntityInstance, object> IEntityAttribute.GenericDefaultValueDelegate => _default;
     }
 
     public static class EntityAttributeRegistryBuilderExtensions
@@ -26,7 +26,7 @@ namespace DigBuild.Engine.Entities
         public static EntityAttribute<TAttrib> Register<TAttrib>(
             this IRegistryBuilder<IEntityAttribute> builder,
             ResourceName name,
-            Func<IReadOnlyEntityContext, TAttrib> defaultValueDelegate
+            Func<IReadOnlyEntityInstance, TAttrib> defaultValueDelegate
         )
         {
             return builder.Add(name, new EntityAttribute<TAttrib>(defaultValueDelegate));
@@ -36,12 +36,12 @@ namespace DigBuild.Engine.Entities
             this IRegistryBuilder<IEntityAttribute> builder,
             ResourceName name,
             Func<TAttrib> defaultValueDelegate
-        ) => Register(builder, name, ctx => defaultValueDelegate());
+        ) => Register(builder, name, _ => defaultValueDelegate());
 
         public static EntityAttribute<TAttrib> Register<TAttrib>(
             this IRegistryBuilder<IEntityAttribute> builder,
             ResourceName name,
             TAttrib defaultValue
-        ) => Register(builder, name, ctx => defaultValue);
+        ) => Register(builder, name, _ => defaultValue);
     }
 }

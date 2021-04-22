@@ -9,12 +9,12 @@ namespace DigBuild.Engine.Entities
     public delegate TResult EntityEventDelegate<in TData, in TEvent, TResult>(TEvent evt, TData data, Func<TResult> next)
         where TEvent : IEntityEvent<TResult>;
     
-    public delegate T EntityAttributeDelegate<in TData, T>(IReadOnlyEntityContext context, TData data, Func<T> next);
-    public delegate T EntityCapabilityDelegate<in TData, T>(IEntityContext context, TData data, Func<T> next);
+    public delegate T EntityAttributeDelegate<in TData, T>(IReadOnlyEntityInstance instance, TData data, Func<T> next);
+    public delegate T EntityCapabilityDelegate<in TData, T>(EntityInstance instance, TData data, Func<T> next);
     
-    internal delegate object EntityEventDelegate(IEntityEvent evt, DataContainer dataContainer, Func<object> next);
-    internal delegate object EntityAttributeDelegate(IReadOnlyEntityContext context, DataContainer dataContainer, Func<object> next);
-    internal delegate object EntityCapabilityDelegate(IEntityContext context, DataContainer dataContainer, Func<object> next);
+    internal delegate object EntityEventDelegate(IEntityEvent evt, Func<object> next);
+    internal delegate object EntityAttributeDelegate(IReadOnlyEntityInstance instance, Func<object> next);
+    internal delegate object EntityCapabilityDelegate(EntityInstance instance, Func<object> next);
 
     public interface IEntityBehaviorBuilder
     {
@@ -58,9 +58,9 @@ namespace DigBuild.Engine.Entities
             var type = typeof(TEvent);
             if (!_eventHandlers.TryGetValue(type, out var list))
                 _eventHandlers[type] = list = new List<EntityEventDelegate>();
-            list.Add((evt, dataContainer, next) =>
+            list.Add((evt, next) =>
             {
-                del((TEvent) evt, _dataGetter(dataContainer), () => next());
+                del((TEvent) evt, _dataGetter(evt.Entity.DataContainer), () => next());
                 return null!;
             });
         }
@@ -70,9 +70,9 @@ namespace DigBuild.Engine.Entities
             var type = typeof(TEvent);
             if (!_eventHandlers.TryGetValue(type, out var list))
                 _eventHandlers[type] = list = new List<EntityEventDelegate>();
-            list.Add((evt, dataContainer, next) =>
+            list.Add((evt, next) =>
             {
-                return del((TEvent) evt, _dataGetter(dataContainer), () => (TResult) next())!;
+                return del((TEvent) evt, _dataGetter(evt.Entity.DataContainer), () => (TResult) next())!;
             });
         }
 
@@ -80,9 +80,9 @@ namespace DigBuild.Engine.Entities
         {
             if (!_attributeSuppliers.TryGetValue(attribute, out var list))
                 _attributeSuppliers[attribute] = list = new List<EntityAttributeDelegate>();
-            list.Add((context, dataContainer, next) =>
+            list.Add((instance, next) =>
             {
-                return supplier(context, _dataGetter(dataContainer), () => (T) next())!;
+                return supplier(instance, _dataGetter(instance.DataContainer), () => (T) next())!;
             });
         }
 
@@ -90,9 +90,9 @@ namespace DigBuild.Engine.Entities
         {
             if (!_capabilitySuppliers.TryGetValue(capability, out var list))
                 _capabilitySuppliers[capability] = list = new List<EntityCapabilityDelegate>();
-            list.Add((context, dataContainer, next) =>
+            list.Add((instance, next) =>
             {
-                return supplier(context, _dataGetter(dataContainer), () => (T) next())!;
+                return supplier(instance, _dataGetter(instance.DataContainer), () => (T) next())!;
             });
         }
     }

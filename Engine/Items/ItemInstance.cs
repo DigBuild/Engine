@@ -30,6 +30,9 @@ namespace DigBuild.Engine.Items
             DataContainer = dataContainer;
         }
 
+        public TAttrib Get<TAttrib>(ItemAttribute<TAttrib> attribute) => Type.Get(this, attribute);
+        public TCap Get<TCap>(ItemCapability<TCap> capability) => Type.Get(this, capability);
+
         public ItemInstance Copy()
         {
             return new(Type, Count, DataContainer.Copy());
@@ -51,7 +54,7 @@ namespace DigBuild.Engine.Items
                 
                 bw.Write(item.Type.Name.ToString());
 
-                Storage.DataContainer.Serdes.Serialize(stream, item.DataContainer);
+                DataContainer.Serdes.Serialize(stream, item.DataContainer);
             },
             stream =>
             {
@@ -64,7 +67,7 @@ namespace DigBuild.Engine.Items
                 var itemName = ResourceName.Parse(br.ReadString())!.Value;
                 var item = BuiltInRegistries.Items.GetOrNull(itemName)!;
 
-                var data = Storage.DataContainer.Serdes.Deserialize(stream);
+                var data = DataContainer.Serdes.Deserialize(stream);
 
                 return new ItemInstance(item, count, data);
             }

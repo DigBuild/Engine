@@ -21,6 +21,9 @@ namespace DigBuild.Engine.Entities
             DataContainer = type.CreateDataContainer();
         }
 
+        public TAttrib Get<TAttrib>(EntityAttribute<TAttrib> attribute) => Type.Get(this, attribute);
+        public TCap Get<TCap>(EntityCapability<TCap> capability) => Type.Get(this, capability);
+
         public override string ToString()
         {
             return $"Entity({Type.Name}, {Id})";

@@ -84,14 +84,23 @@ namespace DigBuild.Engine.Utils
         
         public bool Remove(TK key)
         {
-            if (!_store.Remove(key, out var value))
+            return Remove(key, out _);
+        }
+        
+        public bool Remove(TK key, [MaybeNullWhen(false)] out TV value)
+        {
+            if (!_store.Remove(key, out var val))
+            {
+                value = default;
                 return false;
-            if (_expirationStore.TryGetValue(value.ExpirationTime, out var keys))
+            }
+            if (_expirationStore.TryGetValue(val.ExpirationTime, out var keys))
             {
                 keys.Remove(key);
                 if (keys.Count == 0)
-                    _expirationStore.Remove(value.ExpirationTime);
+                    _expirationStore.Remove(val.ExpirationTime);
             }
+            value = val.Value;
             return true;
         }
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
-using System.Threading;
 using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
 
@@ -15,7 +14,7 @@ namespace DigBuild.Engine.Networking
 
         public ClientNetworkManager(
             string hostname, int port,
-            IExtendedTypeRegistry<IPacket, IPacketType> packetTypes
+            ExtendedTypeRegistry<IPacket, IPacketType> packetTypes
         )
         {
             var client = new TcpClient(hostname, port);
@@ -37,17 +36,12 @@ namespace DigBuild.Engine.Networking
                 packetIdsByType.Add(type, i);
             }
 
-            Connection = new Connection(client, packetTypes, packetTypesById, packetIdsByType);
+            Connection = new Connection(client, $"{hostname}:{port}", packetTypes, packetTypesById, packetIdsByType);
         }
 
         public void Dispose()
         {
             Connection.Dispose();
-        }
-
-        public void Send<T>(T packet) where T : IPacket
-        {
-            Connection.Send(packet);
         }
     }
 }

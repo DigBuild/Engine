@@ -5,12 +5,15 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using DigBuild.Engine.Registries;
 
 namespace DigBuild.Engine.Networking
 {
     public sealed class ServerNetworkManager : IDisposable
     {
+        private readonly ExtendedTypeRegistry<IPacket, IPacketType> _packetTypes;
+
         private readonly TcpListener _listener;
         private readonly HashSet<Connection> _connections = new();
 
@@ -21,9 +24,11 @@ namespace DigBuild.Engine.Networking
 
         public ServerNetworkManager(
             int port,
-            IExtendedTypeRegistry<IPacket, IPacketType> packetTypes
+            ExtendedTypeRegistry<IPacket, IPacketType> packetTypes
         )
         {
+            _packetTypes = packetTypes;
+
             _listener = new TcpListener(new IPAddress(0), port);
 
             var packetList = packetTypes.Values.ToList();
@@ -49,7 +54,7 @@ namespace DigBuild.Engine.Networking
                     foreach (var type in packetList)
                         bw.Write(type.Name.ToString());
 
-                    var connection = new Connection(client, packetTypes, packetTypesById, packetIdsByType);
+                    var connection = new Connection(client, $"Client hash {client.GetHashCode()}", packetTypes, packetTypesById, packetIdsByType);
                     lock (_connections)
                     {
                         _connections.Add(connection);
@@ -61,6 +66,7 @@ namespace DigBuild.Engine.Networking
                             _connections.Remove(connection);
                         }
                     };
+                    connection.StartHandlingPackets();
 
                     ClientConnected?.Invoke(connection);
                 }
@@ -86,11 +92,21 @@ namespace DigBuild.Engine.Networking
 
         public void SendToAll<T>(T packet) where T : IPacket
         {
+            if (!_packetTypes.TryGetValue(typeof(T), out var t) || t is not PacketType<T> type)
+                throw new ArgumentException($"Cannot send unregistered packet type: {packet.GetType().FullName}", nameof(packet));
+
+            var serialized = Connection.Serialize(type, packet);
+
             lock (_connections)
             {
                 foreach (var connection in _connections)
-                    connection.Send(packet);
+                    connection.Enqueue(type, serialized.Bytes, serialized.Length);
             }
+        }
+
+        public Task SendToAllAsync<T>(T packet) where T : IPacket
+        {
+            return Task.Run(() => SendToAll(packet));
         }
     }
 }

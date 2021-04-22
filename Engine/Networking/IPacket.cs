@@ -6,7 +6,7 @@ namespace DigBuild.Engine.Networking
 {
     public interface IPacket
     {
-        void Handle(Connection connection);
+        void Handle(IConnection connection);
     }
 
     public static class PacketExtensions

@@ -37,6 +37,11 @@ namespace DigBuild.Engine.Math
             return All.Where(direction => flags.Has(direction));
         }
 
+        public static IEnumerable<Direction> NotIn(DirectionFlags flags)
+        {
+            return All.Where(direction => !flags.Has(direction));
+        }
+
         public static Direction FromOffset(Vector3 vector)
         {
             var abs = Vector3.Abs(vector);

@@ -84,6 +84,11 @@ namespace DigBuild.Engine.Blocks
 
     public static class BlockRegistryBuilderExtensions
     {
+        public static Block Create(this IRegistryBuilder<Block> registry, string domain, string path, params Action<BlockBuilder>[] buildActions)
+        {
+            return registry.Create(new ResourceName(domain, path), buildActions);
+        }
+
         public static Block Create(this IRegistryBuilder<Block> registry, ResourceName name, params Action<BlockBuilder>[] buildActions)
         {
             var builder = new BlockBuilder();

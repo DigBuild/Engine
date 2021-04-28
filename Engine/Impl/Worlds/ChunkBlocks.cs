@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.BuiltIn;
@@ -10,7 +12,7 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Impl.Worlds
 {
-    public interface IReadOnlyChunkBlocks
+    public interface IReadOnlyChunkBlocks : IEnumerable<KeyValuePair<ChunkBlockPosition, Block?>>
     {
         public Block? GetBlock(ChunkBlockPosition pos);
         internal DataContainer? GetData(ChunkBlockPosition pos);
@@ -21,9 +23,9 @@ namespace DigBuild.Engine.Impl.Worlds
         private const uint ChunkSize = 16;
         
         public static DataHandle<IChunk, IReadOnlyChunkBlocks, ChunkBlocks> Type { get; internal set; } = null!;
-
-        private readonly Block?[,,] _blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
-        private readonly DataContainer?[,,] _data = new DataContainer[ChunkSize, ChunkSize, ChunkSize];
+        
+        private readonly Octree<Block?> _blocks = new(4, null);
+        private readonly Octree<DataContainer?> _data = new(4, null);
 
         public event Action? Changed;
 
@@ -39,6 +41,16 @@ namespace DigBuild.Engine.Impl.Worlds
             _data[pos.X, pos.Y, pos.Z] = block?.CreateDataContainer();
             Changed?.Invoke();
         }
+
+        public IEnumerator<KeyValuePair<ChunkBlockPosition, Block?>> GetEnumerator()
+        {
+            foreach (var ((x, y, z), block) in _blocks)
+            {
+                yield return new KeyValuePair<ChunkBlockPosition, Block?>(new ChunkBlockPosition(x, y, z), block);
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public ChunkBlocks Copy()
         {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Engine.Blocks;
@@ -44,12 +44,10 @@ namespace DigBuild.Engine.Render
             {
                 var blockStorage = _chunk.Get(ChunkBlocks.Type);
                 var lightingStorage = _chunk.Get(IChunkBlockLight.Type);
-                for (var x = 0; x < 16; x++)
-                for (var y = 0; y < 16; y++)
-                for (var z = 0; z < 16; z++)
+                
+                foreach (var (subChunkPos, block) in blockStorage)
                 {
-                    var subChunkPos = new ChunkBlockPosition(x, y, z);
-                    var block = blockStorage.GetBlock(subChunkPos);
+                    var (x, y, z) = subChunkPos;
                     if (block != null && _blockModels.TryGetValue(block, out var model))
                     {
                         blocks[x, y, z] = block;

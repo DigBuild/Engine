@@ -29,6 +29,12 @@ namespace DigBuild.Engine.Render
             return layer.LinearTransformer(vertConsumer, Transform, TransformNormal);
         }
 
+        public void Upload(RenderContext context)
+        {
+            foreach (var layerData in _layers.Values)
+                layerData.Upload(context);
+        }
+
         public bool HasGeometry(IRenderLayer layer)
         {
             return _layers.TryGetValue(layer, out var data) && data.HasGeometry();
@@ -54,6 +60,7 @@ namespace DigBuild.Engine.Render
 
         private interface ILayerData : IDisposable
         {
+            void Upload(RenderContext context);
             bool HasGeometry();
             void Draw(RenderContext context, CommandBufferRecorder cmd);
             void Clear();
@@ -85,6 +92,21 @@ namespace DigBuild.Engine.Render
                 _pool = pool;
             }
 
+            public void Upload(RenderContext context)
+            {
+                if (_nativeBuffer == null)
+                    return;
+
+                if (_vertexBuffer == null || _vertexBufferWriter == null)
+                    _vertexBuffer = context.CreateVertexBuffer(out _vertexBufferWriter, _nativeBuffer);
+                else
+                    _vertexBufferWriter.Write(_nativeBuffer);
+
+                _lastCount = _nativeBuffer.Count;
+                _nativeBuffer.Dispose();
+                _nativeBuffer = null;
+            }
+
             public bool HasGeometry()
             {
                 return _nativeBuffer != null ? _nativeBuffer.Count > 0 : _lastCount > 0;
@@ -92,23 +114,15 @@ namespace DigBuild.Engine.Render
 
             public void Draw(RenderContext context, CommandBufferRecorder cmd)
             {
-                if (_nativeBuffer != null)
-                {
-                    if (_vertexBuffer == null || _vertexBufferWriter == null)
-                        _vertexBuffer = context.CreateVertexBuffer(out _vertexBufferWriter, _nativeBuffer);
-                    else
-                        _vertexBufferWriter.Write(_nativeBuffer);
-                    _lastCount = _nativeBuffer.Count;
-                    _nativeBuffer.Dispose();
-                    _nativeBuffer = null;
-                }
-
-                _layer.Draw(cmd, _vertexBuffer!);
+                if (_lastCount > 0)
+                    _layer.Draw(cmd, _vertexBuffer!);
             }
 
             public void Clear()
             {
-                NativeBuffer.Clear();
+                _nativeBuffer?.Dispose();
+                _nativeBuffer = null;
+                _lastCount = 0;
             }
 
             public void Dispose()

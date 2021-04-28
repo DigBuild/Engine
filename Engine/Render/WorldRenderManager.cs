@@ -89,7 +89,7 @@ namespace DigBuild.Engine.Render
             _chunkRenderData.Clear();
         }
 
-        public void UpdateChunks(ICamera camera, ViewFrustum viewFrustum)
+        public void UpdateChunks(RenderContext context, ICamera camera, ViewFrustum viewFrustum)
         {
             var cameraPos = camera.Position;
             var cameraChunkPos = new BlockPos(cameraPos).ChunkPos;
@@ -147,6 +147,8 @@ namespace DigBuild.Engine.Render
             }
 
             Parallel.ForEach(toUpdate, chunk => _chunkRenderData[chunk].UpdateGeometry());
+            foreach (var chunk in toUpdate)
+                _chunkRenderData[chunk].UploadGeometry(context);
         }
 
         public void SubmitGeometry(RenderContext context, CommandBufferRecorder cmd, Matrix4x4 projection, ICamera camera, ViewFrustum viewFrustum, float partialTick)
@@ -164,7 +166,7 @@ namespace DigBuild.Engine.Render
                     continue;
 
                 rendered.Add((chunk, renderData));
-                renderData.UpdateDynamicGeometry(partialTick);
+                renderData.UpdateDynamicGeometry(context, partialTick);
             }
 
             _entityGbs.Clear();
@@ -177,6 +179,7 @@ namespace DigBuild.Engine.Render
                 var modelData = entity.Get(ModelData.EntityAttribute);
                 model.AddGeometry(_entityGbs, modelData, partialTick);
             }
+            _entityGbs.Upload(context);
 
             foreach (var layer in _renderLayers)
             {

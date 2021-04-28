@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Engine.Blocks;
@@ -233,7 +233,12 @@ namespace DigBuild.Engine.Render
             }
         }
 
-        public void UpdateDynamicGeometry(float partialTick)
+        public void UploadGeometry(RenderContext context)
+        {
+            _gbs.Upload(context);
+        }
+
+        public void UpdateDynamicGeometry(RenderContext context, float partialTick)
         {
             if (_dynamicModelData.Count == 0)
                 return;
@@ -249,6 +254,8 @@ namespace DigBuild.Engine.Render
                 );
                 data.Model.AddDynamicGeometry(_gbsDynamic, modelData, _ => 0xF, partialTick);
             }
+
+            _gbsDynamic.Upload(context);
         }
 
         public bool HasGeometry(IRenderLayer layer)

@@ -119,9 +119,10 @@ namespace DigBuild.Engine.Impl.Worlds
             }
             if (!loadOrGenerate)
                 return null;
-            if (_storage.TryLoad(pos, out chunk) || _chunkProvider.TryGet(Position + pos, out chunk))
+            var loaded = _storage.TryLoad(pos, out chunk);
+            if (loaded || _chunkProvider.TryGet(Position + pos, out chunk))
             {
-                chunk.Changed += () =>
+                chunk!.Changed += () =>
                 {
                     ChunkChanged?.Invoke(chunk);
                     _storage.Save(chunk);
@@ -130,7 +131,8 @@ namespace DigBuild.Engine.Impl.Worlds
                 {
                     _chunks.Add(pos, chunk, _loadingClaims.ContainsKey(pos));
                 }
-                _storage.Save(chunk);
+                if (!loaded)
+                    _storage.Save(chunk);
                 ChunkChanged?.Invoke(chunk);
                 return chunk;
             }

@@ -4,7 +4,6 @@ using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Storage;
-using DigBuild.Engine.Worlds;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Blocks
@@ -14,7 +13,7 @@ namespace DigBuild.Engine.Blocks
         private readonly IReadOnlyDictionary<Type, GenericBlockEventDelegate> _eventHandlers;
         private readonly IReadOnlyDictionary<IBlockAttribute, GenericBlockAttributeDelegate> _attributeSuppliers;
         private readonly IReadOnlyDictionary<IBlockCapability, GenericBlockCapabilityDelegate> _capabilitySuppliers;
-        private readonly Action<DataContainer> _dataInitializer;
+        private readonly Func<DataContainer> _dataFactory;
 
         public ResourceName Name { get; }
 
@@ -23,13 +22,13 @@ namespace DigBuild.Engine.Blocks
             IReadOnlyDictionary<Type, GenericBlockEventDelegate> eventHandlers,
             IReadOnlyDictionary<IBlockAttribute, GenericBlockAttributeDelegate> attributeSuppliers,
             IReadOnlyDictionary<IBlockCapability, GenericBlockCapabilityDelegate> capabilitySuppliers,
-            Action<DataContainer> dataInitializer
+            Func<DataContainer> dataFactory
         )
         {
             _eventHandlers = eventHandlers;
             _attributeSuppliers = attributeSuppliers;
             _capabilitySuppliers = capabilitySuppliers;
-            _dataInitializer = dataInitializer;
+            _dataFactory = dataFactory;
             Name = name;
         }
 
@@ -63,9 +62,7 @@ namespace DigBuild.Engine.Blocks
 
         internal DataContainer CreateDataContainer()
         {
-            var container = new DataContainer();
-            _dataInitializer(container);
-            return container;
+            return _dataFactory();
         }
 
         private DataContainer GetDataContainer(IReadOnlyBlockContext context)

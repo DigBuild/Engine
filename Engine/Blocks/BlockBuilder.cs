@@ -14,6 +14,8 @@ namespace DigBuild.Engine.Blocks
 
     public sealed class BlockBuilder
     {
+        private static readonly Func<DataContainer> CreateNullData = () => null!;
+
         private readonly List<IDataHandle> _dataHandles = new();
         private readonly Dictionary<Type, List<BlockEventDelegate>> _eventHandlers = new();
         private readonly Dictionary<IBlockAttribute, List<BlockAttributeDelegate>> _attributeSuppliers = new();
@@ -186,13 +188,15 @@ namespace DigBuild.Engine.Blocks
             foreach (var capability in capabilityRegistry.Values)
                 capabilitySuppliers.TryAdd(capability, (context, container) => capability.GenericDefaultValueDelegate(context));
             
-            void InitializeData(DataContainer container)
+            DataContainer CreateData()
             {
+                var container = new DataContainer();
                 foreach (var initializer in _dataInitializers)
                     initializer(container);
+                return container;
             }
 
-            return new Block(name, eventHandlers, attributeSuppliers, capabilitySuppliers, InitializeData);
+            return new Block(name, eventHandlers, attributeSuppliers, capabilitySuppliers, _dataHandles.Count > 0 ? CreateData : CreateNullData);
         }
     }
 }

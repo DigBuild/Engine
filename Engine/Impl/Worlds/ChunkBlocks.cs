@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.BuiltIn;
@@ -52,7 +52,8 @@ namespace DigBuild.Engine.Impl.Worlds
             }
             return copy;
         }
-        
+
+        private static readonly ISerdes<DataContainer?> NullableDataContainerSerdes = new NullableSerdes<DataContainer>(DataContainer.Serdes);
         public static ISerdes<ChunkBlocks> Serdes { get; } = new SimpleSerdes<ChunkBlocks>(
             (stream, blocks) =>
             {
@@ -71,7 +72,7 @@ namespace DigBuild.Engine.Impl.Worlds
                     bw.Write(block.Name.ToString());
 
                     var data = blocks._data[x, y, z];
-                    DataContainer.Serdes.Serialize(stream, data!);
+                    NullableDataContainerSerdes.Serialize(stream, data);
                 }
             },
             stream =>
@@ -91,7 +92,7 @@ namespace DigBuild.Engine.Impl.Worlds
                     var block = BuiltInRegistries.Blocks.GetOrNull(name.Value)!;
                     blocks._blocks[x, y, z] = block;
                     
-                    var data = DataContainer.Serdes.Deserialize(stream);
+                    var data = NullableDataContainerSerdes.Deserialize(stream);
                     blocks._data[x, y, z] = data;
                 }
 

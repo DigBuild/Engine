@@ -12,6 +12,7 @@ namespace DigBuild.Engine.Render
 {
     public sealed class ChunkRenderData : IDisposable
     {
+        private readonly IReadOnlyWorld _world;
         private readonly IReadOnlyChunk _chunk;
         private readonly Func<int, int, int, IReadOnlyChunk?> _neighborGetter;
         private readonly IReadOnlyDictionary<Block, IBlockModel> _blockModels;
@@ -20,8 +21,9 @@ namespace DigBuild.Engine.Render
         private readonly List<DynamicModelData> _dynamicModelData = new();
         private readonly GeometryBufferSet _gbsDynamic;
 
-        public ChunkRenderData(IReadOnlyChunk chunk, Func<int, int, int, IReadOnlyChunk?> neighborGetter, IReadOnlyDictionary<Block, IBlockModel> blockModels, NativeBufferPool pool)
+        public ChunkRenderData(IReadOnlyWorld world, IReadOnlyChunk chunk, Func<int, int, int, IReadOnlyChunk?> neighborGetter, IReadOnlyDictionary<Block, IBlockModel> blockModels, NativeBufferPool pool)
         {
+            _world = world;
             _chunk = chunk;
             _neighborGetter = neighborGetter;
             _blockModels = blockModels;
@@ -34,6 +36,8 @@ namespace DigBuild.Engine.Render
             _dynamicModelData.Clear();
             _gbs.Clear();
             
+            var blocks = new Block[16, 16, 16];
+            var data = new ModelData[16, 16, 16];
             var models = new IBlockModel?[18, 18, 18];
             var lighting = new byte[18, 18, 18];
 
@@ -47,7 +51,11 @@ namespace DigBuild.Engine.Render
                     var subChunkPos = new ChunkBlockPosition(x, y, z);
                     var block = blockStorage.GetBlock(subChunkPos);
                     if (block != null && _blockModels.TryGetValue(block, out var model))
+                    {
+                        blocks[x, y, z] = block;
+                        data[x, y, z] = block.Get(new ReadOnlyBlockContext(_world, _chunk.Position + subChunkPos, block), ModelData.BlockAttribute);
                         models[x + 1, y + 1, z + 1] = model;
+                    }
                     lighting[x + 1, y + 1, z + 1] = lightingStorage.Get(subChunkPos);
                 }
             }
@@ -217,17 +225,17 @@ namespace DigBuild.Engine.Render
                     faces |= DirectionFlags.PosZ;
 
                 _gbs.Transform = Matrix4x4.CreateTranslation(x - 1, y - 1, z - 1);
-                model.AddGeometry(faces, _gbs, dir =>
+                model.AddGeometry(_gbs, data[x - 1, y - 1, z - 1], dir =>
                 {
                     var (offX, offY, offZ) = dir.GetOffsetI();
                     return lighting[x + offX, y + offY, z + offZ];
-                });
+                }, faces);
                 if (model.HasDynamicGeometry)
-                    _dynamicModelData.Add(new DynamicModelData(x - 1, y - 1, z - 1, model));
+                    _dynamicModelData.Add(new DynamicModelData(x - 1, y - 1, z - 1, blocks[x - 1, y - 1, z - 1], model));
             }
         }
 
-        public void UpdateDynamicGeometry()
+        public void UpdateDynamicGeometry(float partialTick)
         {
             if (_dynamicModelData.Count == 0)
                 return;
@@ -236,8 +244,12 @@ namespace DigBuild.Engine.Render
             
             foreach (var data in _dynamicModelData)
             {
-                _gbsDynamic.Transform = Matrix4x4.CreateTranslation((Vector3) data.Position);
-                data.Model.AddDynamicGeometry(_gbsDynamic, _ => 0xF);
+                _gbsDynamic.Transform = Matrix4x4.CreateTranslation(new Vector3(data.Position.X, data.Position.Y, data.Position.Z));
+                var modelData = data.Block.Get(
+                    new ReadOnlyBlockContext(_world, _chunk.Position + data.Position, data.Block),
+                    ModelData.BlockAttribute
+                );
+                data.Model.AddDynamicGeometry(_gbsDynamic, modelData, _ => 0xF, partialTick);
             }
         }
 
@@ -261,12 +273,14 @@ namespace DigBuild.Engine.Render
 
         private sealed class DynamicModelData
         {
-            internal readonly Vector3I Position;
+            internal readonly ChunkBlockPosition Position;
+            internal readonly Block Block;
             internal readonly IBlockModel Model;
 
-            public DynamicModelData(int x, int y, int z, IBlockModel model)
+            public DynamicModelData(int x, int y, int z, Block block, IBlockModel model)
             {
-                Position = new Vector3I(x, y, z);
+                Position = new ChunkBlockPosition(x, y, z);
+                Block = block;
                 Model = model;
             }
         }

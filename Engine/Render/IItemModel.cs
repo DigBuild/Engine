@@ -2,10 +2,7 @@
 {
     public interface IItemModel
     {
-        void AddGeometry(ItemModelTransform transform, GeometryBufferSet buffers);
-
-        bool HasDynamicGeometry => false;
-        void AddDynamicGeometry(ItemModelTransform transform, GeometryBufferSet buffers) { }
+        void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, ItemModelTransform transform, float partialTick);
     }
 
     public enum ItemModelTransform

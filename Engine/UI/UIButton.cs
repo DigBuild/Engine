@@ -49,7 +49,7 @@ namespace DigBuild.Engine.Ui
             }
         }
 
-        public void Draw(RenderContext context, GeometryBufferSet buffers)
+        public void Draw(RenderContext context, GeometryBufferSet buffers, float partialTick)
         {
             var buf = buffers.Get(_layer);
             var i = _clicked ? 2 : _hovered ? 1 : 0;

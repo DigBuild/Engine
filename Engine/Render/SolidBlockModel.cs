@@ -11,7 +11,7 @@ namespace DigBuild.Engine.Render
         {
         }
 
-        public void AddGeometry(DirectionFlags faces, GeometryBufferSet buffers, Func<Direction, byte> light)
+        public void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, Func<Direction, byte> light, DirectionFlags faces)
         {
         }
 

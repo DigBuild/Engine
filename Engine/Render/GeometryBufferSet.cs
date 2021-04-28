@@ -25,7 +25,7 @@ namespace DigBuild.Engine.Render
                 _layers[layer] = ld = new LayerData<TVertex>(layer, _pool);
             var data = (LayerData<TVertex>) ld;
             
-            var vertConsumer = new NativeBufferVertexConsumer<TVertex>(data.NativeBuffer);
+            var vertConsumer = new LazyNativeBufferVertexConsumer<TVertex>(() => data.NativeBuffer);
             return layer.LinearTransformer(vertConsumer, Transform, TransformNormal);
         }
 

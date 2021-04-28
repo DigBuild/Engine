@@ -46,4 +46,27 @@ namespace DigBuild.Engine.Render
         public void Accept(T vertex) => _buffer.Add(vertex);
         public void Accept(IEnumerable<T> vertices) => _buffer.Add(vertices);
     }
+
+    public sealed class LazyNativeBufferVertexConsumer<T> : IVertexConsumer<T> where T : unmanaged
+    {
+        private readonly Func<INativeBuffer<T>> _supplier;
+        private INativeBuffer<T>? _buffer;
+
+        public LazyNativeBufferVertexConsumer(Func<INativeBuffer<T>> supplier)
+        {
+            _supplier = supplier;
+        }
+
+        public void Accept(T vertex)
+        {
+            _buffer ??= _supplier();
+            _buffer.Add(vertex);
+        }
+
+        public void Accept(IEnumerable<T> vertices)
+        {
+            _buffer ??= _supplier();
+            _buffer.Add(vertices);
+        }
+    }
 }

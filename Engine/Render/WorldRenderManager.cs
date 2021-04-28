@@ -109,7 +109,8 @@ namespace DigBuild.Engine.Render
             lock(_removedChunks)
             {
                 foreach (var chunk in _removedChunks)
-                    _chunkRenderData.Remove(chunk);
+                    if (_chunkRenderData.Remove(chunk, out var data))
+                        data.Dispose();
                 _removedChunks.Clear();
             }
 
@@ -133,6 +134,7 @@ namespace DigBuild.Engine.Render
                     if (!_chunkRenderData.ContainsKey(chunk))
                     {
                         var data = _chunkRenderData[chunk] = new ChunkRenderData(
+                            _world,
                             chunk,
                             (ox, oy, oz) => _world.GetChunk(new ChunkPos(chunk.Position.X + ox, chunk.Position.Y + oy, chunk.Position.Z + oz), false),
                             _blockModels,
@@ -147,7 +149,7 @@ namespace DigBuild.Engine.Render
             Parallel.ForEach(toUpdate, chunk => _chunkRenderData[chunk].UpdateGeometry());
         }
 
-        public void SubmitGeometry(RenderContext context, CommandBufferRecorder cmd, Matrix4x4 projection, ICamera camera, ViewFrustum viewFrustum)
+        public void SubmitGeometry(RenderContext context, CommandBufferRecorder cmd, Matrix4x4 projection, ICamera camera, ViewFrustum viewFrustum, float partialTick)
         {
             _ubs.Clear();
             _ubs.Setup(context, cmd);
@@ -162,26 +164,18 @@ namespace DigBuild.Engine.Render
                     continue;
 
                 rendered.Add((chunk, renderData));
-                renderData.UpdateDynamicGeometry();
+                renderData.UpdateDynamicGeometry(partialTick);
             }
 
             _entityGbs.Clear();
-            foreach (var layer in _renderLayers)
+            foreach (var entity in _entities.Values)
             {
-                foreach (var entity in _entities.Values)
-                {
-                    if (!_entityModels.TryGetValue(entity.Type, out var model))
-                        continue;
-
-                    _entityGbs.Transform = Matrix4x4.Identity;
-                    model.AddGeometry(entity, _entityGbs);
-
-                    if (!model.HasDynamicGeometry)
-                        continue;
-
-                    _entityGbs.Transform = Matrix4x4.Identity;
-                    model.AddDynamicGeometry(entity, _entityGbs);
-                }
+                if (!_entityModels.TryGetValue(entity.Type, out var model))
+                    continue;
+                
+                _entityGbs.Transform = Matrix4x4.Identity;
+                var modelData = entity.Get(ModelData.EntityAttribute);
+                model.AddGeometry(_entityGbs, modelData, partialTick);
             }
 
             foreach (var layer in _renderLayers)

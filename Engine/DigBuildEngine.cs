@@ -2,6 +2,7 @@
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Impl.Worlds;
+using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Storage;
@@ -28,18 +29,34 @@ namespace DigBuild.Engine
             );
         }
 
+        public static void Register(RegistryBuilder<IBlockAttribute> registry)
+        {
+            ModelData.BlockAttribute = registry.Register(
+                new ResourceName(Domain, "model_data"),
+                () => new ModelData()
+            );
+        }
+
+        public static void Register(RegistryBuilder<IItemAttribute> registry)
+        {
+            ModelData.ItemAttribute = registry.Register(
+                new ResourceName(Domain, "model_data"),
+                () => new ModelData()
+            );
+        }
+
+        public static void Register(RegistryBuilder<IEntityAttribute> registry)
+        {
+            ModelData.EntityAttribute = registry.Register(
+                new ResourceName(Domain, "model_data"),
+                () => new ModelData()
+            );
+        }
+
         public static void Register(ExtendedTypeRegistryBuilder<IBlockEvent, BlockEventInfo> registry)
         {
             registry.Register((BuiltInBlockEvent.JoinedWorld _) => { });
             registry.Register((BuiltInBlockEvent.LeavingWorld _) => { });
-        }
-
-        public static void Register(RegistryBuilder<IBlockAttribute> registry)
-        {
-            ModelData.Attribute = registry.Register(
-                new ResourceName(Domain, "model_data"),
-                () => new ModelData()
-            );
         }
 
         public static void Register(ExtendedTypeRegistryBuilder<IEntityEvent, EntityEventInfo> registry)

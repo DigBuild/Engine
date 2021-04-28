@@ -20,7 +20,7 @@ namespace DigBuild.Engine.Ui
             Text = text;
         }
 
-        public void Draw(RenderContext context, GeometryBufferSet buffers)
+        public void Draw(RenderContext context, GeometryBufferSet buffers, float partialTick)
         {
             _textRenderer.DrawLine(buffers, Text, 3);
         }

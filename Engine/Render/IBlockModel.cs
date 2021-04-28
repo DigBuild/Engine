@@ -5,11 +5,11 @@ namespace DigBuild.Engine.Render
 {
     public interface IBlockModel
     {
-        void AddGeometry(DirectionFlags faces, GeometryBufferSet buffers, Func<Direction, byte> light);
+        void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, Func<Direction, byte> light, DirectionFlags faces);
 
         bool IsFaceSolid(Direction face);
 
         bool HasDynamicGeometry => false;
-        void AddDynamicGeometry(GeometryBufferSet buffers, Func<Direction, byte> light) { }
+        void AddDynamicGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, Func<Direction, byte> light, float partialTick) { }
     }
 }

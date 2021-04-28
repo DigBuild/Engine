@@ -24,7 +24,7 @@ namespace DigBuild.Engine.Ui
             _textRenderer = textRenderer ?? IUiElement.GlobalTextRenderer;
         }
 
-        public void Draw(RenderContext context, GeometryBufferSet buffers)
+        public void Draw(RenderContext context, GeometryBufferSet buffers, float partialTick)
         {
             if (_slot.Item.Count > 0 && _models.TryGetValue(_slot.Item.Type, out var model))
             {
@@ -33,12 +33,8 @@ namespace DigBuild.Engine.Ui
                                 Matrix4x4.CreateScale(Scale) *
                                 originalTransform;
                 buffers.Transform = transform;
-                model.AddGeometry(ItemModelTransform.Inventory, buffers);
-                if (model.HasDynamicGeometry)
-                {
-                    buffers.Transform = transform;
-                    model.AddDynamicGeometry(ItemModelTransform.Inventory, buffers);
-                }
+                var modelData = _slot.Item.Get(ModelData.ItemAttribute);
+                model.AddGeometry(buffers, modelData, ItemModelTransform.Inventory, partialTick);
                 
                 buffers.Transform = Matrix4x4.CreateTranslation(Scale / 6f, Scale / 2f, 0) * originalTransform;
                 _textRenderer.DrawLine(buffers, $"{_slot.Item.Count,2:d2}", 3);

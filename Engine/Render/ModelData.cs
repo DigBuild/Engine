@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Entities;
+using DigBuild.Engine.Items;
 
 namespace DigBuild.Engine.Render
 {
     public sealed class ModelData : IReadOnlyModelData
     {
-        public static BlockAttribute<ModelData> Attribute { get; internal set; } = null!;
+        public static BlockAttribute<ModelData> BlockAttribute { get; internal set; } = null!;
+        public static ItemAttribute<ModelData> ItemAttribute { get; internal set; } = null!;
+        public static EntityAttribute<ModelData> EntityAttribute { get; internal set; } = null!;
 
         private readonly Dictionary<Type, object> _data = new();
 

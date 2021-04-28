@@ -9,7 +9,7 @@ namespace DigBuild.Engine.Ui
     {
         public static TextRenderer GlobalTextRenderer { get; set; } = null!;
 
-        void Draw(RenderContext context, GeometryBufferSet buffers);
+        void Draw(RenderContext context, GeometryBufferSet buffers, float partialTick);
 
         void OnCursorMoved(IUiElementContext context, int x, int y) { }
 

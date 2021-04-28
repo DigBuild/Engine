@@ -38,7 +38,7 @@ namespace DigBuild.Engine.Ui
             _vertices = new[] { v1, v2, v3, v3, v4, v1 };
         }
 
-        public void Draw(RenderContext context, GeometryBufferSet buffers)
+        public void Draw(RenderContext context, GeometryBufferSet buffers, float partialTick)
         {
             var buf = buffers.Get(_layer);
             buf.Accept(_vertices);

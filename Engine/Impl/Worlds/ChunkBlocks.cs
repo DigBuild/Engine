@@ -12,10 +12,10 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Impl.Worlds
 {
-    public interface IReadOnlyChunkBlocks : IEnumerable<KeyValuePair<ChunkBlockPosition, Block?>>
+    public interface IReadOnlyChunkBlocks : IEnumerable<KeyValuePair<ChunkBlockPos, Block?>>
     {
-        public Block? GetBlock(ChunkBlockPosition pos);
-        internal DataContainer? GetData(ChunkBlockPosition pos);
+        public Block? GetBlock(ChunkBlockPos pos);
+        internal DataContainer? GetData(ChunkBlockPos pos);
     }
 
     public class ChunkBlocks : IReadOnlyChunkBlocks, IData<ChunkBlocks>, IChangeNotifier
@@ -29,11 +29,11 @@ namespace DigBuild.Engine.Impl.Worlds
 
         public event Action? Changed;
 
-        public Block? GetBlock(ChunkBlockPosition pos) => _blocks[pos.X, pos.Y, pos.Z];
-        internal DataContainer? GetData(ChunkBlockPosition pos) => _data[pos.X, pos.Y, pos.Z];
-        DataContainer? IReadOnlyChunkBlocks.GetData(ChunkBlockPosition pos) => GetData(pos);
+        public Block? GetBlock(ChunkBlockPos pos) => _blocks[pos.X, pos.Y, pos.Z];
+        internal DataContainer? GetData(ChunkBlockPos pos) => _data[pos.X, pos.Y, pos.Z];
+        DataContainer? IReadOnlyChunkBlocks.GetData(ChunkBlockPos pos) => GetData(pos);
 
-        public void SetBlock(ChunkBlockPosition pos, Block? block)
+        public void SetBlock(ChunkBlockPos pos, Block? block)
         {
             if (_blocks[pos.X, pos.Y, pos.Z] == block)
                 return;
@@ -42,11 +42,11 @@ namespace DigBuild.Engine.Impl.Worlds
             Changed?.Invoke();
         }
 
-        public IEnumerator<KeyValuePair<ChunkBlockPosition, Block?>> GetEnumerator()
+        public IEnumerator<KeyValuePair<ChunkBlockPos, Block?>> GetEnumerator()
         {
             foreach (var ((x, y, z), block) in _blocks)
             {
-                yield return new KeyValuePair<ChunkBlockPosition, Block?>(new ChunkBlockPosition(x, y, z), block);
+                yield return new KeyValuePair<ChunkBlockPos, Block?>(new ChunkBlockPos(x, y, z), block);
             }
         }
 
@@ -114,12 +114,12 @@ namespace DigBuild.Engine.Impl.Worlds
 
     public static class ChunkBlocksExtensions
     {
-        public static Block? GetBlock(this IReadOnlyChunk chunk, ChunkBlockPosition pos)
+        public static Block? GetBlock(this IReadOnlyChunk chunk, ChunkBlockPos pos)
         {
             return chunk.Get(ChunkBlocks.Type).GetBlock(pos);
         }
 
-        public static bool SetBlock(this IChunk chunk, ChunkBlockPosition pos, Block? block)
+        public static bool SetBlock(this IChunk chunk, ChunkBlockPos pos, Block? block)
         {
             chunk.Get(ChunkBlocks.Type).SetBlock(pos, block);
             return true;

@@ -2,13 +2,13 @@
 
 namespace DigBuild.Engine.Math
 {
-    public readonly struct ChunkBlockPosition : IEquatable<ChunkBlockPosition>
+    public readonly struct ChunkBlockPos : IEquatable<ChunkBlockPos>
     {
         public int X { get; }
         public int Y { get; }
         public int Z { get; }
         
-        public ChunkBlockPosition(int x, int y, int z)
+        public ChunkBlockPos(int x, int y, int z)
         {
             X = x & 15;
             Y = y & 15;
@@ -27,7 +27,7 @@ namespace DigBuild.Engine.Math
             return $"<{X}, {Y}, {Z}>";
         }
         
-        public bool Equals(ChunkBlockPosition other)
+        public bool Equals(ChunkBlockPos other)
         {
             return X == other.X && Y == other.Y && Z == other.Z;
         }
@@ -42,12 +42,12 @@ namespace DigBuild.Engine.Math
             return HashCode.Combine(X, Y, Z);
         }
 
-        public static bool operator ==(ChunkBlockPosition left, ChunkBlockPosition right)
+        public static bool operator ==(ChunkBlockPos left, ChunkBlockPos right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(ChunkBlockPosition left, ChunkBlockPosition right)
+        public static bool operator !=(ChunkBlockPos left, ChunkBlockPos right)
         {
             return !left.Equals(right);
         }

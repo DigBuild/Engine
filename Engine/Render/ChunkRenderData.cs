@@ -67,7 +67,7 @@ namespace DigBuild.Engine.Render
                     for (var y = 0; y < 16; y++)
                     for (var z = 0; z < 16; z++)
                     {
-                        var subChunkPos = new ChunkBlockPosition(15, y, z);
+                        var subChunkPos = new ChunkBlockPos(15, y, z);
                         var block = blockStorage.GetBlock(subChunkPos);
                         if (block != null && _blockModels.TryGetValue(block, out var model))
                             models[0, y + 1, z + 1] = model;
@@ -90,7 +90,7 @@ namespace DigBuild.Engine.Render
                     for (var y = 0; y < 16; y++)
                     for (var z = 0; z < 16; z++)
                     {
-                        var subChunkPos = new ChunkBlockPosition(0, y, z);
+                        var subChunkPos = new ChunkBlockPos(0, y, z);
                         var block = blockStorage.GetBlock(subChunkPos);
                         if (block != null && _blockModels.TryGetValue(block, out var model))
                             models[17, y + 1, z + 1] = model;
@@ -114,7 +114,7 @@ namespace DigBuild.Engine.Render
                     for (var x = 0; x < 16; x++)
                     for (var z = 0; z < 16; z++)
                     {
-                        var subChunkPos = new ChunkBlockPosition(x, 15, z);
+                        var subChunkPos = new ChunkBlockPos(x, 15, z);
                         var block = blockStorage.GetBlock(subChunkPos);
                         if (block != null && _blockModels.TryGetValue(block, out var model))
                             models[x + 1, 0, z + 1] = model;
@@ -137,7 +137,7 @@ namespace DigBuild.Engine.Render
                     for (var x = 0; x < 16; x++)
                     for (var z = 0; z < 16; z++)
                     {
-                        var subChunkPos = new ChunkBlockPosition(x, 0, z);
+                        var subChunkPos = new ChunkBlockPos(x, 0, z);
                         var block = blockStorage.GetBlock(subChunkPos);
                         if (block != null && _blockModels.TryGetValue(block, out var model))
                             models[x + 1, 17, z + 1] = model;
@@ -161,7 +161,7 @@ namespace DigBuild.Engine.Render
                     for (var x = 0; x < 16; x++)
                     for (var y = 0; y < 16; y++)
                     {
-                        var subChunkPos = new ChunkBlockPosition(x, y, 15);
+                        var subChunkPos = new ChunkBlockPos(x, y, 15);
                         var block = blockStorage.GetBlock(subChunkPos);
                         if (block != null && _blockModels.TryGetValue(block, out var model))
                             models[x + 1, y + 1, 0] = model;
@@ -185,7 +185,7 @@ namespace DigBuild.Engine.Render
                     for (var x = 0; x < 16; x++)
                     for (var y = 0; y < 16; y++)
                     {
-                        var subChunkPos = new ChunkBlockPosition(x, y, 0);
+                        var subChunkPos = new ChunkBlockPos(x, y, 0);
                         var block = blockStorage.GetBlock(subChunkPos);
                         if (block != null && _blockModels.TryGetValue(block, out var model))
                             models[x + 1, y + 1, 17] = model;
@@ -278,13 +278,13 @@ namespace DigBuild.Engine.Render
 
         private sealed class DynamicModelData
         {
-            internal readonly ChunkBlockPosition Position;
+            internal readonly ChunkBlockPos Position;
             internal readonly Block Block;
             internal readonly IBlockModel Model;
 
             public DynamicModelData(int x, int y, int z, Block block, IBlockModel model)
             {
-                Position = new ChunkBlockPosition(x, y, z);
+                Position = new ChunkBlockPos(x, y, z);
                 Block = block;
                 Model = model;
             }

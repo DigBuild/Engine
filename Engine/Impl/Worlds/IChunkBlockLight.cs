@@ -6,7 +6,7 @@ namespace DigBuild.Engine.Impl.Worlds
 {
     public interface IReadOnlyChunkBlockLight
     {
-        byte Get(ChunkBlockPosition pos);
+        byte Get(ChunkBlockPos pos);
     }
 
     public interface IChunkBlockLight : IReadOnlyChunkBlockLight, IData<IChunkBlockLight>, IChangeNotifier

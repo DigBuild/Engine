@@ -65,7 +65,7 @@ namespace DigBuild.Engine.Math
             return !left.Equals(right);
         }
 
-        public static BlockPos operator +(ChunkPos chunkPos, ChunkBlockPosition subChunkPos) => new(
+        public static BlockPos operator +(ChunkPos chunkPos, ChunkBlockPos subChunkPos) => new(
             (chunkPos.X << 4) | subChunkPos.X,
             (chunkPos.Y << 4) | subChunkPos.Y,
             (chunkPos.Z << 4) | subChunkPos.Z

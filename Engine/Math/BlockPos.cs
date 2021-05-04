@@ -10,7 +10,7 @@ namespace DigBuild.Engine.Math
         public int Z { get; }
         
         public ChunkPos ChunkPos => new(X >> 4, Y >> 4, Z >> 4);
-        public ChunkBlockPosition SubChunkPos => new(X, Y, Z);
+        public ChunkBlockPos SubChunkPos => new(X, Y, Z);
 
         public BlockPos(int x, int y, int z)
         {
@@ -38,7 +38,7 @@ namespace DigBuild.Engine.Math
             z = Z;
         }
         
-        public void Deconstruct(out ChunkPos chunkPos, out ChunkBlockPosition subChunkPos)
+        public void Deconstruct(out ChunkPos chunkPos, out ChunkBlockPos subChunkPos)
         {
             chunkPos = ChunkPos;
             subChunkPos = SubChunkPos;

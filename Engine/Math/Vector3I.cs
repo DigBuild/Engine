@@ -95,6 +95,7 @@ namespace DigBuild.Engine.Math
         public static Vector3I operator *(Vector3I vec, int amount) => new(vec.X * amount, vec.Y * amount, vec.Z * amount);
         
         public static explicit operator Vector3(Vector3I vec) => new(vec.X, vec.Y, vec.Z);
+        public static implicit operator Vector3I((int X, int Y, int Z) tuple) => new(tuple.X, tuple.Y, tuple.Z);
 
         public static Vector3I Abs(IVector3I vector)
         {

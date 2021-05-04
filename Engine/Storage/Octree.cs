@@ -1,22 +1,9 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Storage
 {
-    public interface IReadOnlyOctree<T> : IEnumerable<KeyValuePair<Vector3I, T>>
-    {
-        // IEnumerable<T> Values { get; }
-
-        T this[int x, int y, int z] { get; }
-    }
-
-    public interface IOctree<T> : IReadOnlyOctree<T>
-    {
-        new T this[int x, int y, int z] { get; set; }
-    }
-
     public sealed class Octree<T> : IOctree<T>
     {
         private readonly Level _topLevel;
@@ -149,14 +136,19 @@ namespace DigBuild.Engine.Storage
             public IEnumerator<KeyValuePair<Vector3I, T>> GetEnumerator()
             {
                 var subdivided = _flags & 1;
+                var level = _flags >> 1;
 
                 if (subdivided == 0)
                 {
-                    yield return new KeyValuePair<Vector3I, T>(Vector3I.Zero, (T) _value!);
+                    var levelSize = 1 << level;
+                    for (var i = 0; i < levelSize; i++)
+                    for (var j = 0; j < levelSize; j++)
+                    for (var k = 0; k < levelSize; k++)
+                        yield return new KeyValuePair<Vector3I, T>(new Vector3I(i, j, k), (T) _value!);
                 }
                 else
                 {
-                    var nextLevel = (_flags >> 1) - 1;
+                    var nextLevel = level - 1;
 
                     var children = (Level[,,]) _value!;
 

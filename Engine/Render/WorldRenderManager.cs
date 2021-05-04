@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -30,6 +30,8 @@ namespace DigBuild.Engine.Render
         private SortedSet<(IChunk, ChunkRenderData, float)> _sortedChunks = new();
         private ChunkPos _currentCameraPos = new(int.MaxValue, int.MaxValue, int.MaxValue);
 
+        public float TimeOfDay => (float) (_world.AbsoluteTime % 1000D) / 1000;
+
         public WorldRenderManager(
             IReadOnlyWorld world,
             IReadOnlyDictionary<Block, IBlockModel> blockModels,
@@ -45,7 +47,7 @@ namespace DigBuild.Engine.Render
             _ubs = new UniformBufferSet(pool);
             _entityGbs = new GeometryBufferSet(pool);
         }
-        
+
         public void QueueChunkUpdate(IChunk chunk)
         {
             lock (_updatedChunks)

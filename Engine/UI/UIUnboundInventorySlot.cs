@@ -29,7 +29,7 @@ namespace DigBuild.Engine.Ui
             if (_slot.Item.Count > 0 && _models.TryGetValue(_slot.Item.Type, out var model))
             {
                 var originalTransform = Matrix4x4.CreateTranslation(PosX, PosY, Scale) * buffers.Transform;
-                var transform = Matrix4x4.CreateTranslation(-Vector3.One / 2) *
+                var transform = UiInventorySlot.ItemTransform *
                                 Matrix4x4.CreateScale(Scale) *
                                 originalTransform;
                 buffers.Transform = transform;

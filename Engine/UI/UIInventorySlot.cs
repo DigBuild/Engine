@@ -17,6 +17,8 @@ namespace DigBuild.Engine.Ui
         private static readonly UiVertex[] Vertices = new UiVertex[3 * 6];
         private static readonly UiVertex[] MarkerVertices = new UiVertex[3 * 4];
 
+        internal static readonly Matrix4x4 ItemTransform = Matrix4x4.CreateTranslation(-Vector3.One / 2) * Matrix4x4.CreateRotationX(MathF.PI);
+
         static UiInventorySlot()
         {
             var center = new UiVertex(Vector2.Zero, Vector2.Zero, Color);
@@ -74,7 +76,7 @@ namespace DigBuild.Engine.Ui
             
             if (_slot.Item.Count > 0 && _models.TryGetValue(_slot.Item.Type, out var model))
             {
-                var transform = Matrix4x4.CreateTranslation(-Vector3.One / 2) * buffers.Transform;
+                var transform = ItemTransform * buffers.Transform;
                 buffers.Transform = transform;
                 var modelData = _slot.Item.Get(ModelData.ItemAttribute);
                 model.AddGeometry(buffers, modelData, ItemModelTransform.Inventory, partialTick);

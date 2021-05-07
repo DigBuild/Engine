@@ -3,6 +3,8 @@
     public interface IParticle<TGpuParticle>
         where TGpuParticle : unmanaged
     {
-        bool Update(ref TGpuParticle gpu);
+        bool Update(IParticleUpdateContext context);
+
+        void UpdateGpu(ref TGpuParticle gpu, float partialTick);
     }
 }

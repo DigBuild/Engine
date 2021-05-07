@@ -1,4 +1,7 @@
-﻿using DigBuild.Engine.Particles;
+﻿using System.Numerics;
+using DigBuild.Engine.Particles;
+using DigBuild.Engine.Render.GeneratedUniforms;
+using DigBuild.Engine.Textures;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Util;
 
@@ -6,48 +9,108 @@ namespace DigBuild.Engine.Render
 {
     public interface IParticleRenderer
     {
-        void Update();
-        void Draw(CommandBufferRecorder cmd);
+        void Initialize(RenderContext context, RenderStage stage);
+        void Update(float partialTick);
+        void Draw(CommandBufferRecorder cmd, Matrix4x4 projection, Matrix4x4 flattenTransform, float partialTick);
     }
 
     public class ParticleRenderer<TVertex, TGpu> : IParticleRenderer
         where TVertex : unmanaged
         where TGpu : unmanaged
     {
+        private readonly NativeBufferPool _pool;
         private readonly IParticleSystem<TGpu> _particleSystem;
-        private readonly RenderPipeline<TVertex, TGpu> _pipeline;
-        private readonly VertexBuffer<TVertex> _vertexBuffer;
-        private readonly VertexBuffer<TGpu> _instanceBuffer;
-        private readonly VertexBufferWriter<TGpu> _instanceBufferWriter;
+        private readonly Shader _vertexShader;
+        private readonly Shader _fragmentShader;
+        private readonly BitmapTexture _texture;
+        private readonly TVertex[] _vertices;
+
+        private readonly PooledNativeBuffer<ParticleUniform> _uniformNativeBuffer;
+
+        private RenderPipeline<TVertex, TGpu> _pipeline = null!;
+        private TextureBinding _textureBinding = null!;
+        private UniformBuffer<ParticleUniform> _uniformBuffer = null!;
+        private VertexBuffer<TVertex> _vertexBuffer = null!;
+        private VertexBuffer<TGpu> _instanceBuffer = null!;
+        private VertexBufferWriter<TGpu> _instanceBufferWriter = null!;
+
+        private uint _particleCount;
 
         public ParticleRenderer(
-            RenderContext context,
             NativeBufferPool pool,
             IParticleSystem<TGpu> particleSystem,
-            RenderPipeline<TVertex, TGpu> pipeline,
+            Shader vertexShader,
+            Shader fragmentShader,
+            BitmapTexture texture,
             params TVertex[] vertices
         )
         {
+            _pool = pool;
             _particleSystem = particleSystem;
-            _pipeline = pipeline;
+            _vertexShader = vertexShader;
+            _fragmentShader = fragmentShader;
+            _texture = texture;
+            _vertices = vertices;
+            
+            _uniformNativeBuffer = _pool.Request<ParticleUniform>();
+            _uniformNativeBuffer.Add(default(ParticleUniform));
+        }
 
-            using (var vertexNativeBuffer = pool.Request<TVertex>())
+        public void Initialize(RenderContext context, RenderStage stage)
+        {
+            VertexShader vertexShader = context.CreateVertexShader(_vertexShader.Resource)
+                .WithUniform<ParticleUniform>(out var uniform);
+            FragmentShader fragmentShader = context.CreateFragmentShader(_fragmentShader.Resource)
+                .WithSampler(out var shaderSampler);
+
+            TextureSampler sampler = context.CreateTextureSampler(maxFiltering: TextureFiltering.Nearest);
+            Texture texture = context.CreateTexture(_texture.Bitmap);
+            _textureBinding = context.CreateTextureBinding(shaderSampler, sampler, texture);
+
+            _pipeline = context.CreatePipeline<TVertex, TGpu>(
+                vertexShader, fragmentShader, stage, Topology.Triangles
+            )
+                .WithBlending(stage.Format.Attachments[0], BlendFactor.One, BlendFactor.One, BlendOperation.Add)
+                .WithBlending(stage.Format.Attachments[1], BlendFactor.One, BlendFactor.One, BlendOperation.Add)
+                .WithDepthTest(CompareOperation.LessOrEqual, false);
+
+            _uniformBuffer = context.CreateUniformBuffer(uniform, _uniformNativeBuffer);
+
+            using (var vertexNativeBuffer = _pool.Request<TVertex>())
             {
-                vertexNativeBuffer.Add(vertices);
+                vertexNativeBuffer.Add(_vertices);
                 _vertexBuffer = context.CreateVertexBuffer(vertexNativeBuffer);
             }
 
             _instanceBuffer = context.CreateVertexBuffer(out _instanceBufferWriter);
         }
 
-        public void Update()
+        public void Update(float partialTick)
         {
-            _instanceBufferWriter.Write(_particleSystem.GpuBuffer);
+            var nativeBuffer = _particleSystem.UpdateGpu(partialTick);
+            _particleCount = nativeBuffer.Count;
+            if (_particleCount > 0)
+                _instanceBufferWriter.Write(nativeBuffer);
         }
 
-        public void Draw(CommandBufferRecorder cmd)
+        public void Draw(CommandBufferRecorder cmd, Matrix4x4 projection, Matrix4x4 flattenTransform, float partialTick)
         {
+            if (_particleCount == 0)
+                return;
+
+            _uniformNativeBuffer[0].Matrix = projection;
+            _uniformNativeBuffer[0].FlattenMatrix = flattenTransform;
+            _uniformBuffer.Write(_uniformNativeBuffer);
+
+            cmd.Using(_pipeline, _uniformBuffer, 0);
+            cmd.Using(_pipeline, _textureBinding);
             cmd.Draw(_pipeline, _vertexBuffer, _instanceBuffer);
         }
+    }
+
+    public interface IParticleUniform : IUniform<ParticleUniform>
+    {
+        Matrix4x4 Matrix { get; set; }
+        Matrix4x4 FlattenMatrix { get; set; }
     }
 }

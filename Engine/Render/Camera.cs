@@ -20,10 +20,14 @@ namespace DigBuild.Engine.Render
             FieldOfView = fieldOfView;
         }
 
-        public Matrix4x4 Transform => 
+        public Matrix4x4 Transform =>
             Matrix4x4.CreateTranslation(-Position) *
             Matrix4x4.CreateRotationY(MathF.PI - Yaw) *
             Matrix4x4.CreateRotationX(-Pitch);
+
+        public Matrix4x4 FlattenTransform =>
+            Matrix4x4.CreateRotationX(Pitch) *
+            Matrix4x4.CreateRotationY(-MathF.PI + Yaw);
         
         public Vector3 Forward => Vector3.TransformNormal(
             Vector3.UnitZ,

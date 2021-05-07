@@ -18,6 +18,7 @@ namespace DigBuild.Engine.Render
         private readonly IReadOnlyDictionary<Block, IBlockModel> _blockModels;
         private readonly IReadOnlyDictionary<Entity, IEntityModel> _entityModels;
         private readonly IEnumerable<IRenderLayer> _renderLayers;
+        private readonly IEnumerable<IParticleRenderer> _particleRenderers;
         private readonly NativeBufferPool _pool;
         private readonly UniformBufferSet _ubs;
         private readonly GeometryBufferSet _entityGbs;
@@ -36,12 +37,15 @@ namespace DigBuild.Engine.Render
             IReadOnlyWorld world,
             IReadOnlyDictionary<Block, IBlockModel> blockModels,
             IReadOnlyDictionary<Entity, IEntityModel> entityModels,
-            IEnumerable<IRenderLayer> renderLayers, NativeBufferPool pool
+            IEnumerable<IRenderLayer> renderLayers,
+            IEnumerable<IParticleRenderer> particleRenderers,
+            NativeBufferPool pool
         )
         {
             _world = world;
             _blockModels = blockModels;
             _renderLayers = renderLayers;
+            _particleRenderers = particleRenderers;
             _pool = pool;
             _entityModels = entityModels;
             _ubs = new UniformBufferSet(pool);
@@ -183,11 +187,13 @@ namespace DigBuild.Engine.Render
             }
             _entityGbs.Upload(context);
 
+            var viewProjection = camera.Transform * projection;
+
             foreach (var layer in _renderLayers)
             {
                 foreach (var (chunk, renderData) in rendered)
                 {
-                    var transform = Matrix4x4.CreateTranslation(chunk.Position.GetOrigin()) * camera.Transform * projection;
+                    var transform = Matrix4x4.CreateTranslation(chunk.Position.GetOrigin()) * viewProjection;
                     if (renderData.HasGeometry(layer))
                     {
                         _ubs.AddAndUse(context, cmd, layer, transform);
@@ -197,12 +203,20 @@ namespace DigBuild.Engine.Render
 
                 if (_entityGbs.HasGeometry(layer))
                 {
-                    _ubs.AddAndUse(context, cmd, layer, camera.Transform * projection);
+                    _ubs.AddAndUse(context, cmd, layer, viewProjection);
                     _entityGbs.Draw(layer, context, cmd);
                 }
             }
 
             _ubs.Finalize(context, cmd);
+
+            var flattenTransform = camera.FlattenTransform;
+
+            foreach (var particleRenderer in _particleRenderers)
+            {
+                particleRenderer.Update(partialTick);
+                particleRenderer.Draw(cmd, viewProjection, flattenTransform, partialTick);
+            }
         }
     }
 }

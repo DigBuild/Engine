@@ -11,13 +11,13 @@ namespace DigBuild.Engine.Ui
         private const uint Scale = 48;
         
         private readonly IInventorySlot _slot;
-        private readonly Dictionary<Item, IItemModel> _models;
+        private readonly IReadOnlyDictionary<Item, IItemModel> _models;
         private readonly TextRenderer _textRenderer;
 
         public int PosX { get; set; }
         public int PosY { get; set; }
 
-        public UiUnboundInventorySlot(IInventorySlot slot, Dictionary<Item, IItemModel> models, TextRenderer textRenderer = null!)
+        public UiUnboundInventorySlot(IInventorySlot slot, IReadOnlyDictionary<Item, IItemModel> models, TextRenderer textRenderer = null!)
         {
             _slot = slot;
             _models = models;

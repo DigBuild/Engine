@@ -23,5 +23,7 @@ namespace DigBuild.Engine.Ui
         void SetKeyboardEventHandler(KeyboardEventDelegate? handler, Action? removeCallback = null);
 
         void RequestRedraw();
+
+        void RequestClose();
     }
 }

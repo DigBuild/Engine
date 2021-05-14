@@ -30,6 +30,7 @@ namespace DigBuild.Engine.Render
         private RenderPipeline<TVertex, TGpu> _pipeline = null!;
         private TextureBinding _textureBinding = null!;
         private UniformBuffer<ParticleUniform> _uniformBuffer = null!;
+        private UniformBinding<ParticleUniform> _uniformBinding = null!;
         private VertexBuffer<TVertex> _vertexBuffer = null!;
         private VertexBuffer<TGpu> _instanceBuffer = null!;
         private VertexBufferWriter<TGpu> _instanceBufferWriter = null!;
@@ -74,7 +75,8 @@ namespace DigBuild.Engine.Render
                 .WithBlending(stage.Format.Attachments[1], BlendFactor.One, BlendFactor.One, BlendOperation.Add)
                 .WithDepthTest(CompareOperation.LessOrEqual, false);
 
-            _uniformBuffer = context.CreateUniformBuffer(uniform, _uniformNativeBuffer);
+            _uniformBuffer = context.CreateUniformBuffer(_uniformNativeBuffer);
+            _uniformBinding = context.CreateUniformBinding(uniform, _uniformBuffer);
 
             using (var vertexNativeBuffer = _pool.Request<TVertex>())
             {
@@ -102,7 +104,7 @@ namespace DigBuild.Engine.Render
             _uniformNativeBuffer[0].FlattenMatrix = flattenTransform;
             _uniformBuffer.Write(_uniformNativeBuffer);
 
-            cmd.Using(_pipeline, _uniformBuffer, 0);
+            cmd.Using(_pipeline, _uniformBinding, 0);
             cmd.Using(_pipeline, _textureBinding);
             cmd.Draw(_pipeline, _vertexBuffer, _instanceBuffer);
         }

@@ -20,9 +20,9 @@ namespace DigBuild.Engine.Ui
             Text = text;
         }
 
-        public void Draw(RenderContext context, GeometryBufferSet buffers, float partialTick)
+        public void Draw(RenderContext context, IGeometryBuffer buffer, float partialTick)
         {
-            _textRenderer.DrawLine(buffers, Text, 3);
+            _textRenderer.DrawLine(buffer, Text, 3);
         }
 
         public void OnCursorMoved(IUiElementContext context, int x, int y)

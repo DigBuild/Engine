@@ -9,11 +9,11 @@ namespace DigBuild.Engine.Ui
     public sealed class UiButton : IUiElement
     {
         private readonly uint _width, _height;
-        private readonly RenderLayer<UiVertex> _layer;
+        private readonly IRenderLayer<UiVertex> _layer;
         private readonly UiVertex[][] _vertices = new UiVertex[3][];
         private bool _hovered, _clicked;
 
-        public UiButton(uint width, uint height, RenderLayer<UiVertex> layer, ISprite inactiveSprite, ISprite hoveredSprite, ISprite clickedSprite)
+        public UiButton(uint width, uint height, IRenderLayer<UiVertex> layer, ISprite inactiveSprite, ISprite hoveredSprite, ISprite clickedSprite)
         {
             _width = width;
             _height = height;
@@ -49,9 +49,9 @@ namespace DigBuild.Engine.Ui
             }
         }
 
-        public void Draw(RenderContext context, GeometryBufferSet buffers, float partialTick)
+        public void Draw(RenderContext context, IGeometryBuffer buffer, float partialTick)
         {
-            var buf = buffers.Get(_layer);
+            var buf = buffer.Get(_layer);
             var i = _clicked ? 2 : _hovered ? 1 : 0;
             buf.Accept(_vertices[i]);
         }

@@ -1,4 +1,4 @@
-﻿namespace DigBuild.Engine.Render
+﻿namespace DigBuild.Engine.Render.Models
 {
     public interface IReadOnlyModelData
     {

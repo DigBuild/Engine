@@ -23,6 +23,6 @@ namespace DigBuild.Engine.Worlds
 
         public void OnEntityAdded(EntityInstance entity);
 
-        public void OnEntityRemoved(Guid guid);
+        public void OnEntityRemoving(EntityInstance entity);
     }
 }

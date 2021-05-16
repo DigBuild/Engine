@@ -6,10 +6,10 @@ namespace DigBuild.Engine.Ui
 {
     public sealed class TextRenderer
     {
-        private readonly RenderLayer<UiVertex> _layer;
+        private readonly IRenderLayer<UiVertex> _layer;
         private readonly Dictionary<char, CharacterInfo> _characters = new();
 
-        public TextRenderer(RenderLayer<UiVertex> layer)
+        public TextRenderer(IRenderLayer<UiVertex> layer)
         {
             _layer = layer;
             for (var c = 'a'; c <= 'z'; c++)
@@ -35,20 +35,20 @@ namespace DigBuild.Engine.Ui
             return CharacterInfo.CharWidth;
         }
 
-        public uint DrawLine(GeometryBufferSet buffers, string text, uint scale = 1)
+        public uint DrawLine(IGeometryBuffer buffer, string text, uint scale = 1)
         {
             var length = 0u;
 
-            var transform = buffers.Transform;
+            var transform = buffer.Transform;
 
             foreach (var c in text)
             {
                 if (_characters.TryGetValue(c, out var info))
                 {
-                    buffers.Transform = Matrix4x4.CreateTranslation(length, 0, 0) *
+                    buffer.Transform = Matrix4x4.CreateTranslation(length, 0, 0) *
                                         Matrix4x4.CreateScale(scale) *
                                         transform;
-                    buffers.Get(_layer).Accept(info.Vertices);
+                    buffer.Get(_layer).Accept(info.Vertices);
                 }
 
                 length += GetWidth(c);

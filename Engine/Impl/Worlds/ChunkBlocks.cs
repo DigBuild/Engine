@@ -12,13 +12,13 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Impl.Worlds
 {
-    public interface IReadOnlyChunkBlocks : IEnumerable<KeyValuePair<ChunkBlockPos, Block?>>
+    public interface IReadOnlyChunkBlocks : IEnumerable<KeyValuePair<ChunkBlockPos, Block?>>, IChangeNotifier
     {
         public Block? GetBlock(ChunkBlockPos pos);
         internal DataContainer? GetData(ChunkBlockPos pos);
     }
 
-    public class ChunkBlocks : IReadOnlyChunkBlocks, IData<ChunkBlocks>, IChangeNotifier
+    public class ChunkBlocks : IReadOnlyChunkBlocks, IData<ChunkBlocks>
     {
         private const uint ChunkSize = 16;
         

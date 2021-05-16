@@ -2,6 +2,7 @@
 using System.Numerics;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Models;
 using DigBuild.Platform.Render;
 
 namespace DigBuild.Engine.Ui
@@ -24,20 +25,20 @@ namespace DigBuild.Engine.Ui
             _textRenderer = textRenderer ?? IUiElement.GlobalTextRenderer;
         }
 
-        public void Draw(RenderContext context, GeometryBufferSet buffers, float partialTick)
+        public void Draw(RenderContext context, IGeometryBuffer buffer, float partialTick)
         {
             if (_slot.Item.Count > 0 && _models.TryGetValue(_slot.Item.Type, out var model))
             {
-                var originalTransform = Matrix4x4.CreateTranslation(PosX, PosY, Scale) * buffers.Transform;
+                var originalTransform = Matrix4x4.CreateTranslation(PosX, PosY, Scale) * buffer.Transform;
                 var transform = UiInventorySlot.ItemTransform *
                                 Matrix4x4.CreateScale(Scale) *
                                 originalTransform;
-                buffers.Transform = transform;
+                buffer.Transform = transform;
                 var modelData = _slot.Item.Get(ModelData.ItemAttribute);
-                model.AddGeometry(buffers, modelData, ItemModelTransform.Inventory, partialTick);
+                model.AddGeometry(buffer, modelData, ItemModelTransform.Inventory, partialTick);
                 
-                buffers.Transform = Matrix4x4.CreateTranslation(Scale / 6f, Scale / 2f, 0) * originalTransform;
-                _textRenderer.DrawLine(buffers, $"{_slot.Item.Count,2:d2}", 3);
+                buffer.Transform = Matrix4x4.CreateTranslation(Scale / 6f, Scale / 2f, 0) * originalTransform;
+                _textRenderer.DrawLine(buffer, $"{_slot.Item.Count,2:d2}", 3);
             }
         }
 

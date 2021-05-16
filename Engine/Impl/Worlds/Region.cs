@@ -39,7 +39,7 @@ namespace DigBuild.Engine.Impl.Worlds
             }
         }
 
-        public event Action<IChunk>? ChunkChanged;
+        public event Action<IChunk>? ChunkLoaded;
         public event Action<IChunk>? ChunkUnloaded;
 
         public Region(RegionPos position, IRegionStorage storage, IChunkProvider chunkProvider, ITickSource tickSource)
@@ -124,7 +124,6 @@ namespace DigBuild.Engine.Impl.Worlds
             {
                 chunk!.Changed += () =>
                 {
-                    ChunkChanged?.Invoke(chunk);
                     _storage.Save(chunk);
                 };
                 lock (_chunks)
@@ -133,7 +132,7 @@ namespace DigBuild.Engine.Impl.Worlds
                 }
                 if (!loaded)
                     _storage.Save(chunk);
-                ChunkChanged?.Invoke(chunk);
+                ChunkLoaded?.Invoke(chunk);
                 return chunk;
             }
             return null;

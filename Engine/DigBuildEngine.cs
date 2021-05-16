@@ -5,6 +5,7 @@ using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Models;
 using DigBuild.Engine.Storage;
 using DigBuild.Engine.Worlds;
 using DigBuild.Platform.Resource;
@@ -34,6 +35,10 @@ namespace DigBuild.Engine
             ModelData.BlockAttribute = registry.Register(
                 new ResourceName(Domain, "model_data"),
                 () => new ModelData()
+            );
+            BlockFaceSolidity.Attribute = registry.Register(
+                new ResourceName(Domain, "face_solidity"),
+                () => BlockFaceSolidity.All
             );
         }
 

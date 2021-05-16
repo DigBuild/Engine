@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Render;
+using DigBuild.Engine.Render.Models;
 using DigBuild.Platform.Input;
 using DigBuild.Platform.Render;
 
@@ -47,14 +48,14 @@ namespace DigBuild.Engine.Ui
         
         private readonly IInventorySlot _slot, _pickedSlot;
         private readonly IReadOnlyDictionary<Item, IItemModel> _models;
-        private readonly RenderLayer<UiVertex> _layer;
+        private readonly IRenderLayer<UiVertex> _layer;
         private readonly Func<bool>? _isActive;
         private readonly TextRenderer _textRenderer;
         private bool _hovered;
 
         public UiInventorySlot(
             IInventorySlot slot, IInventorySlot pickedSlot,
-            IReadOnlyDictionary<Item, IItemModel> models, RenderLayer<UiVertex> layer,
+            IReadOnlyDictionary<Item, IItemModel> models, IRenderLayer<UiVertex> layer,
             Func<bool>? isActive = null, TextRenderer textRenderer = null!
         )
         {
@@ -66,23 +67,23 @@ namespace DigBuild.Engine.Ui
             _textRenderer = textRenderer ?? IUiElement.GlobalTextRenderer;
         }
 
-        public void Draw(RenderContext context, GeometryBufferSet buffers, float partialTick)
+        public void Draw(RenderContext context, IGeometryBuffer buffer, float partialTick)
         {
-            var originalTransform = buffers.Transform;
-            buffers.Transform = Matrix4x4.CreateScale(Scale) * buffers.Transform;
-            buffers.Get(_layer).Accept(Vertices);
+            var originalTransform = buffer.Transform;
+            buffer.Transform = Matrix4x4.CreateScale(Scale) * buffer.Transform;
+            buffer.Get(_layer).Accept(Vertices);
             if (_isActive != null && _isActive())
-                buffers.Get(_layer).Accept(MarkerVertices);
+                buffer.Get(_layer).Accept(MarkerVertices);
             
             if (_slot.Item.Count > 0 && _models.TryGetValue(_slot.Item.Type, out var model))
             {
-                var transform = ItemTransform * buffers.Transform;
-                buffers.Transform = transform;
+                var transform = ItemTransform * buffer.Transform;
+                buffer.Transform = transform;
                 var modelData = _slot.Item.Get(ModelData.ItemAttribute);
-                model.AddGeometry(buffers, modelData, ItemModelTransform.Inventory, partialTick);
+                model.AddGeometry(buffer, modelData, ItemModelTransform.Inventory, partialTick);
                 
-                buffers.Transform = Matrix4x4.CreateTranslation(Scale / 6f, Scale / 2f, 0) * originalTransform;
-                _textRenderer.DrawLine(buffers, $"{_slot.Item.Count,2:d2}", 3);
+                buffer.Transform = Matrix4x4.CreateTranslation(Scale / 6f, Scale / 2f, 0) * originalTransform;
+                _textRenderer.DrawLine(buffer, $"{_slot.Item.Count,2:d2}", 3);
             }
         }
 

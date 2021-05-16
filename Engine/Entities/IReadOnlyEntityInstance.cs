@@ -10,5 +10,7 @@ namespace DigBuild.Engine.Entities
         public Guid Id { get; }
         public Entity Type { get; }
         internal DataContainer DataContainer { get; }
+        
+        public TAttrib Get<TAttrib>(EntityAttribute<TAttrib> attribute) => Type.Get(this, attribute);
     }
 }

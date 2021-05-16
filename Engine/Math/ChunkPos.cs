@@ -35,6 +35,24 @@ namespace DigBuild.Engine.Math
             return new(X << 4, Y << 4, Z << 4);
         }
 
+        public long DistanceSq(ChunkPos other)
+        {
+            var x = X - other.X;
+            var y = Y - other.Y;
+            var z = Z - other.Z;
+            return x * x + y * y + z * z;
+        }
+
+        public ChunkPos Offset(Direction direction)
+        {
+            var offset = direction.GetOffsetI();
+            return new ChunkPos(
+                X + offset.X,
+                Y + offset.Y,
+                Z + offset.Z
+            );
+        }
+
         public override string ToString()
         {
             return $"<{X}, {Y}, {Z}>";

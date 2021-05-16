@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
-using DigBuild.Engine.Render;
 
 namespace DigBuild.Engine.Math
 {

@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Numerics;
 
-namespace DigBuild.Engine.Render
+namespace DigBuild.Engine.Render.Models
 {
-    public interface IItemModel
-    {
-        void AddGeometry(GeometryBufferSet buffers, IReadOnlyModelData data, ItemModelTransform transform, float partialTick);
-    }
-
     public enum ItemModelTransform
     {
         None,

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using DigBuild.Engine.Events;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Ticking;
 using DigBuild.Engine.Utils;
@@ -16,20 +17,27 @@ namespace DigBuild.Engine.Impl.Worlds
         private readonly Cache<RegionPos, Region> _regions;
         private readonly LockStore<RegionPos> _locks = new();
 
+        private readonly IWorld _world;
         private readonly IChunkProvider _chunkProvider;
         private readonly Func<RegionPos, IRegionStorage> _storageProvider;
         private readonly ITickSource _tickSource;
+        private readonly EventBus _eventBus;
 
         private readonly ProgressiveChunkLoader _chunkLoader;
 
-        public event Action<IChunk>? ChunkChanged;
-        public event Action<IChunk>? ChunkUnloaded;
-
-        public RegionManager(IChunkProvider chunkProvider, Func<RegionPos, IRegionStorage> storageProvider, ITickSource tickSource)
+        public RegionManager(
+            IWorld world,
+            IChunkProvider chunkProvider,
+            Func<RegionPos, IRegionStorage> storageProvider,
+            ITickSource tickSource,
+            EventBus eventBus
+        )
         {
             _regions = new Cache<RegionPos, Region>(tickSource, TemporaryRegionExpirationDelay);
+            _world = world;
             _chunkProvider = chunkProvider;
             _tickSource = tickSource;
+            _eventBus = eventBus;
             _storageProvider = storageProvider;
             _regions.EntryEvicted += (_, region) => region.Dispose();
             _chunkLoader = new ProgressiveChunkLoader(pos =>
@@ -62,8 +70,8 @@ namespace DigBuild.Engine.Impl.Worlds
             }
 
             region = new Region(pos, _storageProvider(pos), _chunkProvider, _tickSource);
-            region.ChunkChanged += chunk => ChunkChanged?.Invoke(chunk);
-            region.ChunkUnloaded += chunk => ChunkUnloaded?.Invoke(chunk);
+            region.ChunkLoaded += chunk => _eventBus.Post(new ChunkEvent.Loaded(_world, chunk));
+            region.ChunkUnloaded += chunk => _eventBus.Post(new ChunkEvent.Unloaded(_world, chunk));
             lock (_regions)
             {
                 _regions[pos] = region;

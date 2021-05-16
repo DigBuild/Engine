@@ -1,5 +1,6 @@
 ﻿using System;
 using DigBuild.Engine.Entities;
+using DigBuild.Engine.Events;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Storage;
 using DigBuild.Engine.Ticking;
@@ -24,10 +25,11 @@ namespace DigBuild.Engine.Impl.Worlds
         protected WorldBase(
             ITickSource tickSource,
             IChunkProvider chunkProvider,
-            Func<RegionPos, IRegionStorage> storageProvider
+            Func<RegionPos, IRegionStorage> storageProvider,
+            EventBus eventBus
         )
         {
-            RegionManager = new RegionManager(chunkProvider, storageProvider, tickSource);
+            RegionManager = new RegionManager(this, chunkProvider, storageProvider, tickSource, eventBus);
         }
 
         public virtual void Dispose()
@@ -50,6 +52,6 @@ namespace DigBuild.Engine.Impl.Worlds
 
         public abstract void OnEntityAdded(EntityInstance entity);
 
-        public abstract void OnEntityRemoved(Guid guid);
+        public abstract void OnEntityRemoving(EntityInstance entity);
     }
 }

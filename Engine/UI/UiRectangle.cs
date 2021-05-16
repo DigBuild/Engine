@@ -7,10 +7,10 @@ namespace DigBuild.Engine.Ui
 {
     public sealed class UiRectangle : IUiElement
     {
-        private readonly RenderLayer<UiVertex> _layer;
+        private readonly IRenderLayer<UiVertex> _layer;
         private readonly UiVertex[] _vertices;
 
-        public UiRectangle(uint width, uint height, RenderLayer<UiVertex> layer, ISprite sprite, Vector4 color)
+        public UiRectangle(uint width, uint height, IRenderLayer<UiVertex> layer, ISprite sprite, Vector4 color)
         {
             _layer = layer;
             
@@ -38,9 +38,9 @@ namespace DigBuild.Engine.Ui
             _vertices = new[] { v1, v2, v3, v3, v4, v1 };
         }
 
-        public void Draw(RenderContext context, GeometryBufferSet buffers, float partialTick)
+        public void Draw(RenderContext context, IGeometryBuffer buffer, float partialTick)
         {
-            var buf = buffers.Get(_layer);
+            var buf = buffer.Get(_layer);
             buf.Accept(_vertices);
         }
     }

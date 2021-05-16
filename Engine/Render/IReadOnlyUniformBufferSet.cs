@@ -1,6 +1,6 @@
 ﻿using DigBuild.Platform.Render;
 
-namespace DigBuild.Engine.Render.New
+namespace DigBuild.Engine.Render
 {
     public interface IReadOnlyUniformBufferSet
     {

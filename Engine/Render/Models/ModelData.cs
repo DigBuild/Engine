@@ -4,7 +4,7 @@ using DigBuild.Engine.Blocks;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 
-namespace DigBuild.Engine.Render
+namespace DigBuild.Engine.Render.Models
 {
     public sealed class ModelData : IReadOnlyModelData
     {

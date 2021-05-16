@@ -20,15 +20,15 @@ namespace DigBuild.Engine.Ui
             _children.Remove(element);
         }
 
-        public void Draw(RenderContext context, GeometryBufferSet buffers, float partialTick)
+        public void Draw(RenderContext context, IGeometryBuffer buffer, float partialTick)
         {
-            var transform = buffers.Transform;
+            var transform = buffer.Transform;
             foreach (var child in _children)
             {
-                buffers.Transform = transform * Matrix4x4.CreateTranslation(child.X, child.Y, 0);
-                child.Element.Draw(context, buffers, partialTick);
+                buffer.Transform = transform * Matrix4x4.CreateTranslation(child.X, child.Y, 0);
+                child.Element.Draw(context, buffer, partialTick);
             }
-            buffers.Transform = transform;
+            buffer.Transform = transform;
         }
 
         public void OnCursorMoved(IUiElementContext context, int x, int y)

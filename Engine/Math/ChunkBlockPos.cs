@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace DigBuild.Engine.Math
 {
@@ -51,5 +52,7 @@ namespace DigBuild.Engine.Math
         {
             return !left.Equals(right);
         }
+
+        public static explicit operator Vector3(ChunkBlockPos pos) => new(pos.X, pos.Y, pos.Z);
     }
 }

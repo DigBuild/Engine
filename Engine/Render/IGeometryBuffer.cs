@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace DigBuild.Engine.Render.New
+namespace DigBuild.Engine.Render
 {
     public interface IGeometryBuffer
     {

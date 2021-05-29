@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace DigBuild.Engine.Utils
+namespace DigBuild.Engine.Collections
 {
     public sealed class LockStore<TKey> where TKey : notnull
     {

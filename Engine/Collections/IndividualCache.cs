@@ -1,7 +1,7 @@
 ﻿using System;
 using DigBuild.Engine.Ticking;
 
-namespace DigBuild.Engine.Utils
+namespace DigBuild.Engine.Collections
 {
     public sealed class IndividualCache<T> : IDisposable
     {

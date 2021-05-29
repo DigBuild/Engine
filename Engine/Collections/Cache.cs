@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using DigBuild.Engine.Ticking;
 
-namespace DigBuild.Engine.Utils
+namespace DigBuild.Engine.Collections
 {
     public sealed class Cache<TK, TV> : IDictionary<TK, TV>, IDisposable where TK : notnull
     {

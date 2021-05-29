@@ -27,7 +27,7 @@ namespace DigBuild.Engine.Storage
 
         private sealed class Level
         {
-            // 31 bits (level) + 1 bit (subdivided)
+            // 7 bits (level) + 1 bit (subdivided)
             private byte _flags;
             private object? _value;
 

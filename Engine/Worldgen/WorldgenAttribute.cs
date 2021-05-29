@@ -1,4 +1,5 @@
-﻿using DigBuild.Engine.Registries;
+﻿using DigBuild.Engine.Collections;
+using DigBuild.Engine.Registries;
 using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Worldgen
@@ -20,6 +21,14 @@ namespace DigBuild.Engine.Worldgen
             var attribute = new WorldgenAttribute<TStorage>();
             ((IRegistryBuilder<IWorldgenAttribute>)registry).Add(name, attribute);
             return attribute;
+        }
+    }
+
+    public static class WorldgenAttributeSliceExtensions
+    {
+        public static ExtendedGrid<T> GetExtendedGrid<T>(this WorldSliceDescriptionContext context, WorldgenAttribute<Grid<T>> attribute)
+        {
+            return new(context, attribute);
         }
     }
 }

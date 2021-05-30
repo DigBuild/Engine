@@ -54,7 +54,7 @@ namespace DigBuild.Engine.Collections
 
         internal GridBuilder(Grid<T> other)
         {                
-            _values = (other.Values.Clone() as T[,])!;
+            _values = (T[,]) other.Values.Clone();
         }
 
         public T this[int x, int z]
@@ -65,7 +65,7 @@ namespace DigBuild.Engine.Collections
 
         public Grid<T> Build()
         {
-            return new(_values);
+            return new((T[,]) _values.Clone());
         }
     }
 

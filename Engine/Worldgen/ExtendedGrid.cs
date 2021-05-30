@@ -17,6 +17,15 @@ namespace DigBuild.Engine.Worldgen
             _attribute = attribute;
         }
 
+        public ExtendedGrid(Grid<T> originGrid, ExtendedGrid<T> parent)
+        {
+            _context = parent._context;
+            _attribute = parent._attribute;
+            foreach (var (offset, grid) in parent._cache)
+                _cache.Add(offset, grid);
+            _cache[default] = originGrid;
+        }
+
         public T this[int x, int z]
         {
             get {

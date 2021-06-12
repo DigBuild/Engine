@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
@@ -13,7 +13,6 @@ namespace DigBuild.Engine.Impl.Worlds
         private readonly Thread _generationThread;
         private bool _generationThreadActive = true;
         private HashSet<ChunkPos> _requestedChunks = new(), _requestedChunks2 = new();
-        private readonly ConcurrentQueue<Chunk> _generatedChunks = new();
         private readonly ManualResetEventSlim _generatedChunksUpdateEvent = new();
 
         public ProgressiveChunkLoader(Action<ChunkPos> loadFunc)

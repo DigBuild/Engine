@@ -73,6 +73,9 @@ namespace DigBuild.Engine.Render
             )
                 .WithBlending(stage.Format.Attachments[0], BlendFactor.One, BlendFactor.One, BlendOperation.Add)
                 .WithBlending(stage.Format.Attachments[1], BlendFactor.One, BlendFactor.One, BlendOperation.Add)
+                .WithBlending(stage.Format.Attachments[2], BlendFactor.One, BlendFactor.One, BlendOperation.Add)
+                .WithBlending(stage.Format.Attachments[3], BlendFactor.One, BlendFactor.One, BlendOperation.Add)
+                .WithBlending(stage.Format.Attachments[4], BlendFactor.One, BlendFactor.One, BlendOperation.Add)
                 .WithDepthTest(CompareOperation.LessOrEqual, false);
 
             _uniformBuffer = context.CreateUniformBuffer(_uniformNativeBuffer);

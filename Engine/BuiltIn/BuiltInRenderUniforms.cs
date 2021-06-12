@@ -12,6 +12,7 @@ namespace DigBuild.Engine.BuiltIn
 
     public interface ISimpleTransform : IUniform<SimpleTransform>
     {
-        public Matrix4x4 Matrix { get; set; }
+        public Matrix4x4 ModelView { get; set; }
+        public Matrix4x4 Projection { get; set; }
     }
 }

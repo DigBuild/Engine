@@ -130,7 +130,7 @@ namespace DigBuild.Engine.Render.Worlds
         {
             _renderedChunkUniforms.Clear();
 
-            var cameraTransform = worldView.Camera.Transform * worldView.Projection;
+            var cameraTransform = worldView.Camera.Transform;
 
             foreach (var data in _sortedChunks.Select(GetOrCreateData))
             {
@@ -141,7 +141,8 @@ namespace DigBuild.Engine.Render.Worlds
 
                 uniforms.Push(BuiltInRenderUniforms.ModelViewTransform, new SimpleTransform
                 {
-                    Matrix = Matrix4x4.CreateTranslation(data.Position.GetOrigin()) * cameraTransform
+                    ModelView = Matrix4x4.CreateTranslation(data.Position.GetOrigin()) * cameraTransform,
+                    Projection = worldView.Projection
                 });
                 _eventBus.Post(new PushChunkUniformsEvent(data.Chunk, uniforms));
                 _renderedChunkUniforms[data.Position] = uniforms.CaptureSnapshot();

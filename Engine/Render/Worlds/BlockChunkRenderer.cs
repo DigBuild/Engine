@@ -117,7 +117,7 @@ namespace DigBuild.Engine.Render.Worlds
                 if (model.HasDynamicGeometry)
                     _dynamicModelData.Add(new DynamicModelData(pos, block, visibleFaces, lighting, model));
             }
-
+            
             _geometryBuffer.Upload(context);
         }
 
@@ -152,7 +152,8 @@ namespace DigBuild.Engine.Render.Worlds
             IReadOnlyUniformBufferSet uniforms, WorldView worldView, float partialTick)
         {
             _geometryBuffer.Draw(cmd, layer, uniforms);
-            _dynamicGeometryBuffer.Draw(cmd, layer, uniforms);
+            if (_dynamicModelData.Count > 0)
+                _dynamicGeometryBuffer.Draw(cmd, layer, uniforms);
         }
 
         public void AfterDraw(RenderContext context, CommandBufferRecorder cmd, WorldView worldView, float partialTick)

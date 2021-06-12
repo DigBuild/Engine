@@ -151,11 +151,11 @@ namespace DigBuild.Engine.Render.Worlds
             }
         }
 
-        public void Draw(RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer,
+        public void Draw(RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, RenderLayerBindingSet bindings,
             IReadOnlyUniformBufferSet uniforms, WorldView worldView, float partialTick)
         {
             foreach (var (pos, uniformSnapshot) in _renderedChunkUniforms)
-                _chunkRenderData[pos].Draw(context, cmd, layer, uniformSnapshot, worldView, partialTick);
+                _chunkRenderData[pos].Draw(context, cmd, layer, bindings, uniformSnapshot, worldView, partialTick);
         }
 
         public void AfterDraw(RenderContext context, CommandBufferRecorder cmd, WorldView worldView, float partialTick)
@@ -200,10 +200,13 @@ namespace DigBuild.Engine.Render.Worlds
                     renderer.BeforeDraw(context, cmd, uniforms, view, partialTick);
             }
 
-            public void Draw(RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, IReadOnlyUniformBufferSet uniforms, WorldView view, float partialTick)
+            public void Draw(
+                RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, RenderLayerBindingSet bindings,
+                IReadOnlyUniformBufferSet uniforms, WorldView view, float partialTick
+            )
             {
                 foreach (var renderer in _renderers)
-                    renderer.Draw(context, cmd, layer, uniforms, view, partialTick);
+                    renderer.Draw(context, cmd, layer, bindings, uniforms, view, partialTick);
             }
 
             public void AfterDraw(RenderContext context, CommandBufferRecorder cmd, WorldView view, float partialTick)

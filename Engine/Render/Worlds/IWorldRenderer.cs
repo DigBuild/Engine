@@ -8,7 +8,7 @@ namespace DigBuild.Engine.Render.Worlds
         void Update(RenderContext context, WorldView worldView, float partialTick);
 
         void BeforeDraw(RenderContext context, CommandBufferRecorder cmd, UniformBufferSet uniforms, WorldView worldView, float partialTick);
-        void Draw(RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, IReadOnlyUniformBufferSet uniforms, WorldView worldView, float partialTick);
+        void Draw(RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, RenderLayerBindingSet bindings, IReadOnlyUniformBufferSet uniforms, WorldView worldView, float partialTick);
         void AfterDraw(RenderContext context, CommandBufferRecorder cmd, WorldView worldView, float partialTick);
     }
 }

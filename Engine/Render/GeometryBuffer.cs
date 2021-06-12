@@ -35,10 +35,10 @@ namespace DigBuild.Engine.Render
                 layerData.Upload(context);
         }
         
-        public void Draw(CommandBufferRecorder cmd, IRenderLayer layer, IReadOnlyUniformBufferSet uniforms)
+        public void Draw(CommandBufferRecorder cmd, IRenderLayer layer, RenderLayerBindingSet bindings, IReadOnlyUniformBufferSet uniforms)
         {
             if (_layers.TryGetValue(layer, out var data))
-                data.Draw(cmd, uniforms);
+                data.Draw(cmd, bindings, uniforms);
         }
 
         public void Clear()
@@ -63,7 +63,7 @@ namespace DigBuild.Engine.Render
         private interface IGeometry : IDisposable
         {
             void Upload(RenderContext context);
-            void Draw(CommandBufferRecorder cmd, IReadOnlyUniformBufferSet uniforms);
+            void Draw(CommandBufferRecorder cmd, RenderLayerBindingSet bindings, IReadOnlyUniformBufferSet uniforms);
             void Clear();
         }
 
@@ -116,10 +116,10 @@ namespace DigBuild.Engine.Render
                 _nativeBuffer = null;
             }
             
-            public void Draw(CommandBufferRecorder cmd, IReadOnlyUniformBufferSet uniforms)
+            public void Draw(CommandBufferRecorder cmd, RenderLayerBindingSet bindings, IReadOnlyUniformBufferSet uniforms)
             {
                 if (_lastCount > 0)
-                    _layer.Draw(cmd, uniforms, _vertexBuffer!);
+                    _layer.Draw(cmd, bindings, uniforms, _vertexBuffer!);
             }
 
             public void Clear()

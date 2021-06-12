@@ -148,12 +148,12 @@ namespace DigBuild.Engine.Render.Worlds
         {
         }
 
-        public void Draw(RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer,
+        public void Draw(RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, RenderLayerBindingSet bindings,
             IReadOnlyUniformBufferSet uniforms, WorldView worldView, float partialTick)
         {
-            _geometryBuffer.Draw(cmd, layer, uniforms);
+            _geometryBuffer.Draw(cmd, layer, bindings, uniforms);
             if (_dynamicModelData.Count > 0)
-                _dynamicGeometryBuffer.Draw(cmd, layer, uniforms);
+                _dynamicGeometryBuffer.Draw(cmd, layer, bindings, uniforms);
         }
 
         public void AfterDraw(RenderContext context, CommandBufferRecorder cmd, WorldView worldView, float partialTick)

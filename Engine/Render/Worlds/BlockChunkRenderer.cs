@@ -15,7 +15,7 @@ namespace DigBuild.Engine.Render.Worlds
     {
         private readonly IReadOnlyWorld _world;
         private readonly IReadOnlyChunk _chunk;
-        private readonly IReadOnlyDictionary<Block, Models.IBlockModel> _blockModels;
+        private readonly IReadOnlyDictionary<Block, IBlockModel> _blockModels;
         
         private readonly IReadOnlyChunkBlocks _blockStorage;
         private readonly IReadOnlyChunkBlockLight _lightingStorage;
@@ -25,11 +25,12 @@ namespace DigBuild.Engine.Render.Worlds
         private readonly List<DynamicModelData> _dynamicModelData = new();
 
         private bool _updated = true;
+        private bool _uploadStatic = false;
 
         public BlockChunkRenderer(
             IReadOnlyWorld world,
             IReadOnlyChunk chunk,
-            IReadOnlyDictionary<Block, Models.IBlockModel> blockModels,
+            IReadOnlyDictionary<Block, IBlockModel> blockModels,
             NativeBufferPool bufferPool
         )
         {
@@ -58,38 +59,42 @@ namespace DigBuild.Engine.Render.Worlds
             _updated = true;
         }
 
-        private void StaticUpdate(RenderContext context)
+        private void StaticUpdate()
         {
             _dynamicModelData.Clear();
 
-            var chunks = new Dictionary<ChunkPos, IReadOnlyChunk>
-            {
-                [_chunk.Position] = _chunk
-            };
+            var chunks = new IReadOnlyChunk?[3, 3, 3];
+            chunks[1, 1, 1] = _chunk;
             foreach (var direction in Directions.All)
             {
                 var pos = _chunk.Position.Offset(direction);
                 var neighbor = _world.GetChunk(pos, false);
-                if (neighbor != null)
-                    chunks[pos] = neighbor;
+                if (neighbor == null)
+                    continue;
+                var (offX, offY, offZ) = direction.GetOffsetI() + Vector3I.One;
+                chunks[offX, offY, offZ] = neighbor;
             }
 
-            var solidityCache = new Dictionary<ChunkBlockPos, BlockFaceSolidity>();
+            const uint chunkSize = WorldDimensions.ChunkSize;
+            var solidityCache = new BlockFaceSolidity?[chunkSize, chunkSize, chunkSize];
             bool IsNeighborFaceSolid(ChunkBlockPos pos, Direction direction)
             {
                 var absPos = (_chunk.Position + pos).Offset(direction);
                 var (chunkPos, blockPos) = absPos;
-                var sameChunk = chunkPos == _chunk.Position;
+                var (relX, relY, relZ) = chunkPos - _chunk.Position + Vector3I.One;
+                var sameChunk = relX == 0 && relY == 0 && relZ == 0;
 
-                if (!sameChunk || !solidityCache!.TryGetValue(blockPos, out var solidity))
+                BlockFaceSolidity? solidity;
+                if (!sameChunk || (solidity = solidityCache[blockPos.X, blockPos.Y, blockPos.Z]) == null)
                 {
-                    if (chunks!.TryGetValue(chunkPos, out var chunk))
+                    var chunk = chunks[relX, relY, relZ];
+                    if (chunk != null)
                     {
                         var block = chunk.GetBlock(blockPos);
                         solidity = block?.Get(new ReadOnlyBlockContext(_world, absPos, block), BlockFaceSolidity.Attribute) ?? BlockFaceSolidity.None;
 
                         if (sameChunk)
-                            solidityCache![blockPos] = solidity;
+                            solidityCache[blockPos.X, blockPos.Y, blockPos.Z] = solidity;
                     }
                     else
                     {
@@ -97,7 +102,7 @@ namespace DigBuild.Engine.Render.Worlds
                     }
                 }
 
-                return solidity.Solid.Has(direction.GetOpposite());
+                return solidity.Value.Solid.Has(direction.GetOpposite());
             }
 
             foreach (var (pos, block) in _blockStorage)
@@ -117,15 +122,16 @@ namespace DigBuild.Engine.Render.Worlds
                 if (model.HasDynamicGeometry)
                     _dynamicModelData.Add(new DynamicModelData(pos, block, visibleFaces, lighting, model));
             }
-            
-            _geometryBuffer.Upload(context);
         }
 
-        public void Update(RenderContext context, WorldView worldView, float partialTick)
+        public bool HasHeavyUpdate => _updated;
+
+        public void Update(bool express, WorldView worldView, float partialTick)
         {
-            if (_updated)
+            if (!express && _updated)
             {
-                StaticUpdate(context);
+                StaticUpdate();
+                _uploadStatic = true;
                 _updated = false;
             }
 
@@ -140,6 +146,19 @@ namespace DigBuild.Engine.Render.Worlds
                 _geometryBuffer.Transform = Matrix4x4.CreateTranslation((Vector3) data.Pos);
                 data.Model.AddDynamicGeometry(_geometryBuffer, modelData, data.VisibleFaces, partialTick);
             }
+        }
+
+        public void Upload(RenderContext context, WorldView worldView, float partialTick)
+        {
+            if (_uploadStatic)
+            {
+                _geometryBuffer.Upload(context);
+                _uploadStatic = false;
+            }
+
+            if (_dynamicModelData.Count <= 0)
+                return;
+
             _dynamicGeometryBuffer.Upload(context);
         }
 
@@ -166,9 +185,9 @@ namespace DigBuild.Engine.Render.Worlds
             public readonly Block Block;
             public readonly DirectionFlags VisibleFaces;
             public readonly float Lighting;
-            public readonly Models.IBlockModel Model;
+            public readonly IBlockModel Model;
 
-            public DynamicModelData(ChunkBlockPos pos, Block block, DirectionFlags visibleFaces, float lighting, Models.IBlockModel model)
+            public DynamicModelData(ChunkBlockPos pos, Block block, DirectionFlags visibleFaces, float lighting, IBlockModel model)
             {
                 Pos = pos;
                 Block = block;

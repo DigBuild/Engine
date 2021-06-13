@@ -5,7 +5,9 @@ namespace DigBuild.Engine.Render.Worlds
 {
     public interface IChunkRenderer : IDisposable
     {
-        void Update(RenderContext context, WorldView worldView, float partialTick);
+        bool HasHeavyUpdate { get; }
+        void Update(bool express, WorldView worldView, float partialTick);
+        void Upload(RenderContext context, WorldView worldView, float partialTick);
 
         void BeforeDraw(RenderContext context, CommandBufferRecorder cmd, UniformBufferSet uniforms, WorldView worldView, float partialTick);
         void Draw(RenderContext context, CommandBufferRecorder cmd, IRenderLayer layer, RenderLayerBindingSet bindings, IReadOnlyUniformBufferSet uniforms, WorldView worldView, float partialTick);

@@ -88,5 +88,8 @@ namespace DigBuild.Engine.Math
             (chunkPos.Y << 4) | subChunkPos.Y,
             (chunkPos.Z << 4) | subChunkPos.Z
         );
+        
+        public static Vector3I operator +(ChunkPos a, ChunkPos b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        public static Vector3I operator -(ChunkPos a, ChunkPos b) => new(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
     }
 }

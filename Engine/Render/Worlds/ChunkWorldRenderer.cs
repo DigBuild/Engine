@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.BuiltIn.GeneratedUniforms;
 using DigBuild.Engine.Events;
@@ -121,8 +122,14 @@ namespace DigBuild.Engine.Render.Worlds
             }
 
             // Update all the chunks
-            foreach (var pos in _trackedChunks)
-                GetOrCreateData(pos)?.Update(context, worldView, partialTick);
+            var sortedData = _sortedChunks.Select(GetOrCreateData).ToList();
+            var heavyUpdate = sortedData.Where(d => d?.HasHeavyUpdate ?? false).Take(4).ToImmutableHashSet();
+            Parallel.ForEach(sortedData, d =>
+            {
+                d?.Update(!heavyUpdate.Contains(d), worldView, partialTick);
+            });
+            foreach (var d in sortedData)
+                d?.Upload(context, worldView, partialTick);
         }
 
         public void BeforeDraw(RenderContext context, CommandBufferRecorder cmd, UniformBufferSet uniforms,
@@ -188,10 +195,18 @@ namespace DigBuild.Engine.Render.Worlds
                     renderer.Dispose();
             }
 
-            public void Update(RenderContext context, WorldView view, float partialTick)
+            public bool HasHeavyUpdate => _renderers.Any(r => r.HasHeavyUpdate);
+
+            public void Update(bool express, WorldView worldView, float partialTick)
             {
                 foreach (var renderer in _renderers)
-                    renderer.Update(context, view, partialTick);
+                    renderer.Update(express, worldView, partialTick);
+            }
+
+            public void Upload(RenderContext context, WorldView worldView, float partialTick)
+            {
+                foreach (var renderer in _renderers)
+                    renderer.Upload(context, worldView, partialTick);
             }
 
             public void BeforeDraw(RenderContext context, CommandBufferRecorder cmd, UniformBufferSet uniforms, WorldView view, float partialTick)

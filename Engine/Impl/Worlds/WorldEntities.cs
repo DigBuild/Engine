@@ -108,8 +108,10 @@ namespace DigBuild.Engine.Impl.Worlds
         {
             var storage = world.Get(WorldEntities.Type);
             var entity = storage.Get(guid);
-            entity?.Type.OnLeavingWorld(entity);
-            world.OnEntityRemoving(entity!);
+            if (entity == null)
+                return;
+            entity.Type.OnLeavingWorld(entity);
+            world.OnEntityRemoving(entity);
             storage.Remove(guid);
         }
     }

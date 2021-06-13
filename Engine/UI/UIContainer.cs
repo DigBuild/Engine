@@ -10,9 +10,16 @@ namespace DigBuild.Engine.Ui
     {
         private readonly ElementContainer _children = new();
 
-        public void Add(uint x, uint y, IUiElement element)
+        public bool Visible { get; set; } = true;
+
+        public void Add(int x, int y, IUiElement element)
         {
             _children.Add(new UIElementData(x, y, element));
+        }
+
+        public void Add(uint x, uint y, IUiElement element)
+        {
+            Add((int) x, (int) y, element);
         }
 
         public void Remove(IUiElement element)
@@ -22,6 +29,9 @@ namespace DigBuild.Engine.Ui
 
         public void Draw(RenderContext context, IGeometryBuffer buffer, float partialTick)
         {
+            if (!Visible)
+                return;
+
             var transform = buffer.Transform;
             foreach (var child in _children)
             {
@@ -33,22 +43,28 @@ namespace DigBuild.Engine.Ui
 
         public void OnCursorMoved(IUiElementContext context, int x, int y)
         {
+            if (!Visible)
+                return;
+
             foreach (var child in _children)
-                child.Element.OnCursorMoved(context, (int) (x - child.X), (int) (y - child.Y));
+                child.Element.OnCursorMoved(context, x - child.X, y - child.Y);
         }
 
         public void OnMouseEvent(IUiElementContext context, uint button, MouseAction action)
         {
+            if (!Visible)
+                return;
+
             foreach (var child in _children)
                 child.Element.OnMouseEvent(context, button, action);
         }
 
         private sealed class UIElementData
         {
-            internal readonly uint X, Y;
+            internal readonly int X, Y;
             internal readonly IUiElement Element;
 
-            public UIElementData(uint x, uint y, IUiElement element)
+            public UIElementData(int x, int y, IUiElement element)
             {
                 X = x;
                 Y = y;

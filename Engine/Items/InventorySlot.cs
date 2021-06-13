@@ -4,27 +4,44 @@ namespace DigBuild.Engine.Items
 {
     public sealed class InventorySlot : IInventorySlot
     {
-        private ItemInstance _item;
+        private static readonly Func<ItemInstance, bool> Always = _ => true;
 
-        public ItemInstance Item
-        {
-            get => _item;
-            set
-            {
-                _item = value;
-                Changed?.Invoke();
-            }
-        }
+        private readonly Func<ItemInstance, bool> _test;
+
+        public ItemInstance Item { get; private set; }
 
         public event Action? Changed;
         
-        public InventorySlot(ItemInstance item)
+        public InventorySlot(Func<ItemInstance, bool> test, ItemInstance item)
         {
-            _item = item;
+            _test = test;
+            Item = item;
+        }
+
+        public InventorySlot(Func<ItemInstance, bool> test) : this(test, ItemInstance.Empty)
+        {
+        }
+        
+        public InventorySlot(ItemInstance item) : this(Always, item)
+        {
         }
 
         public InventorySlot() : this(ItemInstance.Empty)
         {
+        }
+
+        public bool TrySetItem(ItemInstance value, bool doSet = true)
+        {
+            if (!_test(value))
+                return false;
+
+            if (doSet)
+            {
+                Item = value;
+                Changed?.Invoke();
+            }
+
+            return true;
         }
     }
 }

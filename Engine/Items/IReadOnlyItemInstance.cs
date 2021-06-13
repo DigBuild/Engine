@@ -8,6 +8,8 @@ namespace DigBuild.Engine.Items
         public ushort Count { get; }
         internal DataContainer DataContainer { get; }
 
+        TAttrib Get<TAttrib>(ItemAttribute<TAttrib> attribute);
+
         public ItemInstance Copy();
     }
 }

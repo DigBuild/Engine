@@ -4,9 +4,11 @@ namespace DigBuild.Engine.Items
 {
     public interface IInventorySlot : IReadOnlyInventorySlot
     {
-        public new ItemInstance Item { get; set; }
+        new ItemInstance Item { get; }
         IReadOnlyItemInstance IReadOnlyInventorySlot.Item => Item;
 
-        public event Action Changed;
+        event Action Changed;
+
+        bool TrySetItem(ItemInstance value, bool doSet = true);
     }
 }

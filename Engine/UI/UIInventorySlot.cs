@@ -97,8 +97,11 @@ namespace DigBuild.Engine.Ui
             if (!_hovered || button != 0 || action != MouseAction.Press) return;
 
             var currentPicked = _pickedSlot.Item;
-            _pickedSlot.Item = _slot.Item;
-            _slot.Item = currentPicked;
+            if (_pickedSlot.TrySetItem(_slot.Item, false) && _slot.TrySetItem(currentPicked, false))
+            {
+                _pickedSlot.TrySetItem(_slot.Item);
+                _slot.TrySetItem(currentPicked);
+            }
         }
 
         private static bool IsInsideHexagon(Vector2 pos, Vector2 center, float radius)

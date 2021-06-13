@@ -9,7 +9,7 @@ namespace DigBuild.Engine.Ui
 {
     public sealed class UiUnboundInventorySlot : IUiElement
     {
-        private const uint Scale = 48;
+        private const uint Scale = UiInventorySlot.Scale;
         
         private readonly IInventorySlot _slot;
         private readonly IReadOnlyDictionary<Item, IItemModel> _models;

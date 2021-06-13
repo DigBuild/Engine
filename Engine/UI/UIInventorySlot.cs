@@ -11,7 +11,7 @@ namespace DigBuild.Engine.Ui
 {
     public sealed class UiInventorySlot : IUiElement
     {
-        private const uint Scale = 48;
+        public const uint Scale = 32;
 
         private static readonly Vector4 Color = new(0.0f, 0.01f, 0.05f, 0.7f);
         private static readonly Vector4 MarkerColor = new(0.9f, 0.8f, 0.2f, 0.8f);

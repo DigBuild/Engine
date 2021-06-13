@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using DigBuild.Engine.Render;
 using DigBuild.Engine.Textures;
 using DigBuild.Platform.Input;
@@ -12,6 +13,11 @@ namespace DigBuild.Engine.Ui
         private readonly IRenderLayer<UiVertex> _layer;
         private readonly UiVertex[][] _vertices = new UiVertex[3][];
         private bool _hovered, _clicked;
+
+        public Action? Pressed = null;
+        public Action? Released = null;
+        public Action? Hovered = null;
+        public Action? UnHovered = null;
 
         public UiButton(uint width, uint height, IRenderLayer<UiVertex> layer, ISprite inactiveSprite, ISprite hoveredSprite, ISprite clickedSprite)
         {
@@ -61,7 +67,10 @@ namespace DigBuild.Engine.Ui
             var wasHovered = _hovered;
             _hovered = x >= 0 && x < _width && y >= 0 && y < _height;
             if (_hovered != wasHovered)
+            {
+                (_hovered ? Hovered : UnHovered)?.Invoke();
                 context.RequestRedraw();
+            }
         }
 
         public void OnMouseEvent(IUiElementContext context, uint button, MouseAction action)
@@ -70,9 +79,16 @@ namespace DigBuild.Engine.Ui
 
             var wasClicked = _clicked;
             if (_hovered && action == MouseAction.Press)
+            {
+                Pressed?.Invoke();
                 _clicked = true;
+            }
             else if (action == MouseAction.Release)
+            {
+                if (_clicked)
+                    Released?.Invoke();
                 _clicked = false;
+            }
 
             if (_clicked != wasClicked)
                 context.RequestRedraw();

@@ -25,12 +25,12 @@ namespace DigBuild.Engine.Impl.Worlds
         public static DataHandle<IChunk, IReadOnlyChunkBlocks, ChunkBlocks> Type { get; internal set; } = null!;
         
         private readonly Octree<Block?> _blocks = new(4, null);
-        private readonly Octree<DataContainer?> _data = new(4, null);
+        private readonly Dictionary<ChunkBlockPos, DataContainer> _data = new();
 
         public event Action? Changed;
 
         public Block? GetBlock(ChunkBlockPos pos) => _blocks[pos.X, pos.Y, pos.Z];
-        internal DataContainer? GetData(ChunkBlockPos pos) => _data[pos.X, pos.Y, pos.Z];
+        internal DataContainer? GetData(ChunkBlockPos pos) => _data.TryGetValue(pos, out var d) ? d : null;
         DataContainer? IReadOnlyChunkBlocks.GetData(ChunkBlockPos pos) => GetData(pos);
 
         public void SetBlock(ChunkBlockPos pos, Block? block)
@@ -38,7 +38,9 @@ namespace DigBuild.Engine.Impl.Worlds
             if (_blocks[pos.X, pos.Y, pos.Z] == block)
                 return;
             _blocks[pos.X, pos.Y, pos.Z] = block;
-            _data[pos.X, pos.Y, pos.Z] = block?.CreateDataContainer();
+            var d = block?.CreateDataContainer();
+            if (d != null)
+                _data[pos] = d;
             Changed?.Invoke();
         }
 
@@ -58,10 +60,11 @@ namespace DigBuild.Engine.Impl.Worlds
             for (var x = 0; x < ChunkSize; x++)
             for (var y = 0; y < ChunkSize; y++)
             for (var z = 0; z < ChunkSize; z++)
-            {
                 copy._blocks[x, y, z] = _blocks[x, y, z];
-                copy._data[x, y, z] = _data[x, y, z]?.Copy();
-            }
+
+            foreach (var (pos, d) in _data)
+                copy._data[pos] = d.Copy();
+
             return copy;
         }
 
@@ -83,7 +86,7 @@ namespace DigBuild.Engine.Impl.Worlds
 
                     bw.Write(block.Name.ToString());
 
-                    var data = blocks._data[x, y, z];
+                    blocks._data.TryGetValue(new ChunkBlockPos(x, y, z), out var data);
                     NullableDataContainerSerdes.Serialize(stream, data);
                 }
             },
@@ -105,7 +108,8 @@ namespace DigBuild.Engine.Impl.Worlds
                     blocks._blocks[x, y, z] = block;
                     
                     var data = NullableDataContainerSerdes.Deserialize(stream);
-                    blocks._data[x, y, z] = data;
+                    if (data != null)
+                        blocks._data[new ChunkBlockPos(x, y, z)] = data;
                 }
 
                 return blocks;

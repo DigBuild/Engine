@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using DigBuild.Engine.Blocks;
@@ -62,6 +62,7 @@ namespace DigBuild.Engine.Render.Worlds
         private void StaticUpdate()
         {
             _dynamicModelData.Clear();
+            _geometryBuffer.Clear();
 
             var chunks = new IReadOnlyChunk?[3, 3, 3];
             chunks[1, 1, 1] = _chunk;

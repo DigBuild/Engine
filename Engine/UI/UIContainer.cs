@@ -27,6 +27,11 @@ namespace DigBuild.Engine.Ui
             _children.Remove(element);
         }
 
+        public void Clear()
+        {
+            _children.Clear();
+        }
+
         public void Draw(RenderContext context, IGeometryBuffer buffer, float partialTick)
         {
             if (!Visible)

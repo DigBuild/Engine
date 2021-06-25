@@ -10,28 +10,28 @@ namespace DigBuild.Engine.Ui
         private readonly IRenderLayer<UiVertex> _layer;
         private readonly UiVertex[] _vertices;
 
-        public UiRectangle(uint width, uint height, IRenderLayer<UiVertex> layer, ISprite sprite, Vector4 color)
+        public UiRectangle(uint width, uint height, IRenderLayer<UiVertex> layer, ISprite? sprite, Vector4 color)
         {
             _layer = layer;
             
             var v1 = new UiVertex(
                 new Vector2(0, 0),
-                sprite.GetInterpolatedUV(0, 0),
+                sprite?.GetInterpolatedUV(0, 0) ?? Vector2.Zero,
                 color
             );
             var v2 = new UiVertex(
                 new Vector2(width, 0),
-                sprite.GetInterpolatedUV(1, 0),
+                sprite?.GetInterpolatedUV(1, 0) ?? Vector2.Zero,
                 color
             );
             var v3 = new UiVertex(
                 new Vector2(width, height),
-                sprite.GetInterpolatedUV(1, 1),
+                sprite?.GetInterpolatedUV(1, 1) ?? Vector2.Zero,
                 color
             );
             var v4 = new UiVertex(
                 new Vector2(0, height),
-                sprite.GetInterpolatedUV(0, 1),
+                sprite?.GetInterpolatedUV(0, 1) ?? Vector2.Zero,
                 color
             );
 

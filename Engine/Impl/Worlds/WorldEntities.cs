@@ -83,6 +83,15 @@ namespace DigBuild.Engine.Impl.Worlds
 
     public static class WorldEntitiesExtensions
     {
+        public static IEnumerable<EntityInstance> GetEntities(this IReadOnlyWorld world)
+        {
+            return world.Get(WorldEntities.Type);
+        }
+        public static IEnumerable<EntityInstance> GetEntities(this IReadOnlyWorld world, Entity type)
+        {
+            return world.Get(WorldEntities.Type).OfType(type);
+        }
+
         public static EntityInstance? GetEntity(this IReadOnlyWorld world, Guid guid)
         {
             return world.Get(WorldEntities.Type).Get(guid);

@@ -1,4 +1,5 @@
 ﻿using System;
+using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Storage;
 using DigBuild.Engine.Worlds;
 
@@ -21,7 +22,13 @@ namespace DigBuild.Engine.Entities
             DataContainer = type.CreateDataContainer();
         }
 
+        public TAttrib Get<TAttrib>(EntityAttribute<TAttrib> attribute) => Type.Get(this, attribute);
         public TCap Get<TCap>(EntityCapability<TCap> capability) => Type.Get(this, capability);
+
+        public void Remove()
+        {
+            World.RemoveEntity(Id);
+        }
 
         public override string ToString()
         {

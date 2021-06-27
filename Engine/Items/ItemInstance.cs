@@ -32,10 +32,19 @@ namespace DigBuild.Engine.Items
 
         public TAttrib Get<TAttrib>(ItemAttribute<TAttrib> attribute) => Type.Get(this, attribute);
         public TCap Get<TCap>(ItemCapability<TCap> capability) => Type.Get(this, capability);
+        
+        public bool Equals(IReadOnlyItemInstance other, bool ignoreCount = false)
+        {
+            if (Count == 0 && other.Count == 0) return true;
+            if (Count == 0 || other.Count == 0) return false;
+            if (!ignoreCount && Count != other.Count) return false;
+
+            return Type == other.Type && Type.Equals(DataContainer, other.DataContainer);
+        }
 
         public ItemInstance Copy()
         {
-            return new(Type, Count, DataContainer.Copy());
+            return new ItemInstance(Type, Count, DataContainer.Copy());
         }
 
         public override string ToString()

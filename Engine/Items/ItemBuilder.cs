@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Storage;
 using DigBuild.Platform.Resource;
@@ -19,6 +20,7 @@ namespace DigBuild.Engine.Items
         private readonly Dictionary<IItemAttribute, List<ItemAttributeDelegate>> _attributeSuppliers = new();
         private readonly Dictionary<IItemCapability, List<ItemCapabilityDelegate>> _capabilitySuppliers = new();
         private readonly List<Action<DataContainer>> _dataInitializers = new();
+        private readonly List<Func<DataContainer, DataContainer, bool>> _equalityChecks = new();
 
         public DataHandle<TData> Add<TData>()
             where TData : class, IData<TData>, new()
@@ -56,6 +58,7 @@ namespace DigBuild.Engine.Items
             Attach(builder, false);
             
             _dataInitializers.Add(container => behavior.Init(container.Get(data)));
+            _equalityChecks.Add((first, second) => behavior.Equals(first.Get(data), second.Get(data)));
         }
 
         public void AttachLast<TReadOnlyContract, TContract, TData>(IItemBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
@@ -70,6 +73,7 @@ namespace DigBuild.Engine.Items
             Attach(builder, false);
             
             _dataInitializers.Add(container => behavior.Init(adapter(container.Get(data))));
+            _equalityChecks.Add((first, second) => behavior.Equals(adapter(first.Get(data)), adapter(second.Get(data))));
         }
 
         public void AttachFirst(IItemBehavior behavior)
@@ -90,6 +94,7 @@ namespace DigBuild.Engine.Items
             Attach(builder, true);
 
             _dataInitializers.Insert(0, container => behavior.Init(container.Get(data)));
+            _equalityChecks.Insert(0, (first, second) => behavior.Equals(first.Get(data), second.Get(data)));
         }
         public void AttachFirst<TReadOnlyContract, TContract, TData>(IItemBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TContract : TReadOnlyContract
@@ -103,6 +108,7 @@ namespace DigBuild.Engine.Items
             Attach(builder, true);
 
             _dataInitializers.Insert(0, container => behavior.Init(adapter(container.Get(data))));
+            _equalityChecks.Insert(0, (first, second) => behavior.Equals(adapter(first.Get(data)), adapter(second.Get(data))));
         }
 
         private void Attach(IItemBehaviorBuilder builder, bool prepend)
@@ -192,7 +198,12 @@ namespace DigBuild.Engine.Items
                     initializer(container);
             }
 
-            return new Item(name, eventHandlers, attributeSuppliers, capabilitySuppliers, InitializeData);
+            bool TestEquals(DataContainer first, DataContainer second)
+            {
+                return _equalityChecks.All(check => check(first, second));
+            }
+
+            return new Item(name, eventHandlers, attributeSuppliers, capabilitySuppliers, InitializeData, TestEquals);
         }
     }
 }

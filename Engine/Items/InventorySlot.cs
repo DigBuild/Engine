@@ -43,5 +43,10 @@ namespace DigBuild.Engine.Items
 
             return true;
         }
+
+        public override string ToString()
+        {
+            return Item.ToString();
+        }
     }
 }

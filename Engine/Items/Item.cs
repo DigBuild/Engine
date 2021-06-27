@@ -12,6 +12,7 @@ namespace DigBuild.Engine.Items
         private readonly IReadOnlyDictionary<IItemAttribute, GenericItemAttributeDelegate> _attributeSuppliers;
         private readonly IReadOnlyDictionary<IItemCapability, GenericItemCapabilityDelegate> _capabilitySuppliers;
         private readonly Action<DataContainer> _dataInitializer;
+        private readonly Func<DataContainer, DataContainer, bool> _equalityTest;
 
         public ResourceName Name { get; }
 
@@ -20,13 +21,15 @@ namespace DigBuild.Engine.Items
             IReadOnlyDictionary<Type, GenericItemEventDelegate> eventHandlers,
             IReadOnlyDictionary<IItemAttribute, GenericItemAttributeDelegate> attributeSuppliers,
             IReadOnlyDictionary<IItemCapability, GenericItemCapabilityDelegate> capabilitySuppliers,
-            Action<DataContainer> dataInitializer
+            Action<DataContainer> dataInitializer,
+            Func<DataContainer, DataContainer, bool> equalityTest
         )
         {
             _eventHandlers = eventHandlers;
             _attributeSuppliers = attributeSuppliers;
             _capabilitySuppliers = capabilitySuppliers;
             _dataInitializer = dataInitializer;
+            _equalityTest = equalityTest;
             Name = name;
         }
 
@@ -63,6 +66,11 @@ namespace DigBuild.Engine.Items
             var container = new DataContainer();
             _dataInitializer(container);
             return container;
+        }
+
+        internal bool Equals(DataContainer first, DataContainer second)
+        {
+            return _equalityTest(first, second);
         }
 
         public override string ToString()

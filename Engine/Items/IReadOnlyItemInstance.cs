@@ -10,6 +10,8 @@ namespace DigBuild.Engine.Items
 
         TAttrib Get<TAttrib>(ItemAttribute<TAttrib> attribute);
 
+        bool Equals(IReadOnlyItemInstance other, bool ignoreCount = false);
+
         public ItemInstance Copy();
     }
 }

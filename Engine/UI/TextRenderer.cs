@@ -35,7 +35,7 @@ namespace DigBuild.Engine.Ui
             return CharacterInfo.CharWidth;
         }
 
-        public uint DrawLine(IGeometryBuffer buffer, string text, uint scale = 1)
+        public uint DrawLine(IGeometryBuffer buffer, string text, uint scale = 1, bool yellow = false)
         {
             var length = 0u;
 
@@ -48,7 +48,7 @@ namespace DigBuild.Engine.Ui
                     buffer.Transform = Matrix4x4.CreateTranslation(length, 0, 0) *
                                         Matrix4x4.CreateScale(scale) *
                                         transform;
-                    buffer.Get(_layer).Accept(info.Vertices);
+                    buffer.Get(_layer).Accept(yellow ? info.VerticesYellow : info.Vertices);
                 }
 
                 length += GetWidth(c);
@@ -63,35 +63,42 @@ namespace DigBuild.Engine.Ui
             private const uint CharHeight = 8;
             private const uint CharBaseline = 0;
             private const uint TextureSize = 128;
-
+            
             internal readonly UiVertex[] Vertices;
+            internal readonly UiVertex[] VerticesYellow;
 
             public CharacterInfo(char c)
+            {
+                Vertices = GenerateVertices(c, Vector4.One);
+                VerticesYellow = GenerateVertices(c, new Vector4(1, 1, 0, 1));
+            }
+
+            private static UiVertex[] GenerateVertices(char c, Vector4 color)
             {
                 var (posX, posY) = GetCharacterPosition(c);
                 
                 var v1 = new UiVertex(
                     new Vector2(0, -CharBaseline),
                     new Vector2(posX * CharWidth, posY * CharHeight) / TextureSize,
-                    Vector4.One
+                    color
                 );
                 var v2 = new UiVertex(
                     new Vector2(CharWidth, -CharBaseline),
                     new Vector2((posX + 1) * CharWidth, posY * CharHeight) / TextureSize,
-                    Vector4.One
+                    color
                 );
                 var v3 = new UiVertex(
                     new Vector2(CharWidth, -CharBaseline + CharHeight),
                     new Vector2((posX + 1) * CharWidth, (posY + 1) * CharHeight) / TextureSize,
-                    Vector4.One
+                    color
                 );
                 var v4 = new UiVertex(
                     new Vector2(0, -CharBaseline + CharHeight),
                     new Vector2(posX * CharWidth, (posY + 1) * CharHeight) / TextureSize,
-                    Vector4.One
+                    color
                 );
 
-                Vertices = new[] { v1, v2, v3, v3, v4, v1 };
+                return new[] { v1, v2, v3, v3, v4, v1 };
             }
 
             private static (uint, uint) GetCharacterPosition(char c)

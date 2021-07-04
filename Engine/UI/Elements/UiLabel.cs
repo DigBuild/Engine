@@ -1,7 +1,7 @@
 ﻿using DigBuild.Engine.Render;
 using DigBuild.Platform.Render;
 
-namespace DigBuild.Engine.Ui
+namespace DigBuild.Engine.Ui.Elements
 {
     public sealed class UiLabel : IUiElement
     {

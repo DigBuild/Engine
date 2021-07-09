@@ -10,7 +10,10 @@ namespace DigBuild.Engine.Math
 
         public static readonly AABB FullBlock = new(0, 0, 0, 1, 1, 1);
 
-        public readonly Vector3 Min, Max;
+        public Vector3 Min { get; }
+        public Vector3 Max { get; }
+
+        public Vector3 Center => (Min + Max) / 2;
 
         public AABB(Vector3 min, Vector3 max)
         {
@@ -23,6 +26,14 @@ namespace DigBuild.Engine.Math
             Min = new Vector3(minX, minY, minZ);
             Max = new Vector3(maxX, maxY, maxZ);
         }
+
+        public AABB Grow(float x, float y, float z)
+        {
+            var amt = new Vector3(x, y, z);
+            return new AABB(Min - amt, Max + amt);
+        }
+
+        public AABB Grow(float amt) => Grow(amt, amt, amt);
 
         public bool Contains(Vector3 vec)
         {

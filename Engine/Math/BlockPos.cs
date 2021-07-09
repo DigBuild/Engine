@@ -9,7 +9,7 @@ namespace DigBuild.Engine.Math
         public int Y { get; }
         public int Z { get; }
         
-        public ChunkPos ChunkPos => new(X >> 4, Y >> 4, Z >> 4);
+        public ChunkPos ChunkPos => new(X >> 4, Z >> 4);
         public ChunkBlockPos SubChunkPos => new(X, Y, Z);
 
         public BlockPos(int x, int y, int z)

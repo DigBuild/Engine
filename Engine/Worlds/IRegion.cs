@@ -8,8 +8,6 @@ namespace DigBuild.Engine.Worlds
     {
         RegionPos Position { get; }
 
-        IReadOnlyLowDensityRegion LowDensity { get; }
-
         bool IsLoaded(RegionChunkPos pos);
 
         IReadOnlyChunk? Get(RegionChunkPos pos, bool loadOrGenerate = true);
@@ -27,8 +25,6 @@ namespace DigBuild.Engine.Worlds
     {
         public const uint Size = WorldDimensions.RegionSize;
 
-        new ILowDensityRegion LowDensity { get; }
-
         new IChunk? Get(RegionChunkPos pos, bool loadOrGenerate = true);
 
         bool TryGet(RegionChunkPos pos, [NotNullWhen(true)] out IChunk? chunk, bool loadOrGenerate = true)
@@ -39,7 +35,6 @@ namespace DigBuild.Engine.Worlds
         new T Get<TReadOnly, T>(DataHandle<IRegion, TReadOnly, T> type)
             where T : TReadOnly, IData<T>, IChangeNotifier;
         
-        IReadOnlyLowDensityRegion IReadOnlyRegion.LowDensity => LowDensity;
         IReadOnlyChunk? IReadOnlyRegion.Get(RegionChunkPos pos, bool loadOrGenerate) => Get(pos, loadOrGenerate);
         bool IReadOnlyRegion.TryGet(RegionChunkPos pos, [NotNullWhen(true)] out IReadOnlyChunk? chunk, bool loadOrGenerate)
         {

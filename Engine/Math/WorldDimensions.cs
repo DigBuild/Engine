@@ -4,8 +4,9 @@ namespace DigBuild.Engine.Math
 {
     public static class WorldDimensions
     {
-        public const uint ChunkSize = 16; // 16^3 blocks
-        public const int MaxSubChunkPos = (int) (ChunkSize - 1);
+        public const uint ChunkSize = 16; // 16^2 blocks
+        public const uint ChunkVerticalSubdivisions = 16;
+        public const uint ChunkHeight = ChunkSize * ChunkVerticalSubdivisions; // 16 * 16 sub-chunks
         public const uint RegionSize = 64; // 64^3 chunks
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

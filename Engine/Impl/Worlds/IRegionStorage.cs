@@ -12,7 +12,5 @@ namespace DigBuild.Engine.Impl.Worlds
         void Save(Chunk chunk);
 
         DataContainer<IRegion> LoadOrCreateManagedData();
-
-        ILowDensityRegion LoadOrCreateManagedLowDensity();
     }
 }

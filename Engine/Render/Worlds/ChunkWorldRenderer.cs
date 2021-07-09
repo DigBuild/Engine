@@ -21,7 +21,7 @@ namespace DigBuild.Engine.Render.Worlds
 
         private readonly Dictionary<ChunkPos, ChunkRenderData> _chunkRenderData = new();
         
-        private ChunkPos _currentCameraPos = new(int.MaxValue, int.MaxValue, int.MaxValue);
+        private ChunkPos _currentCameraPos = new(int.MaxValue, int.MaxValue);
         private List<ChunkPos> _sortedChunks = new();
         
         private readonly HashSet<ChunkPos> _trackedChunks = new();

@@ -6,12 +6,12 @@ namespace DigBuild.Engine.Worldgen
 {
     public sealed class ExtendedGrid<T>
     {
-        private readonly Dictionary<WorldSliceOffset, Grid<T>> _cache = new();
+        private readonly Dictionary<ChunkOffset, Grid<T>> _cache = new();
 
-        private readonly WorldSliceDescriptionContext _context;
+        private readonly ChunkDescriptionContext _context;
         private readonly WorldgenAttribute<Grid<T>> _attribute;
 
-        internal ExtendedGrid(WorldSliceDescriptionContext context, WorldgenAttribute<Grid<T>> attribute)
+        internal ExtendedGrid(ChunkDescriptionContext context, WorldgenAttribute<Grid<T>> attribute)
         {
             _context = context;
             _attribute = attribute;
@@ -29,7 +29,7 @@ namespace DigBuild.Engine.Worldgen
         public T this[int x, int z]
         {
             get {
-                var off = new WorldSliceOffset(x >> 4, z >> 4);
+                var off = new ChunkOffset(x >> 4, z >> 4);
                 if (!_cache!.TryGetValue(off, out var data))
                     _cache[off] = data = _context.Get(_attribute, off);
                 return data[x & 15, z & 15];

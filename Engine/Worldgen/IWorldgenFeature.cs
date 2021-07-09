@@ -10,9 +10,9 @@ namespace DigBuild.Engine.Worldgen
         IImmutableSet<IWorldgenAttribute> InputAttributes { get; }
         IImmutableSet<IWorldgenAttribute> OutputAttributes { get; }
 
-        void DescribeSlice(WorldSliceDescriptionContext context);
+        void Describe(ChunkDescriptionContext context);
         
-        void PopulateChunk(WorldSliceDescriptor descriptor, IChunk chunk);
+        void Populate(ChunkDescriptor descriptor, IChunk chunk);
     }
 
     public static class WorldgenFeatureRegistryBuilderExtensions

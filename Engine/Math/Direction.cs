@@ -30,6 +30,10 @@ namespace DigBuild.Engine.Math
             Direction.NegY, Direction.PosY,
             Direction.NegZ, Direction.PosZ
         );
+        public static readonly ImmutableSortedSet<Direction> Horizontal = ImmutableSortedSet.Create(
+            Direction.NegX, Direction.PosX,
+            Direction.NegZ, Direction.PosZ
+        );
 
         public static IEnumerable<Direction> In(DirectionFlags flags)
         {

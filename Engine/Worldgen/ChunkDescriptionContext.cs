@@ -4,28 +4,28 @@ using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Worldgen
 {
-    public sealed class WorldSliceDescriptionContext
+    public sealed class ChunkDescriptionContext
     {
-        public delegate WorldSliceDescriptor DescribeNeighborDelegate(WorldSlicePos pos);
+        public delegate ChunkDescriptor DescribeNeighborDelegate(ChunkPos pos);
 
         private readonly WorldgenAttributeDictionary _attributes = new();
         private readonly WorldgenAttributeDictionary _newAttributes = new();
 
-        public WorldSlicePos Position { get; }
+        public ChunkPos Position { get; }
         public long Seed { get; }
 
         public DescribeNeighborDelegate NeighborDescriptor { private get; set; } = null!;
 
-        internal WorldSliceDescriptionContext(WorldSlicePos position, long seed)
+        internal ChunkDescriptionContext(ChunkPos position, long seed)
         {
             Position = position;
             Seed = seed;
         }
 
-        public TStorage Get<TStorage>(WorldgenAttribute<TStorage> attribute, WorldSliceOffset offset = default)
+        public TStorage Get<TStorage>(WorldgenAttribute<TStorage> attribute, ChunkOffset offset = default)
             where TStorage : notnull
         {
-            if (!offset.Equals(default(WorldSliceOffset)))
+            if (!offset.Equals(default(ChunkOffset)))
                 return NeighborDescriptor(Position + offset).Get(attribute);
             
             return _attributes.Get(attribute);
@@ -43,7 +43,7 @@ namespace DigBuild.Engine.Worldgen
             _newAttributes.Clear();
         }
 
-        internal WorldSliceDescriptor CreateDescriptor()
+        internal ChunkDescriptor CreateDescriptor()
         {
             return new(Position, _attributes);
         }

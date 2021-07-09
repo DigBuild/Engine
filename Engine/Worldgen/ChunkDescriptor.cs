@@ -2,13 +2,13 @@
 
 namespace DigBuild.Engine.Worldgen
 {
-    public sealed class WorldSliceDescriptor
+    public sealed class ChunkDescriptor
     {
         private readonly WorldgenAttributeDictionary _attributes;
 
-        public WorldSlicePos Position { get; }
+        public ChunkPos Position { get; }
 
-        internal WorldSliceDescriptor(WorldSlicePos position, WorldgenAttributeDictionary attributes)
+        internal ChunkDescriptor(ChunkPos position, WorldgenAttributeDictionary attributes)
         {
             Position = position;
             _attributes = attributes;

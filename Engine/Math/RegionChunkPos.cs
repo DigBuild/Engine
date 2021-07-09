@@ -5,24 +5,22 @@ namespace DigBuild.Engine.Math
     public readonly struct RegionChunkPos : IEquatable<RegionChunkPos>
     {
         public int X { get; }
-        public int Y { get; }
         public int Z { get; }
 
-        public RegionChunkPos(int x, int y, int z)
+        public RegionChunkPos(int x, int z)
         {
-            X = x;
-            Y = y;
-            Z = z;
+            X = x & 63;
+            Z = z & 63;
         }
 
         public override string ToString()
         {
-            return $"<{X}, {Y}, {Z}>";
+            return $"<{X}, {Z}>";
         }
         
         public bool Equals(RegionChunkPos other)
         {
-            return X == other.X && Y == other.Y && Z == other.Z;
+            return X == other.X && Z == other.Z;
         }
 
         public override bool Equals(object? obj)
@@ -32,7 +30,7 @@ namespace DigBuild.Engine.Math
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(X, Y, Z);
+            return HashCode.Combine(X, Z);
         }
 
         public static bool operator ==(RegionChunkPos left, RegionChunkPos right)

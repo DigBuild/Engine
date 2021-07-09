@@ -12,7 +12,7 @@ namespace DigBuild.Engine.Math
         public ChunkBlockPos(int x, int y, int z)
         {
             X = x & 15;
-            Y = y & 15;
+            Y = y & 255;
             Z = z & 15;
         }
         

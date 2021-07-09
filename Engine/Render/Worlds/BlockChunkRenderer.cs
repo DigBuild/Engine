@@ -64,16 +64,16 @@ namespace DigBuild.Engine.Render.Worlds
             _dynamicModelData.Clear();
             _geometryBuffer.Clear();
 
-            var chunks = new IReadOnlyChunk?[3, 3, 3];
-            chunks[1, 1, 1] = _chunk;
-            foreach (var direction in Directions.All)
+            var chunks = new IReadOnlyChunk?[3, 3];
+            chunks[1, 1] = _chunk;
+            foreach (var direction in Directions.Horizontal)
             {
                 var pos = _chunk.Position.Offset(direction);
                 var neighbor = _world.GetChunk(pos, false);
                 if (neighbor == null)
                     continue;
-                var (offX, offY, offZ) = direction.GetOffsetI() + Vector3I.One;
-                chunks[offX, offY, offZ] = neighbor;
+                var (offX, _, offZ) = direction.GetOffsetI() + Vector3I.One;
+                chunks[offX, offZ] = neighbor;
             }
 
             const uint chunkSize = WorldDimensions.ChunkSize;
@@ -82,13 +82,13 @@ namespace DigBuild.Engine.Render.Worlds
             {
                 var absPos = (_chunk.Position + pos).Offset(direction);
                 var (chunkPos, blockPos) = absPos;
-                var (relX, relY, relZ) = chunkPos - _chunk.Position + Vector3I.One;
-                var sameChunk = relX == 0 && relY == 0 && relZ == 0;
+                var (relX, relZ) = chunkPos - _chunk.Position + ChunkOffset.One;
+                var sameChunk = relX == 0 && relZ == 0;
 
                 BlockFaceSolidity? solidity;
                 if (!sameChunk || (solidity = solidityCache[blockPos.X, blockPos.Y, blockPos.Z]) == null)
                 {
-                    var chunk = chunks[relX, relY, relZ];
+                    var chunk = chunks[relX, relZ];
                     if (chunk != null)
                     {
                         var block = chunk.GetBlock(blockPos);

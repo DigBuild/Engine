@@ -20,24 +20,30 @@ namespace DigBuild.Engine.Impl.Worlds
 
     public class ChunkBlocks : IReadOnlyChunkBlocks, IData<ChunkBlocks>
     {
-        private const uint ChunkSize = 16;
+        private const uint ChunkSize = WorldDimensions.ChunkSize;
         
         public static DataHandle<IChunk, IReadOnlyChunkBlocks, ChunkBlocks> Type { get; internal set; } = null!;
         
-        private readonly Octree<Block?> _blocks = new(4, null);
+        private readonly Octree<Block?>[] _blocks = new Octree<Block?>[WorldDimensions.ChunkVerticalSubdivisions];
         private readonly Dictionary<ChunkBlockPos, DataContainer> _data = new();
 
         public event Action? Changed;
 
-        public Block? GetBlock(ChunkBlockPos pos) => _blocks[pos.X, pos.Y, pos.Z];
+        public ChunkBlocks()
+        {
+            for (var i = 0; i < _blocks.Length; i++)
+                _blocks[i] = new Octree<Block?>(4, null);
+        }
+
+        public Block? GetBlock(ChunkBlockPos pos) => _blocks[pos.Y >> 4][pos.X, pos.Y & 15, pos.Z];
         internal DataContainer? GetData(ChunkBlockPos pos) => _data.TryGetValue(pos, out var d) ? d : null;
         DataContainer? IReadOnlyChunkBlocks.GetData(ChunkBlockPos pos) => GetData(pos);
 
         public void SetBlock(ChunkBlockPos pos, Block? block)
         {
-            if (_blocks[pos.X, pos.Y, pos.Z] == block)
+            if (_blocks[pos.Y >> 4][pos.X, pos.Y & 15, pos.Z] == block)
                 return;
-            _blocks[pos.X, pos.Y, pos.Z] = block;
+            _blocks[pos.Y >> 4][pos.X, pos.Y & 15, pos.Z] = block;
             var d = block?.CreateDataContainer();
             if (d != null)
                 _data[pos] = d;
@@ -46,9 +52,13 @@ namespace DigBuild.Engine.Impl.Worlds
 
         public IEnumerator<KeyValuePair<ChunkBlockPos, Block?>> GetEnumerator()
         {
-            foreach (var ((x, y, z), block) in _blocks)
+            for (var i = 0; i < _blocks.Length; i++)
             {
-                yield return new KeyValuePair<ChunkBlockPos, Block?>(new ChunkBlockPos(x, y, z), block);
+                var octree = _blocks[i];
+                foreach (var ((x, y, z), block) in octree)
+                {
+                    yield return new KeyValuePair<ChunkBlockPos, Block?>(new ChunkBlockPos(x, y + (i << 4), z), block);
+                }
             }
         }
 
@@ -57,10 +67,11 @@ namespace DigBuild.Engine.Impl.Worlds
         public ChunkBlocks Copy()
         {
             var copy = new ChunkBlocks();
-            for (var x = 0; x < ChunkSize; x++)
+            for (var i = 0; i < WorldDimensions.ChunkVerticalSubdivisions; i++)
+            for (var x = 0; x < ChunkSize; x++) // TODO: Optimized octree copy
             for (var y = 0; y < ChunkSize; y++)
             for (var z = 0; z < ChunkSize; z++)
-                copy._blocks[x, y, z] = _blocks[x, y, z];
+                copy._blocks[i][x, y, z] = _blocks[i][x, y, z];
 
             foreach (var (pos, d) in _data)
                 copy._data[pos] = d.Copy();
@@ -73,12 +84,13 @@ namespace DigBuild.Engine.Impl.Worlds
             (stream, blocks) =>
             {
                 var bw = new BinaryWriter(stream);
-
+                
+                for (var i = 0; i < WorldDimensions.ChunkVerticalSubdivisions; i++)
                 for (var x = 0; x < ChunkSize; x++)
                 for (var y = 0; y < ChunkSize; y++)
                 for (var z = 0; z < ChunkSize; z++)
                 {
-                    var block = blocks._blocks[x, y, z];
+                    var block = blocks._blocks[i][x, y, z];
 
                     bw.Write(block != null);
                     if (block == null)
@@ -95,7 +107,8 @@ namespace DigBuild.Engine.Impl.Worlds
                 var br = new BinaryReader(stream);
 
                 var blocks = new ChunkBlocks();
-
+                
+                for (var i = 0; i < WorldDimensions.ChunkVerticalSubdivisions; i++)
                 for (var x = 0; x < ChunkSize; x++)
                 for (var y = 0; y < ChunkSize; y++)
                 for (var z = 0; z < ChunkSize; z++)
@@ -105,7 +118,7 @@ namespace DigBuild.Engine.Impl.Worlds
 
                     var name = ResourceName.Parse(br.ReadString())!;
                     var block = BuiltInRegistries.Blocks.GetOrNull(name.Value)!;
-                    blocks._blocks[x, y, z] = block;
+                    blocks._blocks[i][x, y, z] = block;
                     
                     var data = NullableDataContainerSerdes.Deserialize(stream);
                     if (data != null)

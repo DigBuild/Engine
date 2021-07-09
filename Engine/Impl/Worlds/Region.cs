@@ -11,7 +11,6 @@ namespace DigBuild.Engine.Impl.Worlds
     public sealed class Region : IRegion, IDisposable
     {
         public const ulong TemporaryChunkExpirationDelay = 20;
-        public const ulong LowDensityRegionExpirationDelay = 20;
 
         private readonly IRegionStorage _storage;
         private readonly IChunkProvider _chunkProvider;
@@ -20,24 +19,9 @@ namespace DigBuild.Engine.Impl.Worlds
         private readonly Dictionary<RegionChunkPos, HashSet<ChunkClaim>> _loadingClaims = new();
         private readonly LockStore<RegionChunkPos> _locks = new();
 
-        private readonly IndividualCache<ILowDensityRegion> _lowDensity;
-
         private readonly DataContainer<IRegion> _data;
 
         public RegionPos Position { get; }
-
-        public ILowDensityRegion LowDensity
-        {
-            get
-            {
-                lock (_lowDensity)
-                {
-                    if (_lowDensity.HasValue)
-                        return _lowDensity.Value;
-                    return _lowDensity.Value = _storage.LoadOrCreateManagedLowDensity();
-                }
-            }
-        }
 
         public event Action<IChunk>? ChunkLoaded;
         public event Action<IChunk>? ChunkUnloaded;
@@ -48,7 +32,6 @@ namespace DigBuild.Engine.Impl.Worlds
             _storage = storage;
             _chunkProvider = chunkProvider;
             _chunks = new Cache<RegionChunkPos, Chunk>(tickSource, TemporaryChunkExpirationDelay);
-            _lowDensity = new IndividualCache<ILowDensityRegion>(tickSource, LowDensityRegionExpirationDelay);
             _data = _storage.LoadOrCreateManagedData();
             _chunks.EntryEvicted += (_, chunk) => ChunkUnloaded?.Invoke(chunk);
         }
@@ -56,7 +39,6 @@ namespace DigBuild.Engine.Impl.Worlds
         public void Dispose()
         {
             _chunks.Dispose();
-            _lowDensity.Dispose();
         }
 
         internal bool HasClaims => _loadingClaims.Count > 0;

@@ -6,16 +6,14 @@ namespace DigBuild.Engine.Math
     public readonly struct ChunkPos : IEquatable<ChunkPos>
     {
         public int X { get; }
-        public int Y { get; }
         public int Z { get; }
 
-        public RegionPos RegionPos => new(X >> 6, Y >> 6, Z >> 6);
-        public RegionChunkPos RegionChunkPos => new(X & 63, Y & 63, Z & 63);
+        public RegionPos RegionPos => new(X >> 6, Z >> 6);
+        public RegionChunkPos RegionChunkPos => new(X & 63, Z & 63);
 
-        public ChunkPos(int x, int y, int z)
+        public ChunkPos(int x, int z)
         {
             X = x;
-            Y = y;
             Z = z;
         }
         
@@ -25,22 +23,21 @@ namespace DigBuild.Engine.Math
             chunkPos = RegionChunkPos;
         }
 
-        public Vector3 GetCenter()
+        public Vector3 GetCenter(float y)
         {
-            return new((X << 4) + 8, (Y << 4) + 8, (Z << 4) + 8);
+            return new Vector3((X << 4) + 8, y, (Z << 4) + 8);
         }
 
         public Vector3 GetOrigin()
         {
-            return new(X << 4, Y << 4, Z << 4);
+            return new Vector3(X << 4, 0, Z << 4);
         }
 
         public long DistanceSq(ChunkPos other)
         {
             var x = X - other.X;
-            var y = Y - other.Y;
             var z = Z - other.Z;
-            return x * x + y * y + z * z;
+            return x * x + z * z;
         }
 
         public ChunkPos Offset(Direction direction)
@@ -48,19 +45,18 @@ namespace DigBuild.Engine.Math
             var offset = direction.GetOffsetI();
             return new ChunkPos(
                 X + offset.X,
-                Y + offset.Y,
                 Z + offset.Z
             );
         }
 
         public override string ToString()
         {
-            return $"<{X}, {Y}, {Z}>";
+            return $"<{X}, {Z}>";
         }
         
         public bool Equals(ChunkPos other)
         {
-            return X == other.X && Y == other.Y && Z == other.Z;
+            return X == other.X && Z == other.Z;
         }
 
         public override bool Equals(object? obj)
@@ -70,7 +66,7 @@ namespace DigBuild.Engine.Math
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(X, Y, Z);
+            return HashCode.Combine(X, Z);
         }
 
         public static bool operator ==(ChunkPos left, ChunkPos right)
@@ -85,11 +81,11 @@ namespace DigBuild.Engine.Math
 
         public static BlockPos operator +(ChunkPos chunkPos, ChunkBlockPos subChunkPos) => new(
             (chunkPos.X << 4) | subChunkPos.X,
-            (chunkPos.Y << 4) | subChunkPos.Y,
+            subChunkPos.Y,
             (chunkPos.Z << 4) | subChunkPos.Z
         );
-        
-        public static Vector3I operator +(ChunkPos a, ChunkPos b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
-        public static Vector3I operator -(ChunkPos a, ChunkPos b) => new(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+
+        public static ChunkPos operator +(ChunkPos pos, ChunkOffset offset) => new(pos.X + offset.X, pos.Z + offset.Z);
+        public static ChunkOffset operator -(ChunkPos a, ChunkPos b) => new(a.X - b.X, a.Z - b.Z);
     }
 }

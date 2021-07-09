@@ -26,7 +26,7 @@ namespace DigBuild.Engine.Worldgen
 
     public static class WorldgenAttributeSliceExtensions
     {
-        public static ExtendedGrid<T> GetExtendedGrid<T>(this WorldSliceDescriptionContext context, WorldgenAttribute<Grid<T>> attribute)
+        public static ExtendedGrid<T> GetExtendedGrid<T>(this ChunkDescriptionContext context, WorldgenAttribute<Grid<T>> attribute)
         {
             return new(context, attribute);
         }

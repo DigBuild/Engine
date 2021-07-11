@@ -91,6 +91,15 @@ namespace DigBuild.Engine.Render.Worlds
             var cameraChunkPos = new BlockPos(cameraPos).ChunkPos;
             var needsSort = cameraChunkPos != _currentCameraPos;
 
+            // Add all loaded chunks
+            lock (_loadedChunks)
+            {
+                var chunksBefore = _trackedChunks.Count;
+                _trackedChunks.UnionWith(_loadedChunks);
+                needsSort |= _trackedChunks.Count != chunksBefore;
+                _loadedChunks.Clear();
+            }
+
             // Remove all unloaded chunks and their associated data
             lock (_unloadedChunks)
             {
@@ -103,15 +112,6 @@ namespace DigBuild.Engine.Render.Worlds
                 }
                 _trackedChunks.ExceptWith(_unloadedChunks);
                 _unloadedChunks.Clear();
-            }
-
-            // Add all loaded chunks
-            lock (_loadedChunks)
-            {
-                var chunksBefore = _trackedChunks.Count;
-                _trackedChunks.UnionWith(_loadedChunks);
-                needsSort |= _trackedChunks.Count != chunksBefore;
-                _loadedChunks.Clear();
             }
 
             // Sort from closest to the camera to farthest if needed

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -138,14 +139,14 @@ namespace DigBuild.Engine.Render.Worlds
 
             if (_dynamicModelData.Count <= 0)
                 return;
-
+            
             _dynamicGeometryBuffer.Clear();
             foreach (var data in _dynamicModelData)
             {
                 var modelData = data.Block.Get(new ReadOnlyBlockContext(_world, _chunk.Position + data.Pos, data.Block), ModelData.BlockAttribute);
 
-                _geometryBuffer.Transform = Matrix4x4.CreateTranslation((Vector3) data.Pos);
-                data.Model.AddDynamicGeometry(_geometryBuffer, modelData, data.VisibleFaces, partialTick);
+                _dynamicGeometryBuffer.Transform = Matrix4x4.CreateTranslation((Vector3) data.Pos);
+                data.Model.AddDynamicGeometry(_dynamicGeometryBuffer, modelData, data.VisibleFaces, partialTick);
             }
         }
 
@@ -159,7 +160,7 @@ namespace DigBuild.Engine.Render.Worlds
 
             if (_dynamicModelData.Count <= 0)
                 return;
-
+            
             _dynamicGeometryBuffer.Upload(context);
         }
 

@@ -98,6 +98,14 @@ namespace DigBuild.Engine.Math
             new(0, 0, -1),
             new(0, 0, 1)
         };
+        private static readonly string[] DirectionNames = {
+            "neg_x",
+            "pos_x",
+            "neg_y",
+            "pos_y",
+            "neg_z",
+            "pos_z"
+        };
         private static readonly Vector3[] AxisVectors = {
             new(1, 0, 0),
             new(0, 1, 0),
@@ -128,6 +136,11 @@ namespace DigBuild.Engine.Math
         public static Vector3I GetOffsetI(this Direction direction)
         {
             return DirectionOffsetIs[(int) direction];
+        }
+
+        public static string GetName(this Direction direction)
+        {
+            return DirectionNames[(int) direction];
         }
 
         public static Axis GetAxis(this Direction direction)

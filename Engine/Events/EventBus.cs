@@ -17,10 +17,11 @@ namespace DigBuild.Engine.Events
             subscriptionSet.Event -= handler;
         }
 
-        public void Post<TEvent>(TEvent evt) where TEvent : IEvent
+        public TEvent Post<TEvent>(TEvent evt) where TEvent : IEvent
         {
             var subscriptionSet = SubscriptionSet<TEvent>.Get(this);
             subscriptionSet.Post(evt);
+            return evt;
         }
         
         private sealed class SubscriptionSet<TEvent> where TEvent : IEvent

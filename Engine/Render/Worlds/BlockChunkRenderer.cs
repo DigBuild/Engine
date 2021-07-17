@@ -78,18 +78,19 @@ namespace DigBuild.Engine.Render.Worlds
             }
 
             const uint chunkSize = WorldDimensions.ChunkSize;
-            var solidityCache = new BlockFaceSolidity?[chunkSize, chunkSize, chunkSize];
+            const uint chunkHeight = WorldDimensions.ChunkHeight;
+            var solidityCache = new BlockFaceSolidity?[chunkSize, chunkHeight, chunkSize];
             bool IsNeighborFaceSolid(ChunkBlockPos pos, Direction direction)
             {
                 var absPos = (_chunk.Position + pos).Offset(direction);
                 var (chunkPos, blockPos) = absPos;
-                var (relX, relZ) = chunkPos - _chunk.Position + ChunkOffset.One;
+                var (relX, relZ) = chunkPos - _chunk.Position;
                 var sameChunk = relX == 0 && relZ == 0;
 
                 BlockFaceSolidity? solidity;
                 if (!sameChunk || (solidity = solidityCache[blockPos.X, blockPos.Y, blockPos.Z]) == null)
                 {
-                    var chunk = chunks[relX, relZ];
+                    var chunk = chunks[relX + 1, relZ + 1];
                     if (chunk != null)
                     {
                         var block = chunk.GetBlock(blockPos);
@@ -107,9 +108,9 @@ namespace DigBuild.Engine.Render.Worlds
                 return solidity.Value.Solid.Has(direction.GetOpposite());
             }
 
-            foreach (var (pos, block) in _blockStorage)
+            foreach (var (pos, block) in _blockStorage.EnumerateNonNull())
             {
-                if (block == null || !_blockModels.TryGetValue(block, out var model))
+                if (!_blockModels.TryGetValue(block, out var model))
                     continue;
 
                 var modelData = block.Get(new ReadOnlyBlockContext(_world, _chunk.Position + pos, block), ModelData.BlockAttribute);

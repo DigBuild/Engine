@@ -16,6 +16,8 @@ namespace DigBuild.Engine.Impl.Worlds
     {
         public Block? GetBlock(ChunkBlockPos pos);
         internal DataContainer? GetData(ChunkBlockPos pos);
+
+        public IEnumerable<KeyValuePair<ChunkBlockPos, Block>> EnumerateNonNull();
     }
 
     public class ChunkBlocks : IReadOnlyChunkBlocks, IData<ChunkBlocks>
@@ -48,6 +50,18 @@ namespace DigBuild.Engine.Impl.Worlds
             if (d != null)
                 _data[pos] = d;
             Changed?.Invoke();
+        }
+
+        public IEnumerable<KeyValuePair<ChunkBlockPos, Block>> EnumerateNonNull()
+        {
+            for (var i = 0; i < _blocks.Length; i++)
+            {
+                var octree = _blocks[i];
+                foreach (var ((x, y, z), block) in octree.EnumerateNonNull())
+                {
+                    yield return new KeyValuePair<ChunkBlockPos, Block>(new ChunkBlockPos(x, y + (i << 4), z), block!);
+                }
+            }
         }
 
         public IEnumerator<KeyValuePair<ChunkBlockPos, Block?>> GetEnumerator()

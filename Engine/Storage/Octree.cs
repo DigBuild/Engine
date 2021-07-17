@@ -22,6 +22,8 @@ namespace DigBuild.Engine.Storage
             set => _topLevel.Set(x, y, z, value);
         }
 
+        public IEnumerable<KeyValuePair<Vector3I, T>> EnumerateNonNull() => _topLevel.EnumerateNonNull();
+
         public IEnumerator<KeyValuePair<Vector3I, T>> GetEnumerator() => _topLevel.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -132,7 +134,51 @@ namespace DigBuild.Engine.Storage
 
                 return false;
             }
-            
+
+            public IEnumerable<KeyValuePair<Vector3I, T>> EnumerateNonNull()
+            {
+                if (_value == default)
+                    yield break;
+
+                var subdivided = _flags & 1;
+                var level = _flags >> 1;
+
+                if (subdivided == 0)
+                {
+                    var levelSize = 1 << level;
+                    for (var i = 0; i < levelSize; i++)
+                    for (var j = 0; j < levelSize; j++)
+                    for (var k = 0; k < levelSize; k++)
+                        yield return new KeyValuePair<Vector3I, T>(new Vector3I(i, j, k), (T) _value!);
+                }
+                else
+                {
+                    var nextLevel = level - 1;
+
+                    var children = (Level[,,]) _value!;
+
+                    for (var i = 0; i <= 1; i++)
+                    {
+                        var iOff = i << nextLevel;
+                        for (var j = 0; j <= 1; j++)
+                        {
+                            var jOff = j << nextLevel;
+                            for (var k = 0; k <= 1; k++)
+                            {
+                                var kOff = k << nextLevel;
+                                foreach (var ((x, y, z), value) in children[i, j, k].EnumerateNonNull())
+                                {
+                                    yield return new KeyValuePair<Vector3I, T>(
+                                        new Vector3I(iOff | x, jOff | y, kOff | z),
+                                        value
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             public IEnumerator<KeyValuePair<Vector3I, T>> GetEnumerator()
             {
                 var subdivided = _flags & 1;

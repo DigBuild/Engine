@@ -64,6 +64,15 @@ namespace DigBuild.Engine.Ui.Elements
                 child.Element.OnMouseEvent(context, button, action);
         }
 
+        public void OnScrollEvent(IUiElementContext context, double xOffset, double yOffset)
+        {
+            if (!Visible)
+                return;
+
+            foreach (var child in _children)
+                child.Element.OnScrollEvent(context, xOffset, yOffset);
+        }
+
         private sealed class UIElementData
         {
             internal readonly int X, Y;

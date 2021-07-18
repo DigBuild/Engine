@@ -14,6 +14,8 @@ namespace DigBuild.Engine.Ui
         void OnCursorMoved(IUiElementContext context, int x, int y) { }
 
         void OnMouseEvent(IUiElementContext context, uint button, MouseAction action) { }
+
+        void OnScrollEvent(IUiElementContext context, double xOffset, double yOffset) { }
     }
 
     public interface IUiElementContext

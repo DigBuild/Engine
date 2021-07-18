@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Engine.Registries;
+using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Platform.Resource;
 
@@ -11,8 +12,10 @@ namespace DigBuild.Engine.Items
         private readonly IReadOnlyDictionary<Type, GenericItemEventDelegate> _eventHandlers;
         private readonly IReadOnlyDictionary<IItemAttribute, GenericItemAttributeDelegate> _attributeSuppliers;
         private readonly IReadOnlyDictionary<IItemCapability, GenericItemCapabilityDelegate> _capabilitySuppliers;
-        private readonly Action<DataContainer> _dataInitializer;
-        private readonly Func<DataContainer, DataContainer, bool> _equalityTest;
+        private readonly Func<DataContainer?> _dataFactory;
+        private readonly Func<DataContainer?, DataContainer?, bool> _equalityTest;
+
+        internal ISerdes<DataContainer?> DataSerdes { get; }
 
         public ResourceName Name { get; }
 
@@ -21,15 +24,17 @@ namespace DigBuild.Engine.Items
             IReadOnlyDictionary<Type, GenericItemEventDelegate> eventHandlers,
             IReadOnlyDictionary<IItemAttribute, GenericItemAttributeDelegate> attributeSuppliers,
             IReadOnlyDictionary<IItemCapability, GenericItemCapabilityDelegate> capabilitySuppliers,
-            Action<DataContainer> dataInitializer,
-            Func<DataContainer, DataContainer, bool> equalityTest
+            Func<DataContainer?> dataFactory,
+            ISerdes<DataContainer?> dataSerdes,
+            Func<DataContainer?, DataContainer?, bool> equalityTest
         )
         {
             _eventHandlers = eventHandlers;
             _attributeSuppliers = attributeSuppliers;
             _capabilitySuppliers = capabilitySuppliers;
-            _dataInitializer = dataInitializer;
+            _dataFactory = dataFactory;
             _equalityTest = equalityTest;
+            DataSerdes = dataSerdes;
             Name = name;
         }
 
@@ -61,14 +66,12 @@ namespace DigBuild.Engine.Items
             return (TCap) supplier(instance);
         }
 
-        internal DataContainer CreateDataContainer()
+        internal DataContainer? CreateDataContainer()
         {
-            var container = new DataContainer();
-            _dataInitializer(container);
-            return container;
+            return _dataFactory();
         }
 
-        internal bool Equals(DataContainer first, DataContainer second)
+        internal bool Equals(DataContainer? first, DataContainer? second)
         {
             return _equalityTest(first, second);
         }

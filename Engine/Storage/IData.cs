@@ -1,4 +1,6 @@
-﻿namespace DigBuild.Engine.Storage
+﻿using System;
+
+namespace DigBuild.Engine.Storage
 {
     public interface IData
     {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DigBuild.Engine.Registries;
+using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Platform.Resource;
 
@@ -15,7 +16,10 @@ namespace DigBuild.Engine.Items
 
     public sealed class ItemBuilder
     {
+        private static readonly Func<DataContainer?> CreateNullData = () => null;
+
         private readonly List<IDataHandle> _dataHandles = new();
+        private readonly Dictionary<IDataHandle, (ResourceName Name, ISerdes<IData> Serdes)> _serializedDataHandles = new();
         private readonly Dictionary<Type, List<ItemEventDelegate>> _eventHandlers = new();
         private readonly Dictionary<IItemAttribute, List<ItemAttributeDelegate>> _attributeSuppliers = new();
         private readonly Dictionary<IItemCapability, List<ItemCapabilityDelegate>> _capabilitySuppliers = new();
@@ -27,6 +31,14 @@ namespace DigBuild.Engine.Items
         {
             var handle = new DataHandle<TData>(() => new TData());
             _dataHandles.Add(handle);
+            return handle;
+        }
+
+        public DataHandle<TData> Add<TData>(ResourceName name, ISerdes<TData> serdes)
+            where TData : class, IData<TData>, IChangeNotifier, new()
+        {
+            var handle = Add<TData>();
+            _serializedDataHandles.Add(handle, (name, serdes.UncheckedSuperCast<TData, IData>()));
             return handle;
         }
 
@@ -53,7 +65,7 @@ namespace DigBuild.Engine.Items
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this Item.", nameof(data));
 
-            var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => container.Get(data));
+            var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => container?.Get(data)!);
             behavior.Build(builder);
             Attach(builder, false);
             
@@ -68,7 +80,7 @@ namespace DigBuild.Engine.Items
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this Item.", nameof(data));
 
-            var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container.Get(data)));
+            var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container?.Get(data)!));
             behavior.Build(builder);
             Attach(builder, false);
             
@@ -89,7 +101,7 @@ namespace DigBuild.Engine.Items
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this Item.", nameof(data));
 
-            var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => container.Get(data));
+            var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => container?.Get(data)!);
             behavior.Build(builder);
             Attach(builder, true);
 
@@ -103,7 +115,7 @@ namespace DigBuild.Engine.Items
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this Item.", nameof(data));
 
-            var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container.Get(data)));
+            var builder = new ItemBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container?.Get(data)!));
             behavior.Build(builder);
             Attach(builder, true);
 
@@ -191,19 +203,29 @@ namespace DigBuild.Engine.Items
             }
             foreach (var capability in capabilityRegistry.Values)
                 capabilitySuppliers.TryAdd(capability, instance => capability.GenericDefaultValueDelegate(instance));
-
-            void InitializeData(DataContainer container)
+            
+            DataContainer CreateData()
             {
+                var container = new DataContainer();
                 foreach (var initializer in _dataInitializers)
                     initializer(container);
+                return container;
             }
 
-            bool TestEquals(DataContainer first, DataContainer second)
+            bool TestEquals(DataContainer? first, DataContainer? second)
             {
-                return _equalityChecks.All(check => check(first, second));
+                if (first == null)
+                    return second == null;
+                return second != null && _equalityChecks.All(check => check(first, second));
             }
 
-            return new Item(name, eventHandlers, attributeSuppliers, capabilitySuppliers, InitializeData, TestEquals);
+            return new Item(
+                name,
+                eventHandlers, attributeSuppliers, capabilitySuppliers,
+                _dataHandles.Count > 0 ? CreateData : CreateNullData,
+                new DataContainerSerdes(_serializedDataHandles),
+                TestEquals
+            );
         }
     }
 }

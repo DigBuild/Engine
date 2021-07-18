@@ -46,9 +46,9 @@ namespace DigBuild.Engine.Items
         Dictionary<IItemAttribute, List<ItemAttributeDelegate>> IItemBehaviorBuilder.AttributeSuppliers => _attributeSuppliers;
         Dictionary<IItemCapability, List<ItemCapabilityDelegate>> IItemBehaviorBuilder.CapabilitySuppliers => _capabilitySuppliers;
 
-        private readonly Func<DataContainer, TData> _dataGetter;
+        private readonly Func<DataContainer?, TData> _dataGetter;
 
-        internal ItemBehaviorBuilder(Func<DataContainer, TData> dataGetter)
+        internal ItemBehaviorBuilder(Func<DataContainer?, TData> dataGetter)
         {
             _dataGetter = dataGetter;
         }

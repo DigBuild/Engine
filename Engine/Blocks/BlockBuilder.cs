@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Engine.Registries;
+using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Platform.Resource;
 
@@ -14,9 +15,10 @@ namespace DigBuild.Engine.Blocks
 
     public sealed class BlockBuilder
     {
-        private static readonly Func<DataContainer> CreateNullData = () => null!;
-
+        private static readonly Func<DataContainer?> CreateNullData = () => null;
+        
         private readonly List<IDataHandle> _dataHandles = new();
+        private readonly Dictionary<IDataHandle, (ResourceName Name, ISerdes<IData> Serdes)> _serializedDataHandles = new();
         private readonly Dictionary<Type, List<BlockEventDelegate>> _eventHandlers = new();
         private readonly Dictionary<IBlockAttribute, List<BlockAttributeDelegate>> _attributeSuppliers = new();
         private readonly Dictionary<IBlockCapability, List<BlockCapabilityDelegate>> _capabilitySuppliers = new();
@@ -27,6 +29,14 @@ namespace DigBuild.Engine.Blocks
         {
             var handle = new DataHandle<TData>(() => new TData());
             _dataHandles.Add(handle);
+            return handle;
+        }
+
+        public DataHandle<TData> Add<TData>(ResourceName name, ISerdes<TData> serdes)
+            where TData : class, IData<TData>, IChangeNotifier, new()
+        {
+            var handle = Add<TData>();
+            _serializedDataHandles.Add(handle, (name, serdes.UncheckedSuperCast<TData, IData>()));
             return handle;
         }
 
@@ -53,7 +63,7 @@ namespace DigBuild.Engine.Blocks
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this block.", nameof(data));
 
-            var builder = new BlockBehaviorBuilder<TReadOnlyContract, TContract>(container => container.Get(data));
+            var builder = new BlockBehaviorBuilder<TReadOnlyContract, TContract>(container => container?.Get(data)!);
             behavior.Build(builder);
             Attach(builder, false);
             
@@ -67,7 +77,7 @@ namespace DigBuild.Engine.Blocks
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this block.", nameof(data));
 
-            var builder = new BlockBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container.Get(data)));
+            var builder = new BlockBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container?.Get(data)!));
             behavior.Build(builder);
             Attach(builder, false);
             
@@ -87,7 +97,7 @@ namespace DigBuild.Engine.Blocks
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this block.", nameof(data));
 
-            var builder = new BlockBehaviorBuilder<TReadOnlyContract, TContract>(container => container.Get(data));
+            var builder = new BlockBehaviorBuilder<TReadOnlyContract, TContract>(container => container?.Get(data)!);
             behavior.Build(builder);
             Attach(builder, true);
             
@@ -100,7 +110,7 @@ namespace DigBuild.Engine.Blocks
             if (!_dataHandles.Contains(data))
                 throw new ArgumentException("The specified data handle does not belong to this block.", nameof(data));
 
-            var builder = new BlockBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container.Get(data)));
+            var builder = new BlockBehaviorBuilder<TReadOnlyContract, TContract>(container => adapter(container?.Get(data)!));
             behavior.Build(builder);
             Attach(builder, true);
             
@@ -169,7 +179,7 @@ namespace DigBuild.Engine.Blocks
                 attributeSuppliers[attribute] = GetDelegate(0);
             }
             foreach (var attribute in attributeRegistry.Values)
-                attributeSuppliers.TryAdd(attribute, (context, container) => attribute.GenericDefaultValueDelegate(context));
+                attributeSuppliers.TryAdd(attribute, (context, _) => attribute.GenericDefaultValueDelegate(context));
 
             var capabilitySuppliers = new Dictionary<IBlockCapability, GenericBlockCapabilityDelegate>();
             foreach (var (capability, suppliers) in _capabilitySuppliers)
@@ -186,7 +196,7 @@ namespace DigBuild.Engine.Blocks
                 capabilitySuppliers[capability] = GetDelegate(0);
             }
             foreach (var capability in capabilityRegistry.Values)
-                capabilitySuppliers.TryAdd(capability, (context, container) => capability.GenericDefaultValueDelegate(context));
+                capabilitySuppliers.TryAdd(capability, (context, _) => capability.GenericDefaultValueDelegate(context));
             
             DataContainer CreateData()
             {
@@ -195,8 +205,13 @@ namespace DigBuild.Engine.Blocks
                     initializer(container);
                 return container;
             }
-
-            return new Block(name, eventHandlers, attributeSuppliers, capabilitySuppliers, _dataHandles.Count > 0 ? CreateData : CreateNullData);
+            
+            return new Block(
+                name,
+                eventHandlers, attributeSuppliers, capabilitySuppliers,
+                _dataHandles.Count > 0 ? CreateData : CreateNullData,
+                new DataContainerSerdes(_serializedDataHandles)
+            );
         }
     }
 }

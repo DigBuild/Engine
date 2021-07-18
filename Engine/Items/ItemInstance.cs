@@ -12,9 +12,9 @@ namespace DigBuild.Engine.Items
 
         public Item Type { get; }
         public ushort Count { get; set; }
-        internal DataContainer DataContainer { get; }
+        internal DataContainer? DataContainer { get; }
 
-        DataContainer IReadOnlyItemInstance.DataContainer => DataContainer;
+        DataContainer? IReadOnlyItemInstance.DataContainer => DataContainer;
 
         public ItemInstance(Item type, ushort count)
         {
@@ -23,7 +23,7 @@ namespace DigBuild.Engine.Items
             DataContainer = type?.CreateDataContainer()!;
         }
 
-        private ItemInstance(Item type, ushort count, DataContainer dataContainer)
+        private ItemInstance(Item type, ushort count, DataContainer? dataContainer)
         {
             Type = type;
             Count = count;
@@ -44,7 +44,7 @@ namespace DigBuild.Engine.Items
 
         public ItemInstance Copy()
         {
-            return new ItemInstance(Type, Count, DataContainer.Copy());
+            return new ItemInstance(Type, Count, DataContainer?.Copy());
         }
 
         public override string ToString()
@@ -63,7 +63,7 @@ namespace DigBuild.Engine.Items
                 
                 bw.Write(item.Type.Name.ToString());
 
-                DataContainer.Serdes.Serialize(stream, item.DataContainer);
+                item.Type.DataSerdes.Serialize(stream, item.DataContainer);
             },
             stream =>
             {
@@ -74,11 +74,11 @@ namespace DigBuild.Engine.Items
                     return Empty;
 
                 var itemName = ResourceName.Parse(br.ReadString())!.Value;
-                var item = BuiltInRegistries.Items.GetOrNull(itemName)!;
+                var type = BuiltInRegistries.Items.GetOrNull(itemName)!;
 
-                var data = DataContainer.Serdes.Deserialize(stream);
+                var data = type.DataSerdes.Deserialize(stream);
 
-                return new ItemInstance(item, count, data);
+                return new ItemInstance(type, count, data);
             }
         );
     }

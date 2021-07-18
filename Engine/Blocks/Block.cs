@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Registries;
+using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Platform.Resource;
 
@@ -13,7 +14,9 @@ namespace DigBuild.Engine.Blocks
         private readonly IReadOnlyDictionary<Type, GenericBlockEventDelegate> _eventHandlers;
         private readonly IReadOnlyDictionary<IBlockAttribute, GenericBlockAttributeDelegate> _attributeSuppliers;
         private readonly IReadOnlyDictionary<IBlockCapability, GenericBlockCapabilityDelegate> _capabilitySuppliers;
-        private readonly Func<DataContainer> _dataFactory;
+        private readonly Func<DataContainer?> _dataFactory;
+
+        internal ISerdes<DataContainer?> DataSerdes { get; }
 
         public ResourceName Name { get; }
 
@@ -22,13 +25,15 @@ namespace DigBuild.Engine.Blocks
             IReadOnlyDictionary<Type, GenericBlockEventDelegate> eventHandlers,
             IReadOnlyDictionary<IBlockAttribute, GenericBlockAttributeDelegate> attributeSuppliers,
             IReadOnlyDictionary<IBlockCapability, GenericBlockCapabilityDelegate> capabilitySuppliers,
-            Func<DataContainer> dataFactory
+            Func<DataContainer?> dataFactory,
+            ISerdes<DataContainer?> dataSerdes
         )
         {
             _eventHandlers = eventHandlers;
             _attributeSuppliers = attributeSuppliers;
             _capabilitySuppliers = capabilitySuppliers;
             _dataFactory = dataFactory;
+            DataSerdes = dataSerdes;
             Name = name;
         }
 
@@ -60,7 +65,7 @@ namespace DigBuild.Engine.Blocks
             return (TCap) supplier(context, GetDataContainer(context));
         }
 
-        internal DataContainer CreateDataContainer()
+        internal DataContainer? CreateDataContainer()
         {
             return _dataFactory();
         }

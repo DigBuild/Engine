@@ -9,10 +9,39 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Storage
 {
-    internal sealed class DataContainer
+    internal sealed class DataContainer : IChangeNotifier
     {
-        private readonly Dictionary<IDataHandle, IData> _data = new();
+        private readonly Dictionary<IDataHandle, IData> _data;
         private readonly LockStore<IDataHandle> _locks = new();
+
+        internal IReadOnlyDictionary<IDataHandle, IData> Entries => _data;
+
+        public event Action? Changed;
+        
+        public DataContainer()
+        {
+            _data = new Dictionary<IDataHandle, IData>();
+        }
+        
+        public DataContainer(IReadOnlyDictionary<IDataHandle, IData> entries, bool copy)
+        {
+            if (copy)
+            {
+                _data = new Dictionary<IDataHandle, IData>();
+                foreach (var (handle, data) in entries)
+                    _data[handle] = data.Copy();
+            }
+            else
+            {
+                _data = new Dictionary<IDataHandle, IData>(entries);
+            }
+
+            foreach (var data in entries.Values)
+                if (data is IChangeNotifier notifier)
+                    notifier.Changed += NotifyChange;
+        }
+
+        private void NotifyChange() => Changed?.Invoke();
 
         public T Get<T>(DataHandle<T> handle) where T : class, IData<T>
         {
@@ -22,21 +51,15 @@ namespace DigBuild.Engine.Storage
                 return (T) data;
             var t = handle.New();
             _data[handle] = t;
+            if (t is IChangeNotifier notifier)
+                notifier.Changed += NotifyChange;
             return t;
         }
 
         public DataContainer Copy()
         {
-            var copy = new DataContainer();
-            foreach (var (handle, data) in _data)
-                copy._data[handle] = data.Copy();
-            return copy;
+            return new DataContainer(_data, true);
         }
-
-        public static ISerdes<DataContainer> Serdes { get; } = new SimpleSerdes<DataContainer>(
-            (stream, container) => { },
-            stream => new DataContainer()
-        );
     }
 
     public sealed class DataContainer<TTarget> : IChangeNotifier

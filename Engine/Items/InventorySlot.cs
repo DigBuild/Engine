@@ -1,4 +1,5 @@
 ﻿using System;
+using DigBuild.Engine.Serialization;
 
 namespace DigBuild.Engine.Items
 {
@@ -48,5 +49,10 @@ namespace DigBuild.Engine.Items
         {
             return Item.ToString();
         }
+
+        public static ISerdes<InventorySlot> Serdes { get; } = new CompositeSerdes<InventorySlot>()
+        {
+            { 1u, slot => slot.Item, ItemInstance.Serdes }
+        };
     }
 }

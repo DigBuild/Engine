@@ -37,6 +37,11 @@ namespace DigBuild.Engine.Impl.Worlds
                 _blocks[i] = new Octree<Block?>(4, null);
         }
 
+        private void NotifyChange()
+        {
+            Changed?.Invoke();
+        }
+
         public Block? GetBlock(ChunkBlockPos pos) => _blocks[pos.Y >> 4][pos.X, pos.Y & 15, pos.Z];
         internal DataContainer? GetData(ChunkBlockPos pos) => _data.TryGetValue(pos, out var d) ? d : null;
         DataContainer? IReadOnlyChunkBlocks.GetData(ChunkBlockPos pos) => GetData(pos);
@@ -48,8 +53,16 @@ namespace DigBuild.Engine.Impl.Worlds
             _blocks[pos.Y >> 4][pos.X, pos.Y & 15, pos.Z] = block;
             var d = block?.CreateDataContainer();
             if (d != null)
+            {
+                _data.TryGetValue(pos, out var oldData);
                 _data[pos] = d;
-            Changed?.Invoke();
+
+                d.Changed += NotifyChange;
+                if (oldData != null)
+                    oldData.Changed -= NotifyChange;
+            }
+
+            NotifyChange();
         }
 
         public IEnumerable<KeyValuePair<ChunkBlockPos, Block>> EnumerateNonNull()
@@ -88,12 +101,14 @@ namespace DigBuild.Engine.Impl.Worlds
                 copy._blocks[i][x, y, z] = _blocks[i][x, y, z];
 
             foreach (var (pos, d) in _data)
-                copy._data[pos] = d.Copy();
+            {
+                var newData = copy._data[pos] = d.Copy();
+                newData.Changed += copy.NotifyChange;
+            }
 
             return copy;
         }
-
-        private static readonly ISerdes<DataContainer?> NullableDataContainerSerdes = new NullableSerdes<DataContainer>(DataContainer.Serdes);
+        
         public static ISerdes<ChunkBlocks> Serdes { get; } = new SimpleSerdes<ChunkBlocks>(
             (stream, blocks) =>
             {
@@ -113,7 +128,8 @@ namespace DigBuild.Engine.Impl.Worlds
                     bw.Write(block.Name.ToString());
 
                     blocks._data.TryGetValue(new ChunkBlockPos(x, y, z), out var data);
-                    NullableDataContainerSerdes.Serialize(stream, data);
+                    
+                    block.DataSerdes.Serialize(stream, data);
                 }
             },
             stream =>
@@ -134,9 +150,12 @@ namespace DigBuild.Engine.Impl.Worlds
                     var block = BuiltInRegistries.Blocks.GetOrNull(name.Value)!;
                     blocks._blocks[i][x, y, z] = block;
                     
-                    var data = NullableDataContainerSerdes.Deserialize(stream);
+                    var data = block.DataSerdes.Deserialize(stream);
                     if (data != null)
+                    {
                         blocks._data[new ChunkBlockPos(x, y, z)] = data;
+                        data.Changed += blocks.NotifyChange;
+                    }
                 }
 
                 return blocks;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace DigBuild.Engine.Serialization
@@ -22,6 +23,31 @@ namespace DigBuild.Engine.Serialization
         public T Deserialize(Stream stream)
         {
             return _deserialize(stream);
+        }
+    }
+
+    public static class SimpleSerdes
+    {
+        public static ISerdes<List<T>> OfList<T>(ISerdes<T> serdes)
+        {
+            return new SimpleSerdes<List<T>>(
+                (stream, list) =>
+                {
+                    var bw = new BinaryWriter(stream);
+                    bw.Write(list.Count);
+                    foreach (var entry in list)
+                        serdes.Serialize(stream, entry);
+                },
+                stream =>
+                {
+                    var br = new BinaryReader(stream);
+                    var count = br.ReadInt32();
+                    var list = new List<T>();
+                    for (var i = 0; i < count; i++)
+                        list.Add(serdes.Deserialize(stream));
+                    return list;
+                }
+            );
         }
     }
 }

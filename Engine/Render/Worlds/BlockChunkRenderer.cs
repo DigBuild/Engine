@@ -55,7 +55,7 @@ namespace DigBuild.Engine.Render.Worlds
             _lightingStorage.Changed -= OnChanged;
         }
 
-        private void OnChanged()
+        public void OnChanged()
         {
             _updated = true;
         }

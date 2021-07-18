@@ -49,9 +49,10 @@ namespace DigBuild.Engine.Impl.Worlds
         }
 
         public abstract void OnBlockChanged(BlockPos pos);
-
         public abstract void OnEntityAdded(EntityInstance entity);
-
         public abstract void OnEntityRemoving(EntityInstance entity);
+
+        public abstract void MarkChunkForReRender(ChunkPos pos);
+        public abstract void MarkBlockForReRender(BlockPos pos);
     }
 }

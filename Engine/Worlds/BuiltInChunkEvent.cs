@@ -1,15 +1,14 @@
 ﻿using DigBuild.Engine.Events;
-using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Worlds
 {
-    public abstract class ChunkEvent : IEvent
+    public abstract class BuiltInChunkEvent : IEvent
     {
-        private ChunkEvent()
+        private BuiltInChunkEvent()
         {
         }
 
-        public sealed class Loaded : ChunkEvent
+        public sealed class Loaded : BuiltInChunkEvent
         {
             public IWorld World { get; }
             public IChunk Chunk { get; }
@@ -21,7 +20,7 @@ namespace DigBuild.Engine.Worlds
             }
         }
 
-        public sealed class Unloaded : ChunkEvent
+        public sealed class Unloaded : BuiltInChunkEvent
         {
             public IWorld World { get; }
             public IChunk Chunk { get; }

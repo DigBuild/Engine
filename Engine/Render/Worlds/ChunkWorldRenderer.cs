@@ -40,14 +40,14 @@ namespace DigBuild.Engine.Render.Worlds
             _eventBus = eventBus;
             _chunkRendererFactory = chunkRendererFactory;
             
-            _eventBus.Subscribe<ChunkEvent.Loaded>(OnChunkLoaded);
-            _eventBus.Subscribe<ChunkEvent.Unloaded>(OnChunkUnloaded);
+            _eventBus.Subscribe<BuiltInChunkEvent.Loaded>(OnChunkLoaded);
+            _eventBus.Subscribe<BuiltInChunkEvent.Unloaded>(OnChunkUnloaded);
         }
 
         public void Dispose()
         {
-            _eventBus.Unsubscribe<ChunkEvent.Loaded>(OnChunkLoaded);
-            _eventBus.Unsubscribe<ChunkEvent.Unloaded>(OnChunkUnloaded);
+            _eventBus.Unsubscribe<BuiltInChunkEvent.Loaded>(OnChunkLoaded);
+            _eventBus.Unsubscribe<BuiltInChunkEvent.Unloaded>(OnChunkUnloaded);
 
             foreach (var data in _chunkRenderData.Values)
                 data.Dispose();
@@ -56,7 +56,7 @@ namespace DigBuild.Engine.Render.Worlds
             _renderedChunkUniforms.Clear();
         }
 
-        private void OnChunkLoaded(ChunkEvent.Loaded evt)
+        private void OnChunkLoaded(BuiltInChunkEvent.Loaded evt)
         {
             lock (_loadedChunks)
             {
@@ -64,7 +64,7 @@ namespace DigBuild.Engine.Render.Worlds
             }
         }
 
-        private void OnChunkUnloaded(ChunkEvent.Unloaded evt)
+        private void OnChunkUnloaded(BuiltInChunkEvent.Unloaded evt)
         {
             lock (_unloadedChunks)
             {

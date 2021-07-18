@@ -180,7 +180,7 @@ namespace DigBuild.Engine.Impl.Worlds
             return world.GetChunk(pos.ChunkPos)?.GetBlock(pos.SubChunkPos);
         }
 
-        public static bool SetBlock(this IWorld world, BlockPos pos, Block? block, bool notifyLeave = true, bool notifyJoin = true)
+        public static bool SetBlock(this IWorld world, BlockPos pos, Block? block, bool notifyLeave = true, bool notifyJoin = true, bool reRender = true)
         {
             var storage = world.GetChunk(pos.ChunkPos)?.Get(ChunkBlocks.Type);
             if (storage == null)
@@ -200,6 +200,8 @@ namespace DigBuild.Engine.Impl.Worlds
             }
 
             world.OnBlockChanged(pos);
+            if (reRender)
+                world.MarkBlockForReRender(pos);
             return true;
         }
     }

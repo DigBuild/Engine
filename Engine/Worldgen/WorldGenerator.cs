@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using DigBuild.Engine.Collections;
-using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Ticking;
+using DigBuild.Engine.Worlds.Impl;
 
 namespace DigBuild.Engine.Worldgen
 {

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using DigBuild.Engine.Blocks;
-using DigBuild.Engine.Impl.Worlds;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Render.Models;
 using DigBuild.Engine.Worlds;
+using DigBuild.Engine.Worlds.Impl;
 using DigBuild.Platform.Render;
 using DigBuild.Platform.Util;
 

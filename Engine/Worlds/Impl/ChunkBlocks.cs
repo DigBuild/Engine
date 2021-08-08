@@ -131,7 +131,7 @@ namespace DigBuild.Engine.Worlds.Impl
                     block.DataSerdes.Serialize(stream, data);
                 }
             },
-            stream =>
+            (stream, context) =>
             {
                 var br = new BinaryReader(stream);
 
@@ -149,7 +149,7 @@ namespace DigBuild.Engine.Worlds.Impl
                     var block = BuiltInRegistries.Blocks.GetOrNull(name.Value)!;
                     blocks._blocks[i][x, y, z] = block;
                     
-                    var data = block.DataSerdes.Deserialize(stream);
+                    var data = block.DataSerdes.Deserialize(stream, context);
                     if (data != null)
                     {
                         blocks._data[new ChunkBlockPos(x, y, z)] = data;

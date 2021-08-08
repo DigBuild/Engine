@@ -14,9 +14,9 @@ namespace DigBuild.Engine.Serialization
         {
         }
 
-        public T Deserialize(Stream stream)
+        public T Deserialize(Stream stream, IDeserializationContext context)
         {
-            return new();
+            return new T();
         }
     }
 }

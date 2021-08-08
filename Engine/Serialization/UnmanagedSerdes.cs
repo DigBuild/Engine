@@ -16,7 +16,7 @@ namespace DigBuild.Engine.Serialization
                 stream.Write(MemoryMarshal.AsBytes(span));
             }
 
-            public T Deserialize(Stream stream)
+            public T Deserialize(Stream stream, IDeserializationContext context)
             {
                 var obj = default(T);
                 var span = MemoryMarshal.CreateSpan(ref obj, 1);
@@ -34,10 +34,10 @@ namespace DigBuild.Engine.Serialization
                     NotNull.Serialize(stream, obj.Value);
             }
 
-            public T? Deserialize(Stream stream)
+            public T? Deserialize(Stream stream, IDeserializationContext context)
             {
                 if (stream.ReadByte() > 0)
-                    return NotNull.Deserialize(stream);
+                    return NotNull.Deserialize(stream, context);
                 return null;
             }
         }

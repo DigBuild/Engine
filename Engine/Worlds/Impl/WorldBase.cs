@@ -24,7 +24,7 @@ namespace DigBuild.Engine.Worlds.Impl
         protected WorldBase(
             ITickSource tickSource,
             IChunkProvider chunkProvider,
-            Func<RegionPos, IRegionStorage> storageProvider,
+            Func<IWorld, RegionPos, IRegionStorage> storageProvider,
             EventBus eventBus
         )
         {

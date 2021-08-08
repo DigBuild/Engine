@@ -18,10 +18,10 @@ namespace DigBuild.Engine.Serialization
                 _serdes.Serialize(stream, obj);
         }
 
-        public T? Deserialize(Stream stream)
+        public T? Deserialize(Stream stream, IDeserializationContext context)
         {
             if (stream.ReadByte() > 0)
-                return _serdes.Deserialize(stream);
+                return _serdes.Deserialize(stream, context);
             return null;
         }
     }

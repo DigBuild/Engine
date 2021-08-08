@@ -15,7 +15,7 @@ namespace DigBuild.Engine.Serialization
         {
             return new SimpleSerdes<T2>(
                 (stream, obj) => serdes.Serialize(stream, (T) obj),
-                stream => serdes.Deserialize(stream)
+                (stream, ctx) => serdes.Deserialize(stream, ctx)
             );
         }
     }

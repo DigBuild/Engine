@@ -18,7 +18,7 @@ namespace DigBuild.Engine.Worlds.Impl
 
         private readonly IWorld _world;
         private readonly IChunkProvider _chunkProvider;
-        private readonly Func<RegionPos, IRegionStorage> _storageProvider;
+        private readonly Func<IWorld, RegionPos, IRegionStorage> _storageProvider;
         private readonly ITickSource _tickSource;
         private readonly EventBus _eventBus;
 
@@ -27,7 +27,7 @@ namespace DigBuild.Engine.Worlds.Impl
         public RegionManager(
             IWorld world,
             IChunkProvider chunkProvider,
-            Func<RegionPos, IRegionStorage> storageProvider,
+            Func<IWorld, RegionPos, IRegionStorage> storageProvider,
             ITickSource tickSource,
             EventBus eventBus
         )
@@ -68,7 +68,7 @@ namespace DigBuild.Engine.Worlds.Impl
                     return true;
             }
 
-            region = new Region(pos, _storageProvider(pos), _chunkProvider, _tickSource);
+            region = new Region(pos, _storageProvider(_world, pos), _chunkProvider, _tickSource);
             region.ChunkLoaded += chunk => _eventBus.Post(new BuiltInChunkEvent.Loaded(_world, chunk));
             region.ChunkUnloaded += chunk => _eventBus.Post(new BuiltInChunkEvent.Unloaded(_world, chunk));
             lock (_regions)

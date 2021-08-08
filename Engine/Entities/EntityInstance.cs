@@ -11,15 +11,25 @@ namespace DigBuild.Engine.Entities
         IReadOnlyWorld IReadOnlyEntityInstance.World => World;
         public Guid Id { get; }
         public Entity Type { get; }
-        internal DataContainer DataContainer { get; }
-        DataContainer IReadOnlyEntityInstance.DataContainer => DataContainer;
+        internal DataContainer? DataContainer { get; }
+        DataContainer? IReadOnlyEntityInstance.DataContainer => DataContainer;
 
-        public EntityInstance(IWorld world, Guid id, Entity type)
+        public EntityInstance(IWorld world, Guid id, Entity type) :
+            this(world, id, type, type.CreateDataContainer())
+        {
+        }
+
+        internal EntityInstance(IWorld world, Guid id, Entity type, DataContainer? dataContainer)
         {
             Type = type;
             Id = id;
             World = world;
-            DataContainer = type.CreateDataContainer();
+            DataContainer = dataContainer;
+        }
+
+        public EntityInstance Copy()
+        {
+            return new EntityInstance(World, Id, Type, DataContainer?.Copy());
         }
 
         public TAttrib Get<TAttrib>(EntityAttribute<TAttrib> attribute) => Type.Get(this, attribute);

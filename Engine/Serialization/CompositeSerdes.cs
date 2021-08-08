@@ -37,7 +37,7 @@ namespace DigBuild.Engine.Serialization
             }
         }
 
-        public T Deserialize(Stream stream)
+        public T Deserialize(Stream stream, IDeserializationContext context)
         {
             var obj = new T();
 
@@ -46,7 +46,7 @@ namespace DigBuild.Engine.Serialization
             for (var i = 0u; i < members; i++)
             {
                 var member = reader.ReadUInt32();
-                _deserializers[member].Deserialize(obj, stream);
+                _deserializers[member].Deserialize(obj, stream, context);
             }
 
             return obj;
@@ -63,7 +63,7 @@ namespace DigBuild.Engine.Serialization
 
         private interface IMemberDeserializer
         {
-            void Deserialize(T target, Stream stream);
+            void Deserialize(T target, Stream stream, IDeserializationContext context);
         }
 
         private sealed class MemberSerializer<TVal> : IMemberSerializer
@@ -115,9 +115,9 @@ namespace DigBuild.Engine.Serialization
                 _serdes = serdes;
             }
 
-            public void Deserialize(T target, Stream stream)
+            public void Deserialize(T target, Stream stream, IDeserializationContext context)
             {
-                _setter(target, _serdes.Deserialize(stream));
+                _setter(target, _serdes.Deserialize(stream, context));
             }
         }
     }

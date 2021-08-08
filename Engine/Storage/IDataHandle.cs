@@ -12,7 +12,7 @@ namespace DigBuild.Engine.Storage
 
         internal void Serialize(Stream stream, IData obj);
 
-        internal IData Deserialize(Stream stream);
+        internal IData Deserialize(Stream stream, IDeserializationContext context);
     }
     public interface IDataHandle<TTarget> : IDataHandle
     {
@@ -45,9 +45,9 @@ namespace DigBuild.Engine.Storage
             _serdes!.Serialize(stream, (T) obj);
         }
 
-        IData IDataHandle.Deserialize(Stream stream)
+        IData IDataHandle.Deserialize(Stream stream, IDeserializationContext context)
         {
-            return _serdes!.Deserialize(stream);
+            return _serdes!.Deserialize(stream, context);
         }
     }
 
@@ -73,9 +73,9 @@ namespace DigBuild.Engine.Storage
             _serdes!.Serialize(stream, (T) obj);
         }
 
-        IData IDataHandle.Deserialize(Stream stream)
+        IData IDataHandle.Deserialize(Stream stream, IDeserializationContext context)
         {
-            return _serdes!.Deserialize(stream);
+            return _serdes!.Deserialize(stream, context);
         }
     }
  

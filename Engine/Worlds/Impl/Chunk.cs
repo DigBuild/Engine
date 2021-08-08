@@ -37,10 +37,10 @@ namespace DigBuild.Engine.Worlds.Impl
                 UnmanagedSerdes<ChunkPos>.NotNull.Serialize(stream, chunk.Position);
                 DataContainer<IChunk>.Serdes.Serialize(stream, chunk._data);
             },
-            stream =>
+            (stream, context) =>
             {
-                var pos = UnmanagedSerdes<ChunkPos>.NotNull.Deserialize(stream);
-                var data = DataContainer<IChunk>.Serdes.Deserialize(stream);
+                var pos = UnmanagedSerdes<ChunkPos>.NotNull.Deserialize(stream, context);
+                var data = DataContainer<IChunk>.Serdes.Deserialize(stream, context);
                 return new Chunk(pos, data);
             }
         );

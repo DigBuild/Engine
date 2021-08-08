@@ -1,4 +1,5 @@
 ﻿using DigBuild.Engine.Blocks;
+using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Storage;
@@ -17,5 +18,7 @@ namespace DigBuild.Engine.BuiltIn
         public static Registry<IBlockCapability> BlockCapabilities { get; set; } = null!;
 
         public static Registry<Item> Items { get; set; } = null!;
+
+        public static Registry<Entity> Entities { get; set; } = null!;
     }
 }

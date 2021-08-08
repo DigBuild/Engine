@@ -7,9 +7,9 @@ namespace DigBuild.Engine.Serialization
     public sealed class SimpleSerdes<T> : ISerdes<T>
     {
         private readonly Action<Stream, T> _serialize;
-        private readonly Func<Stream, T> _deserialize;
+        private readonly Func<Stream, IDeserializationContext, T> _deserialize;
 
-        public SimpleSerdes(Action<Stream, T> serialize, Func<Stream, T> deserialize)
+        public SimpleSerdes(Action<Stream, T> serialize, Func<Stream, IDeserializationContext, T> deserialize)
         {
             _serialize = serialize;
             _deserialize = deserialize;
@@ -20,9 +20,9 @@ namespace DigBuild.Engine.Serialization
             _serialize(stream, obj);
         }
 
-        public T Deserialize(Stream stream)
+        public T Deserialize(Stream stream, IDeserializationContext context)
         {
-            return _deserialize(stream);
+            return _deserialize(stream, context);
         }
     }
 
@@ -38,13 +38,13 @@ namespace DigBuild.Engine.Serialization
                     foreach (var entry in list)
                         serdes.Serialize(stream, entry);
                 },
-                stream =>
+                (stream, ctx) =>
                 {
                     var br = new BinaryReader(stream);
                     var count = br.ReadInt32();
                     var list = new List<T>();
                     for (var i = 0; i < count; i++)
-                        list.Add(serdes.Deserialize(stream));
+                        list.Add(serdes.Deserialize(stream, ctx));
                     return list;
                 }
             );

@@ -112,7 +112,7 @@ namespace DigBuild.Engine.Storage
                     key.Serialize(stream, value);
                 }
             },
-            stream =>
+            (stream, context) =>
             {
                 var br = new BinaryReader(stream);
                 var count = br.ReadInt32();
@@ -123,7 +123,7 @@ namespace DigBuild.Engine.Storage
                 {
                     var name = ResourceName.Parse(br.ReadString())!;
                     var handle = Registry.GetOrNull(name.Value)!;
-                    var data = handle.Deserialize(stream);
+                    var data = handle.Deserialize(stream, context);
                     container._data[handle] = data;
                     ((IChangeNotifier) data).Changed += container.OnChange;
                 }

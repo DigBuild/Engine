@@ -25,15 +25,15 @@ namespace DigBuild.Engine.Serialization
             }
         }
 
-        public Dictionary<TK, TV> Deserialize(Stream stream)
+        public Dictionary<TK, TV> Deserialize(Stream stream, IDeserializationContext context)
         {
             var br = new BinaryReader(stream);
             var count = br.ReadInt32();
             var dictionary = new Dictionary<TK, TV>(count);
             for (var i = 0; i < count; i++)
             {
-                var key = _keySerdes.Deserialize(stream);
-                var value = _valueSerdes.Deserialize(stream);
+                var key = _keySerdes.Deserialize(stream, context);
+                var value = _valueSerdes.Deserialize(stream, context);
                 dictionary[key] = value;
             }
             return dictionary;

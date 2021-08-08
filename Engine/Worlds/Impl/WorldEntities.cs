@@ -27,12 +27,12 @@ namespace DigBuild.Engine.Worlds.Impl
 
         public event Action? Changed;
 
-        public EntityInstance Add(IWorld world, Entity type) // TODO: NOT THIS
+        public EntityInstance Add(IWorld world, Entity type)
         {
             return Add(world, type, Guid.NewGuid());
         }
 
-        public EntityInstance Add(IWorld world, Entity type, Guid guid) // TODO: NOT THIS
+        public EntityInstance Add(IWorld world, Entity type, Guid guid)
         {
             var entity = new EntityInstance(world, guid, type);
             _entities.Add(guid, entity);
@@ -74,10 +74,7 @@ namespace DigBuild.Engine.Worlds.Impl
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public static ISerdes<WorldEntities> Serdes { get; } = new SimpleSerdes<WorldEntities>(
-            (stream, entities) => { },
-            stream => new WorldEntities()
-        );
+        public static ISerdes<WorldEntities> Serdes { get; } = EmptySerdes<WorldEntities>.Instance;
     }
 
     public static class WorldEntitiesExtensions

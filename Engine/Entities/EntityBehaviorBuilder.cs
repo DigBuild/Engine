@@ -46,9 +46,9 @@ namespace DigBuild.Engine.Entities
         Dictionary<IEntityAttribute, List<EntityAttributeDelegate>> IEntityBehaviorBuilder.AttributeSuppliers => _attributeSuppliers;
         Dictionary<IEntityCapability, List<EntityCapabilityDelegate>> IEntityBehaviorBuilder.CapabilitySuppliers => _capabilitySuppliers;
 
-        private readonly Func<DataContainer, TData> _dataGetter;
+        private readonly Func<DataContainer?, TData> _dataGetter;
 
-        internal EntityBehaviorBuilder(Func<DataContainer, TData> dataGetter)
+        internal EntityBehaviorBuilder(Func<DataContainer?, TData> dataGetter)
         {
             _dataGetter = dataGetter;
         }

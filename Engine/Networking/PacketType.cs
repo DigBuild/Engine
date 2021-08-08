@@ -29,7 +29,7 @@ namespace DigBuild.Engine.Networking
 
         public IPacket Deserialize(Stream stream)
         {
-            return Serdes.Deserialize(stream);
+            return Serdes.Deserialize(stream, new SimpleDeserializationContext());
         }
     }
 }

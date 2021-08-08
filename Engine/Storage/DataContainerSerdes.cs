@@ -42,7 +42,7 @@ namespace DigBuild.Engine.Storage
             }
         }
 
-        public DataContainer? Deserialize(Stream stream)
+        public DataContainer? Deserialize(Stream stream, IDeserializationContext context)
         {
             var br = new BinaryReader(stream);
 
@@ -59,7 +59,7 @@ namespace DigBuild.Engine.Storage
                 if (!_serializedNames.TryGetValue(name, out var entry))
                     throw new Exception($"Could not find data handle with name: {name}");
 
-                var data = entry.Serdes.Deserialize(stream);
+                var data = entry.Serdes.Deserialize(stream, context);
                 entries.Add(entry.Handle, data);
             }
 

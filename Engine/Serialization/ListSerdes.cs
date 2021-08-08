@@ -20,13 +20,13 @@ namespace DigBuild.Engine.Serialization
                 _serdes.Serialize(stream, element);
         }
 
-        public List<T> Deserialize(Stream stream)
+        public List<T> Deserialize(Stream stream, IDeserializationContext context)
         {
             var br = new BinaryReader(stream);
             var count = br.ReadInt32();
             var list = new List<T>(count);
             for (var i = 0; i < count; i++)
-                list.Add(_serdes.Deserialize(stream));
+                list.Add(_serdes.Deserialize(stream, context));
             return list;
         }
     }

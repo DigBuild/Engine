@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DigBuild.Engine.Registries;
+using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
 using DigBuild.Platform.Resource;
 
@@ -11,7 +12,9 @@ namespace DigBuild.Engine.Entities
         private readonly IReadOnlyDictionary<Type, GenericEntityEventDelegate> _eventHandlers;
         private readonly IReadOnlyDictionary<IEntityAttribute, GenericEntityAttributeDelegate> _attributeSuppliers;
         private readonly IReadOnlyDictionary<IEntityCapability, GenericEntityCapabilityDelegate> _capabilitySuppliers;
-        private readonly Action<DataContainer> _dataInitializer;
+        private readonly Func<DataContainer?> _dataFactory;
+
+        internal ISerdes<DataContainer?> DataSerdes { get; }
 
         public ResourceName Name { get; }
 
@@ -20,13 +23,15 @@ namespace DigBuild.Engine.Entities
             IReadOnlyDictionary<Type, GenericEntityEventDelegate> eventHandlers,
             IReadOnlyDictionary<IEntityAttribute, GenericEntityAttributeDelegate> attributeSuppliers,
             IReadOnlyDictionary<IEntityCapability, GenericEntityCapabilityDelegate> capabilitySuppliers,
-            Action<DataContainer> dataInitializer
+            Func<DataContainer?> dataFactory,
+            ISerdes<DataContainer?> dataSerdes
         )
         {
             _eventHandlers = eventHandlers;
             _attributeSuppliers = attributeSuppliers;
             _capabilitySuppliers = capabilitySuppliers;
-            _dataInitializer = dataInitializer;
+            _dataFactory = dataFactory;
+            DataSerdes = dataSerdes;
             Name = name;
         }
 
@@ -58,11 +63,9 @@ namespace DigBuild.Engine.Entities
             return (TCap) supplier(instance);
         }
 
-        internal DataContainer CreateDataContainer()
+        internal DataContainer? CreateDataContainer()
         {
-            var container = new DataContainer();
-            _dataInitializer(container);
-            return container;
+            return _dataFactory();
         }
 
         public override string ToString()

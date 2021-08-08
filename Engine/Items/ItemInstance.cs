@@ -16,11 +16,9 @@ namespace DigBuild.Engine.Items
 
         DataContainer? IReadOnlyItemInstance.DataContainer => DataContainer;
 
-        public ItemInstance(Item type, ushort count)
+        public ItemInstance(Item type, ushort count) :
+            this(type, count, type?.CreateDataContainer())
         {
-            Type = type;
-            Count = count;
-            DataContainer = type?.CreateDataContainer()!;
         }
 
         private ItemInstance(Item type, ushort count, DataContainer? dataContainer)
@@ -65,7 +63,7 @@ namespace DigBuild.Engine.Items
 
                 item.Type.DataSerdes.Serialize(stream, item.DataContainer);
             },
-            stream =>
+            (stream, context) =>
             {
                 var br = new BinaryReader(stream);
 
@@ -76,7 +74,7 @@ namespace DigBuild.Engine.Items
                 var itemName = ResourceName.Parse(br.ReadString())!.Value;
                 var type = BuiltInRegistries.Items.GetOrNull(itemName)!;
 
-                var data = type.DataSerdes.Deserialize(stream);
+                var data = type.DataSerdes.Deserialize(stream, context);
 
                 return new ItemInstance(type, count, data);
             }

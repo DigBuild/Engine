@@ -5,16 +5,16 @@ namespace DigBuild.Engine.Serialization
 {
     public sealed class SimpleDeserializer<T> : IDeserializer<T>
     {
-        private readonly Func<Stream, T> _deserialize;
+        private readonly Func<Stream, IDeserializationContext, T> _deserialize;
 
-        public SimpleDeserializer(Func<Stream, T> deserialize)
+        public SimpleDeserializer(Func<Stream, IDeserializationContext, T> deserialize)
         {
             _deserialize = deserialize;
         }
         
-        public T Deserialize(Stream stream)
+        public T Deserialize(Stream stream, IDeserializationContext context)
         {
-            return _deserialize(stream);
+            return _deserialize(stream, context);
         }
     }
 }

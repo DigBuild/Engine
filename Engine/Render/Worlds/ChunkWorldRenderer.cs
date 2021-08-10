@@ -185,7 +185,7 @@ namespace DigBuild.Engine.Render.Worlds
                 Position = chunk.Position;
                 _renderers = renderers;
                 var min = Position.GetOrigin();
-                var max = min + Vector3.One * 16;
+                var max = min + new Vector3(WorldDimensions.ChunkSize, WorldDimensions.ChunkHeight, WorldDimensions.ChunkSize);
                 Bounds = new AABB(min, max);
             }
 

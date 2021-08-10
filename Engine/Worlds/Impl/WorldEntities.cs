@@ -27,19 +27,12 @@ namespace DigBuild.Engine.Worlds.Impl
 
         public event Action? Changed;
 
-        public EntityInstance Add(IWorld world, Entity type)
+        public void Track(EntityInstance entity)
         {
-            return Add(world, type, Guid.NewGuid());
+            _entities.TryAdd(entity.Id, entity);
         }
 
-        public EntityInstance Add(IWorld world, Entity type, Guid guid)
-        {
-            var entity = new EntityInstance(world, guid, type);
-            _entities.Add(guid, entity);
-            return entity;
-        }
-
-        public void Remove(Guid guid)
+        public void Untrack(Guid guid)
         {
             _entities.Remove(guid);
         }
@@ -74,6 +67,32 @@ namespace DigBuild.Engine.Worlds.Impl
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        public static void OnChunkLoaded(BuiltInChunkEvent.Loaded evt)
+        {
+            var worldEntities = evt.World.Get(Type);
+            var chunkEntities = evt.Chunk.Get(ChunkEntities.Type);
+
+            foreach (var entity in chunkEntities.Entities)
+            {
+                entity.Type.OnJoinedWorld(entity);
+                entity.World.OnEntityAdded(entity);
+                worldEntities.Track(entity);
+            }
+        }
+
+        public static void OnChunkUnloaded(BuiltInChunkEvent.Unloaded evt)
+        {
+            var worldEntities = evt.World.Get(Type);
+            var chunkEntities = evt.Chunk.Get(ChunkEntities.Type);
+
+            foreach (var entity in chunkEntities.Entities)
+            {
+                entity.Type.OnLeavingWorld(entity);
+                entity.World.OnEntityRemoving(entity);
+                worldEntities.Untrack(entity.Id);
+            }
+        }
+
         public static ISerdes<WorldEntities> Serdes { get; } = EmptySerdes<WorldEntities>.Instance;
     }
 
@@ -95,15 +114,13 @@ namespace DigBuild.Engine.Worlds.Impl
         
         public static EntityInstance AddEntity(this IWorld world, Entity type)
         {
-            var entity = world.Get(WorldEntities.Type).Add(world, type);
-            world.OnEntityAdded(entity);
-            type.OnJoinedWorld(entity);
-            return entity;
+            return AddEntity(world, type, Guid.NewGuid());
         }
         
         public static EntityInstance AddEntity(this IWorld world, Entity type, Guid guid)
         {
-            var entity = world.Get(WorldEntities.Type).Add(world, type, guid);
+            var entity = new EntityInstance(world, guid, type);
+            world.Get(WorldEntities.Type).Track(entity);
             world.OnEntityAdded(entity);
             type.OnJoinedWorld(entity);
             return entity;
@@ -117,7 +134,7 @@ namespace DigBuild.Engine.Worlds.Impl
                 return;
             entity.Type.OnLeavingWorld(entity);
             world.OnEntityRemoving(entity);
-            storage.Remove(guid);
+            storage.Untrack(guid);
         }
     }
 }

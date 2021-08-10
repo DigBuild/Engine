@@ -1,13 +1,11 @@
-﻿using System;
+﻿using DigBuild.Engine.Storage;
 
 namespace DigBuild.Engine.Items
 {
-    public interface IInventorySlot : IReadOnlyInventorySlot
+    public interface IInventorySlot : IReadOnlyInventorySlot, IChangeNotifier
     {
         new ItemInstance Item { get; }
         IReadOnlyItemInstance IReadOnlyInventorySlot.Item => Item;
-
-        event Action Changed;
 
         bool TrySetItem(ItemInstance value, bool doSet = true);
     }

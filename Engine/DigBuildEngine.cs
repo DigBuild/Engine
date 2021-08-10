@@ -3,7 +3,6 @@ using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
-using DigBuild.Engine.Render;
 using DigBuild.Engine.Render.Models;
 using DigBuild.Engine.Storage;
 using DigBuild.Engine.Worlds;
@@ -27,6 +26,9 @@ namespace DigBuild.Engine
         {
             ChunkBlocks.Type = registry.Create<IChunk, IReadOnlyChunkBlocks, ChunkBlocks>(
                 new ResourceName(Domain, "blocks"), ChunkBlocks.Serdes
+            );
+            ChunkEntities.Type = registry.Create<IChunk, IReadOnlyChunkEntities, ChunkEntities>(
+                new ResourceName(Domain, "entities"), ChunkEntities.Serdes
             );
         }
 

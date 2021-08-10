@@ -17,7 +17,7 @@ namespace DigBuild.Engine.Serialization
         public void Add<T>(T value)
             where T : notnull
         {
-            _dictionary[value.GetType()] = value;
+            _dictionary[typeof(T)] = value;
         }
 
         public T Get<T>()

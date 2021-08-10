@@ -13,6 +13,12 @@ namespace DigBuild.Engine.Serialization
             Comparer<IMemberSerializer>.Create((a, b) => a.Index.CompareTo(b.Index))
         );
         private readonly Dictionary<uint, IMemberDeserializer> _deserializers = new();
+        private readonly Action<T>? _primer;
+
+        public CompositeSerdes(Action<T>? primer = null)
+        {
+            _primer = primer;
+        }
 
         public void Add<TVal>(uint index, Expression<Func<T, TVal>> member, ISerdes<TVal> serdes)
         {
@@ -48,6 +54,8 @@ namespace DigBuild.Engine.Serialization
                 var member = reader.ReadUInt32();
                 _deserializers[member].Deserialize(obj, stream, context);
             }
+
+            _primer?.Invoke(obj);
 
             return obj;
         }

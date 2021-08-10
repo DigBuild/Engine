@@ -30,7 +30,7 @@ namespace DigBuild.Engine.Worlds.Impl
 
         public void Add(EntityInstance entity)
         {
-            _entities.Add(entity.Id, entity);
+            _entities.TryAdd(entity.Id, entity);
             NotifyChange();
         }
 
@@ -53,51 +53,46 @@ namespace DigBuild.Engine.Worlds.Impl
             return copy;
         }
         
-        public static ISerdes<ChunkEntities> Serdes { get; } = new SimpleSerdes<ChunkEntities>(
-            (stream, entities) =>
-            {
-                var bw = new BinaryWriter(stream);
-                
-                bw.Write(entities._entities.Count);
+        // Temporarily disabled due to issues with the save system
+        public static ISerdes<ChunkEntities> Serdes { get; } = EmptySerdes<ChunkEntities>.Instance;
 
-                foreach (var entity in entities._entities.Values)
-                {
-                    bw.Write(entity.Id.ToByteArray());
-                    bw.Write(entity.Type.Name.ToString());
-
-                    entity.Type.DataSerdes.Serialize(stream, entity.DataContainer);
-                }
-            },
-            (stream, ctx) =>
-            {
-                var br = new BinaryReader(stream);
-
-                var entities = new ChunkEntities();
-                var amt = br.ReadInt32();
-
-                var world = ctx.Get<IWorld>()!;
-
-                for (var i = 0; i < amt; i++)
-                {
-                    var id = new Guid(br.ReadBytes(16));
-                    
-                    var name = ResourceName.Parse(br.ReadString())!;
-                    var type = BuiltInRegistries.Entities.GetOrNull(name.Value)!;
-
-                    var data = type.DataSerdes.Deserialize(stream, ctx);
-
-                    entities._entities.Add(id, new EntityInstance(world, id, type, data));
-                }
-                
-                return entities;
-            });
-    }
-
-    public static class ChunkEntitiesExtensions
-    {
-        // public static Block? GetBlock(this IReadOnlyChunk chunk, ChunkBlockPos pos)
-        // {
-        //     return chunk.Get(ChunkBlocks.Type).GetBlock(pos);
-        // }
+        // public static ISerdes<ChunkEntities> Serdes { get; } = new SimpleSerdes<ChunkEntities>(
+        //     (stream, entities) =>
+        //     {
+        //         var bw = new BinaryWriter(stream);
+        //         
+        //         bw.Write(entities._entities.Count);
+        //
+        //         foreach (var entity in entities._entities.Values)
+        //         {
+        //             bw.Write(entity.Id.ToByteArray());
+        //             bw.Write(entity.Type.Name.ToString());
+        //
+        //             entity.Type.DataSerdes.Serialize(stream, entity.DataContainer);
+        //         }
+        //     },
+        //     (stream, ctx) =>
+        //     {
+        //         var br = new BinaryReader(stream);
+        //
+        //         var entities = new ChunkEntities();
+        //         var amt = br.ReadInt32();
+        //
+        //         var world = ctx.Get<IWorld>()!;
+        //
+        //         for (var i = 0; i < amt; i++)
+        //         {
+        //             var id = new Guid(br.ReadBytes(16));
+        //             
+        //             var name = ResourceName.Parse(br.ReadString())!;
+        //             var type = BuiltInRegistries.Entities.GetOrNull(name.Value)!;
+        //
+        //             var data = type.DataSerdes.Deserialize(stream, ctx);
+        //
+        //             entities._entities.Add(id, new EntityInstance(world, id, type, data));
+        //         }
+        //         
+        //         return entities;
+        //     });
     }
 }

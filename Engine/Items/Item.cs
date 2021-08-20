@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
@@ -84,16 +85,13 @@ namespace DigBuild.Engine.Items
 
     public static class ItemRegistryBuilderExtensions
     {
-        public static ExtendedTypeRegistry<IItemEvent, ItemEventInfo> EventRegistry = null!;
-        public static Registry<IItemAttribute> ItemAttributes = null!;
-        public static Registry<IItemCapability> ItemCapabilities = null!;
-
         public static Item Create(this IRegistryBuilder<Item> registry, ResourceName name, params Action<ItemBuilder>[] buildActions)
         {
             var builder = new ItemBuilder();
             foreach (var action in buildActions)
                 action(builder);
-            return registry.Add(name, builder.Build(name, EventRegistry, ItemAttributes, ItemCapabilities));
+            DigBuildEngine.EventBus.Post(new ItemBuildingEvent(name, builder));
+            return registry.Add(name, builder.Build(name, BuiltInRegistries.ItemEvents, BuiltInRegistries.ItemAttributes, BuiltInRegistries.ItemCapabilities));
         }
     }
 }

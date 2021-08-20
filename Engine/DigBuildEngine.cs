@@ -1,6 +1,7 @@
 ﻿using DigBuild.Engine.Blocks;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
+using DigBuild.Engine.Events;
 using DigBuild.Engine.Items;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Render.Models;
@@ -14,6 +15,8 @@ namespace DigBuild.Engine
     public static class DigBuildEngine
     {
         public const string Domain = "digbuildengine";
+
+        public static EventBus EventBus { get; set; } = null!;
 
         public static void Register(RegistryBuilder<IDataHandle<IWorld>> registry)
         {

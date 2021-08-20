@@ -18,7 +18,14 @@ namespace DigBuild.Engine.BuiltIn
         public static Registry<IBlockCapability> BlockCapabilities { get; set; } = null!;
 
         public static Registry<Item> Items { get; set; } = null!;
+        public static ExtendedTypeRegistry<IItemEvent, ItemEventInfo> ItemEvents { get; set; } = null!;
+        public static Registry<IItemAttribute> ItemAttributes { get; set; } = null!;
+        public static Registry<IItemCapability> ItemCapabilities { get; set; } = null!;
 
         public static Registry<Entity> Entities { get; set; } = null!;
+        public static ExtendedTypeRegistry<IEntityEvent, EntityEventInfo> EntityEvents { get; set; } = null!;
+        public static Registry<IEntityAttribute> EntityAttributes { get; set; } = null!;
+        public static Registry<IEntityCapability> EntityCapabilities { get; set; } = null!;
+
     }
 }

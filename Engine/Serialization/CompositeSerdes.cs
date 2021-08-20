@@ -24,12 +24,17 @@ namespace DigBuild.Engine.Serialization
         {
             var ser = new MemberSerializer<TVal>(index, member, serdes);
             _serializers.Add(ser);
-            _deserializers[index] = new MemberDeserializer<TVal>(member, serdes);
+            _deserializers[index] = new MemberDeserializer<TVal>(member, serdes.Deserialize);
         }
 
-        public void Add<TVal>(int index, Expression<Func<T, TVal>> member, IDeserializer<TVal> serdes)
+        public void Add<TVal>(int index, Expression<Func<T, TVal>> member, IDeserializer<TVal> deserializer)
         {
-            _deserializers[(uint) System.Math.Abs(index)] = new MemberDeserializer<TVal>(member, serdes);
+            _deserializers[(uint) System.Math.Abs(index)] = new MemberDeserializer<TVal>(member, deserializer.Deserialize);
+        }
+
+        public void Add<TVal>(int index, Expression<Func<T, TVal>> member, IDeserializer<TVal>.Delegate deserializer)
+        {
+            _deserializers[(uint) System.Math.Abs(index)] = new MemberDeserializer<TVal>(member, deserializer);
         }
 
         public void Serialize(Stream stream, T obj)
@@ -101,9 +106,9 @@ namespace DigBuild.Engine.Serialization
         private sealed class MemberDeserializer<TVal> : IMemberDeserializer
         {
             private readonly Action<T, TVal> _setter;
-            private readonly IDeserializer<TVal> _serdes;
+            private readonly IDeserializer<TVal>.Delegate _deserializer;
 
-            public MemberDeserializer(Expression<Func<T, TVal>> member, IDeserializer<TVal> serdes)
+            public MemberDeserializer(Expression<Func<T, TVal>> member, IDeserializer<TVal>.Delegate deserializer)
             {
                 if (member.Body is not MemberExpression mexp || mexp.Expression is not ParameterExpression p)
                     throw new ArgumentException("Expression must access a member directly.");
@@ -120,12 +125,12 @@ namespace DigBuild.Engine.Serialization
                 );
 
                 _setter = setterExp.Compile();
-                _serdes = serdes;
+                _deserializer = deserializer;
             }
 
             public void Deserialize(T target, Stream stream, IDeserializationContext context)
             {
-                _setter(target, _serdes.Deserialize(stream, context));
+                _setter(target, _deserializer(stream, context));
             }
         }
     }

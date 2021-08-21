@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using DigBuild.Engine.Blocks;
 using DigBuild.Engine.BuiltIn;
+using DigBuild.Engine.Collections;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;

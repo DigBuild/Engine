@@ -1,4 +1,5 @@
-﻿using DigBuild.Engine.Blocks;
+﻿using System;
+using DigBuild.Engine.Blocks;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Entities;
 using DigBuild.Engine.Events;
@@ -16,16 +17,44 @@ namespace DigBuild.Engine
     {
         public const string Domain = "digbuildengine";
 
-        public static EventBus EventBus { get; set; } = null!;
+        internal static EventBus EventBus { get; private set; } = null!;
 
-        public static void Register(RegistryBuilder<IDataHandle<IWorld>> registry)
+        public static void Initialize(EventBus eventBus)
+        {
+            EventBus = eventBus;
+            
+            SubscribeRegister<IDataHandle<IWorld>>(Register);
+            SubscribeRegister<IDataHandle<IChunk>>(Register);
+            SubscribeRegister<IBlockAttribute>(Register);
+            SubscribeRegister<IItemAttribute>(Register);
+            SubscribeRegister<IEntityAttribute>(Register);
+            SubscribeRegister<IBlockEvent, BlockEventInfo>(Register);
+            SubscribeRegister<IEntityEvent, EntityEventInfo>(Register);
+            
+            SubscribeBuilt<IDataHandle<IWorld>>(reg => DataContainer<IWorld>.Registry = reg);
+            SubscribeBuilt<IDataHandle<IChunk>>(reg => DataContainer<IChunk>.Registry = reg);
+
+            BuiltInRegistries.Initialize();
+        }
+
+        private static void SubscribeRegister<T>(Action<RegistryBuilder<T>> reg) where T : notnull
+            => EventBus.Subscribe<RegistryBuildingEvent<T>>(evt => reg(evt.Registry));
+        private static void SubscribeRegister<T, TValue>(Action<TypeRegistryBuilder<T, TValue>> reg) where T : notnull
+            => EventBus.Subscribe<TypeRegistryBuildingEvent<T, TValue>>(evt => reg(evt.Registry));
+
+        internal static void SubscribeBuilt<T>(Action<Registry<T>> reg) where T : notnull
+            => EventBus.Subscribe<RegistryBuiltEvent<T>>(evt => reg(evt.Registry));
+        internal static void SubscribeBuilt<T, TValue>(Action<TypeRegistry<T, TValue>> reg) where T : notnull
+            => EventBus.Subscribe<TypeRegistryBuiltEvent<T, TValue>>(evt => reg(evt.Registry));
+
+        private static void Register(RegistryBuilder<IDataHandle<IWorld>> registry)
         {
             WorldEntities.Type = registry.Create<IWorld, IReadOnlyWorldEntities, WorldEntities>(
                 new ResourceName(Domain, "entities"), WorldEntities.Serdes
             );
         }
 
-        public static void Register(RegistryBuilder<IDataHandle<IChunk>> registry)
+        private static void Register(RegistryBuilder<IDataHandle<IChunk>> registry)
         {
             ChunkBlocks.Type = registry.Create<IChunk, IReadOnlyChunkBlocks, ChunkBlocks>(
                 new ResourceName(Domain, "blocks"), ChunkBlocks.Serdes
@@ -35,7 +64,7 @@ namespace DigBuild.Engine
             );
         }
 
-        public static void Register(RegistryBuilder<IBlockAttribute> registry)
+        private static void Register(RegistryBuilder<IBlockAttribute> registry)
         {
             ModelData.BlockAttribute = registry.Register(
                 new ResourceName(Domain, "model_data"),
@@ -47,7 +76,7 @@ namespace DigBuild.Engine
             );
         }
 
-        public static void Register(RegistryBuilder<IItemAttribute> registry)
+        private static void Register(RegistryBuilder<IItemAttribute> registry)
         {
             ModelData.ItemAttribute = registry.Register(
                 new ResourceName(Domain, "model_data"),
@@ -55,7 +84,7 @@ namespace DigBuild.Engine
             );
         }
 
-        public static void Register(RegistryBuilder<IEntityAttribute> registry)
+        private static void Register(RegistryBuilder<IEntityAttribute> registry)
         {
             ModelData.EntityAttribute = registry.Register(
                 new ResourceName(Domain, "model_data"),
@@ -63,13 +92,13 @@ namespace DigBuild.Engine
             );
         }
 
-        public static void Register(ExtendedTypeRegistryBuilder<IBlockEvent, BlockEventInfo> registry)
+        private static void Register(TypeRegistryBuilder<IBlockEvent, BlockEventInfo> registry)
         {
             registry.Register((BuiltInBlockEvent.JoinedWorld _) => { });
             registry.Register((BuiltInBlockEvent.LeavingWorld _) => { });
         }
 
-        public static void Register(ExtendedTypeRegistryBuilder<IEntityEvent, EntityEventInfo> registry)
+        private static void Register(TypeRegistryBuilder<IEntityEvent, EntityEventInfo> registry)
         {
             registry.Register((BuiltInEntityEvent.JoinedWorld _) => { });
             registry.Register((BuiltInEntityEvent.LeavingWorld _) => { });

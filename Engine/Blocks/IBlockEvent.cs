@@ -25,7 +25,7 @@ namespace DigBuild.Engine.Blocks
     public static class BlockEventRegistryBuilderExtensions
     {
         public static void Register<TEvent>(
-            this IExtendedTypeRegistryBuilder<IBlockEvent, BlockEventInfo> registry,
+            this ITypeRegistryBuilder<IBlockEvent, BlockEventInfo> registry,
             Action<TEvent> defaultHandler
         )
             where TEvent : IBlockEvent
@@ -38,7 +38,7 @@ namespace DigBuild.Engine.Blocks
         }
 
         public static void Register<TEvent, TResult>(
-            this IExtendedTypeRegistryBuilder<IBlockEvent, BlockEventInfo> registry,
+            this ITypeRegistryBuilder<IBlockEvent, BlockEventInfo> registry,
             Func<TEvent, TResult> defaultHandler
         )
             where TEvent : IBlockEvent<TResult>

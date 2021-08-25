@@ -12,7 +12,7 @@ namespace DigBuild.Engine.Networking
 {
     public sealed class ServerNetworkManager : IDisposable
     {
-        private readonly ExtendedTypeRegistry<IPacket, IPacketType> _packetTypes;
+        private readonly TypeRegistry<IPacket, IPacketType> _packetTypes;
 
         private readonly TcpListener _listener;
         private readonly HashSet<Connection> _connections = new();
@@ -24,7 +24,7 @@ namespace DigBuild.Engine.Networking
 
         public ServerNetworkManager(
             int port,
-            ExtendedTypeRegistry<IPacket, IPacketType> packetTypes
+            TypeRegistry<IPacket, IPacketType> packetTypes
         )
         {
             _packetTypes = packetTypes;

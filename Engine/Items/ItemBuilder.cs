@@ -147,7 +147,7 @@ namespace DigBuild.Engine.Items
 
         internal Item Build(
             ResourceName name,
-            ExtendedTypeRegistry<IItemEvent, ItemEventInfo> eventRegistry,
+            TypeRegistry<IItemEvent, ItemEventInfo> eventRegistry,
             Registry<IItemAttribute> attributeRegistry,
             Registry<IItemCapability> capabilityRegistry
         )

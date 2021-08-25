@@ -26,7 +26,7 @@ namespace DigBuild.Engine.Entities
     public static class EntityEventRegistryBuilderExtensions
     {
         public static void Register<TEvent>(
-            this IExtendedTypeRegistryBuilder<IEntityEvent, EntityEventInfo> registry,
+            this ITypeRegistryBuilder<IEntityEvent, EntityEventInfo> registry,
             Action<TEvent> defaultHandler
         )
             where TEvent : IEntityEvent
@@ -39,7 +39,7 @@ namespace DigBuild.Engine.Entities
         }
 
         public static void Register<TEvent, TResult>(
-            this IExtendedTypeRegistryBuilder<IEntityEvent, EntityEventInfo> registry,
+            this ITypeRegistryBuilder<IEntityEvent, EntityEventInfo> registry,
             Func<TEvent, TResult> defaultHandler
         )
             where TEvent : IEntityEvent<TResult>

@@ -141,7 +141,7 @@ namespace DigBuild.Engine.Blocks
 
         internal Block Build(
             ResourceName name,
-            ExtendedTypeRegistry<IBlockEvent, BlockEventInfo> eventRegistry,
+            TypeRegistry<IBlockEvent, BlockEventInfo> eventRegistry,
             Registry<IBlockAttribute> attributeRegistry,
             Registry<IBlockCapability> capabilityRegistry
         )

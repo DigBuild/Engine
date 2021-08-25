@@ -64,7 +64,7 @@ namespace DigBuild.Engine.Storage
 
     public sealed class DataContainer<TTarget> : IChangeNotifier
     {
-        public static Registry<IDataHandle<TTarget>> Registry { get; set; } = null!;
+        public static Registry<IDataHandle<TTarget>> Registry { private get; set; } = null!;
         
         private readonly Dictionary<IDataHandle<TTarget>, IData> _data = new();
         private readonly LockStore<IDataHandle<TTarget>> _locks = new();

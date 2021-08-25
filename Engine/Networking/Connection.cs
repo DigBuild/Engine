@@ -13,7 +13,7 @@ namespace DigBuild.Engine.Networking
     {
         private readonly TcpClient _client;
 
-        private readonly ExtendedTypeRegistry<IPacket, IPacketType> _packetTypes;
+        private readonly TypeRegistry<IPacket, IPacketType> _packetTypes;
         private readonly Dictionary<ushort, IPacketType> _packetTypesById;
         private readonly Dictionary<IPacketType, ushort> _packetIdsByType;
 
@@ -27,7 +27,7 @@ namespace DigBuild.Engine.Networking
         public Connection(
             TcpClient client,
             string name,
-            ExtendedTypeRegistry<IPacket, IPacketType> packetTypes,
+            TypeRegistry<IPacket, IPacketType> packetTypes,
             Dictionary<ushort, IPacketType> packetTypesById,
             Dictionary<IPacketType, ushort> packetIdsByType
         )

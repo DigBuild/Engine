@@ -2,49 +2,76 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Registries
 {
-    public sealed class TypeRegistry<T> : IReadOnlySet<Type>
+    public interface ITypeRegistry<T, TValue> : IReadOnlyDictionary<Type, TValue>// : IReadOnlySet<Type>
     {
-        private readonly IReadOnlySet<Type> _types;
+    }
 
-        internal TypeRegistry(TypeRegistryBuilder<T> builder)
+    public sealed class TypeRegistry<T, TValue> : ITypeRegistry<T, TValue>
+    {
+        private readonly IReadOnlyDictionary<Type, TValue> _types;
+
+        public ResourceName Name { get; }
+
+        internal TypeRegistry(ResourceName name, TypeRegistryBuilder<T, TValue> builder)
         {
-            _types = builder.Types.ToImmutableHashSet();
+            Name = name;
+            _types = builder.Types.ToImmutableDictionary();
         }
 
         public int Count => _types.Count;
+        public IEnumerable<Type> Keys => _types.Keys;
+        public IEnumerable<TValue> Values => _types.Values;
 
-        public bool Contains(Type item) => _types.Contains(item);
+        public bool ContainsKey(Type key) => _types.ContainsKey(key);
 
-        public IEnumerator<Type> GetEnumerator() => _types.GetEnumerator();
+        public bool TryGetValue(Type key, [MaybeNullWhen(false)] out TValue value) => _types.TryGetValue(key, out value);
+
+        public TValue this[Type key] => _types[key];
+
+        public IEnumerator<KeyValuePair<Type, TValue>> GetEnumerator() => _types.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _types).GetEnumerator();
-
-        bool IReadOnlySet<Type>.IsProperSubsetOf(IEnumerable<Type> other) => _types.IsProperSubsetOf(other);
-        bool IReadOnlySet<Type>.IsProperSupersetOf(IEnumerable<Type> other) => _types.IsProperSupersetOf(other);
-        bool IReadOnlySet<Type>.IsSubsetOf(IEnumerable<Type> other) => _types.IsSubsetOf(other);
-        bool IReadOnlySet<Type>.IsSupersetOf(IEnumerable<Type> other) => _types.IsSupersetOf(other);
-        bool IReadOnlySet<Type>.Overlaps(IEnumerable<Type> other) => _types.Overlaps(other);
-        bool IReadOnlySet<Type>.SetEquals(IEnumerable<Type> other) => _types.SetEquals(other);
     }
 
-    public sealed class TypeRegistryBuilder<T>
+    public interface ITypeRegistryBuilder<T, in TValue>
     {
-        internal readonly HashSet<Type> Types = new();
+        T2 Add<T2>(Type type, T2 value) where T2 : TValue;
+    }
+
+    public sealed class TypeRegistryBuilder<T, TValue> : ITypeRegistryBuilder<T, TValue>
+    {
+        internal readonly Dictionary<Type, TValue> Types = new();
         
-        private readonly Predicate<Type> _typeValidator;
+        private readonly Predicate<Type>? _typeValidator;
+        private readonly Predicate<TValue>? _valueValidator;
 
-        internal TypeRegistryBuilder(Predicate<Type> typeValidator)
+        public ResourceName Name { get; }
+
+        internal TypeRegistryBuilder(ResourceName name, Predicate<Type>? typeValidator, Predicate<TValue>? valueValidator)
         {
+            Name = name;
             _typeValidator = typeValidator;
+            _valueValidator = valueValidator;
         }
-
-        public void Add(Type type)
+        
+        T2 ITypeRegistryBuilder<T, TValue>.Add<T2>(Type type, T2 value)
         {
-            if (!_typeValidator(type))
-                throw new ArgumentException($"Incompatible type: {type.FullName}", nameof(type));
-            Types.Add(type);
+            if (Types.ContainsKey(type))
+                throw new ArgumentException($"Type already registered: {type.FullName}", nameof(type));
+            if (Types.ContainsValue(value))
+                throw new ArgumentException($"Value already registered.", nameof(value));
+            
+            if (_typeValidator != null && _typeValidator(type))
+                throw new ArgumentException($"Unsupported type: {type.FullName}", nameof(type));
+            if (_valueValidator != null && _valueValidator(value))
+                throw new ArgumentException($"Unsupported value: {value}", nameof(value));
+
+            Types[type] = value;
+            return value;
         }
     }
 }

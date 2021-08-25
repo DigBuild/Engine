@@ -25,7 +25,7 @@ namespace DigBuild.Engine.Items
     public static class ItemEventRegistryBuilderExtensions
     {
         public static void Register<TEvent>(
-            this IExtendedTypeRegistryBuilder<IItemEvent, ItemEventInfo> registry,
+            this ITypeRegistryBuilder<IItemEvent, ItemEventInfo> registry,
             Action<TEvent> defaultHandler
         )
             where TEvent : IItemEvent
@@ -38,7 +38,7 @@ namespace DigBuild.Engine.Items
         }
 
         public static void Register<TEvent, TResult>(
-            this IExtendedTypeRegistryBuilder<IItemEvent, ItemEventInfo> registry,
+            this ITypeRegistryBuilder<IItemEvent, ItemEventInfo> registry,
             Func<TEvent, TResult> defaultHandler
         )
             where TEvent : IItemEvent<TResult>

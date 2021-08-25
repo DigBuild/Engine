@@ -141,7 +141,7 @@ namespace DigBuild.Engine.Entities
 
         internal Entity Build(
             ResourceName name,
-            ExtendedTypeRegistry<IEntityEvent, EntityEventInfo> eventRegistry,
+            TypeRegistry<IEntityEvent, EntityEventInfo> eventRegistry,
             Registry<IEntityAttribute> attributeRegistry,
             Registry<IEntityCapability> capabilityRegistry
         )

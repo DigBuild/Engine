@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
@@ -30,7 +31,7 @@ namespace DigBuild.Engine.Items
 
         public TAttrib Get<TAttrib>(ItemAttribute<TAttrib> attribute) => Type.Get(this, attribute);
         public TCap Get<TCap>(ItemCapability<TCap> capability) => Type.Get(this, capability);
-        
+
         public bool Equals(IReadOnlyItemInstance other, bool ignoreCount = false, bool testEmpty = false)
         {
             if (!testEmpty && (Count == 0 && other.Count == 0)) return true;
@@ -38,6 +39,11 @@ namespace DigBuild.Engine.Items
             if (!ignoreCount && Count != other.Count) return false;
 
             return Type == other.Type && Type.Equals(DataContainer, other.DataContainer);
+        }
+
+        bool IEquatable<IReadOnlyItemInstance>.Equals(IReadOnlyItemInstance? other)
+        {
+            return other != null && Equals(other);
         }
 
         public ItemInstance Copy()

@@ -1,8 +1,9 @@
-﻿using DigBuild.Engine.Storage;
+﻿using System;
+using DigBuild.Engine.Storage;
 
 namespace DigBuild.Engine.Items
 {
-    public interface IReadOnlyItemInstance
+    public interface IReadOnlyItemInstance : IEquatable<IReadOnlyItemInstance>
     {
         public Item Type { get; }
         public ushort Count { get; }

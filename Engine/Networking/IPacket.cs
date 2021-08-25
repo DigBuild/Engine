@@ -12,7 +12,7 @@ namespace DigBuild.Engine.Networking
     public static class PacketExtensions
     {
         public static PacketType<T> Register<T>(
-            this IExtendedTypeRegistryBuilder<IPacket, IPacketType> builder,
+            this ITypeRegistryBuilder<IPacket, IPacketType> builder,
             string domain, string path,
             ISerdes<T> serdes
         )
@@ -22,7 +22,7 @@ namespace DigBuild.Engine.Networking
         }
 
         public static PacketType<T> Register<T>(
-            this IExtendedTypeRegistryBuilder<IPacket, IPacketType> builder,
+            this ITypeRegistryBuilder<IPacket, IPacketType> builder,
             ResourceName name,
             ISerdes<T> serdes
         )

@@ -14,7 +14,7 @@ namespace DigBuild.Engine.Networking
 
         public ClientNetworkManager(
             string hostname, int port,
-            ExtendedTypeRegistry<IPacket, IPacketType> packetTypes
+            TypeRegistry<IPacket, IPacketType> packetTypes
         )
         {
             var client = new TcpClient(hostname, port);

@@ -13,8 +13,11 @@ namespace DigBuild.Engine.Registries
         private readonly IReadOnlyDictionary<ResourceName, T> _entries;
         private readonly IReadOnlyDictionary<T, ResourceName> _names;
 
-        internal Registry(RegistryBuilder<T> builder)
+        public ResourceName Name { get; }
+
+        internal Registry(ResourceName name, RegistryBuilder<T> builder)
         {
+            Name = name;
             _entries = builder.Entries.ToImmutableDictionary();
             _names = builder.Entries.Select(pair => KeyValuePair.Create(pair.Value, pair.Key)).ToImmutableDictionary();
         }
@@ -77,12 +80,15 @@ namespace DigBuild.Engine.Registries
     public sealed class RegistryBuilder<T> : IRegistryBuilder<T> where T : notnull
     {
         internal readonly Dictionary<ResourceName, T> Entries = new();
-        
+
         private readonly Predicate<ResourceName>? _nameValidator;
         private readonly Predicate<T>? _valueValidator;
 
-        internal RegistryBuilder(Predicate<ResourceName>? nameValidator, Predicate<T>? valueValidator)
+        public ResourceName Name { get; }
+
+        internal RegistryBuilder(ResourceName name, Predicate<ResourceName>? nameValidator, Predicate<T>? valueValidator)
         {
+            Name = name;
             _nameValidator = nameValidator;
             _valueValidator = valueValidator;
         }
@@ -99,7 +105,7 @@ namespace DigBuild.Engine.Registries
             if (_valueValidator != null && _valueValidator(value))
                 throw new ArgumentException($"Unsupported value: {value}", nameof(value));
 
-            Entries.Add(name, value);
+            Entries[name] = value;
             return value;
         }
     }

@@ -7,11 +7,7 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Registries
 {
-    public interface ITypeRegistry<T, TValue> : IReadOnlyDictionary<Type, TValue>// : IReadOnlySet<Type>
-    {
-    }
-
-    public sealed class TypeRegistry<T, TValue> : ITypeRegistry<T, TValue>
+    public sealed class TypeRegistry<T, TValue> : IReadOnlyDictionary<Type, TValue>
     {
         private readonly IReadOnlyDictionary<Type, TValue> _types;
 

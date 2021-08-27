@@ -18,6 +18,21 @@ namespace DigBuild.Engine
         public const string Domain = "digbuildengine";
 
         internal static EventBus EventBus { get; private set; } = null!;
+        
+        internal static Registry<Block> Blocks { get; set; } = null!;
+        internal static TypeRegistry<IBlockEvent, BlockEventInfo> BlockEvents { get; set; } = null!;
+        internal static Registry<IBlockAttribute> BlockAttributes { get; set; } = null!;
+        internal static Registry<IBlockCapability> BlockCapabilities { get; set; } = null!;
+
+        internal static Registry<Item> Items { get; set; } = null!;
+        internal static TypeRegistry<IItemEvent, ItemEventInfo> ItemEvents { get; set; } = null!;
+        internal static Registry<IItemAttribute> ItemAttributes { get; set; } = null!;
+        internal static Registry<IItemCapability> ItemCapabilities { get; set; } = null!;
+
+        internal static Registry<Entity> Entities { get; set; } = null!;
+        internal static TypeRegistry<IEntityEvent, EntityEventInfo> EntityEvents { get; set; } = null!;
+        internal static Registry<IEntityAttribute> EntityAttributes { get; set; } = null!;
+        internal static Registry<IEntityCapability> EntityCapabilities { get; set; } = null!;
 
         public static void Initialize(EventBus eventBus)
         {
@@ -31,10 +46,23 @@ namespace DigBuild.Engine
             SubscribeRegister<IBlockEvent, BlockEventInfo>(Register);
             SubscribeRegister<IEntityEvent, EntityEventInfo>(Register);
             
+            SubscribeBuilt<Block>(reg => Blocks = reg);
+            SubscribeBuilt<IBlockEvent, BlockEventInfo>(reg => BlockEvents = reg);
+            SubscribeBuilt<IBlockAttribute>(reg => BlockAttributes = reg);
+            SubscribeBuilt<IBlockCapability>(reg => BlockCapabilities = reg);
+
+            SubscribeBuilt<Item>(reg => Items = reg);
+            SubscribeBuilt<IItemEvent, ItemEventInfo>(reg => ItemEvents = reg);
+            SubscribeBuilt<IItemAttribute>(reg => ItemAttributes = reg);
+            SubscribeBuilt<IItemCapability>(reg => ItemCapabilities = reg);
+
+            SubscribeBuilt<Entity>(reg => Entities = reg);
+            SubscribeBuilt<IEntityEvent, EntityEventInfo>(reg => EntityEvents = reg);
+            SubscribeBuilt<IEntityAttribute>(reg => EntityAttributes = reg);
+            SubscribeBuilt<IEntityCapability>(reg => EntityCapabilities = reg);
+            
             SubscribeBuilt<IDataHandle<IWorld>>(reg => DataContainer<IWorld>.Registry = reg);
             SubscribeBuilt<IDataHandle<IChunk>>(reg => DataContainer<IChunk>.Registry = reg);
-
-            BuiltInRegistries.Initialize();
         }
 
         private static void SubscribeRegister<T>(Action<RegistryBuilder<T>> reg) where T : notnull

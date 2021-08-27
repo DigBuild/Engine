@@ -10,6 +10,7 @@ namespace DigBuild.Engine.Worlds
         IChunkManager ChunkManager { get; }
 
         Scheduler TickScheduler { get; }
+
         new T Get<TReadOnly, T>(DataHandle<IWorld, TReadOnly, T> type)
             where T : TReadOnly, IData<T>, IChangeNotifier;
         TReadOnly IReadOnlyWorld.Get<TReadOnly, T>(DataHandle<IWorld, TReadOnly, T> type) => Get(type);

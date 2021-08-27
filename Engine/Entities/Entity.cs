@@ -83,7 +83,7 @@ namespace DigBuild.Engine.Entities
             foreach (var action in buildActions)
                 action(builder);
             DigBuildEngine.EventBus.Post(new EntityBuildingEvent(name, builder));
-            return registry.Add(name, builder.Build(name, BuiltInRegistries.EntityEvents, BuiltInRegistries.EntityAttributes, BuiltInRegistries.EntityCapabilities));
+            return registry.Add(name, builder.Build(name, DigBuildEngine.EntityEvents, DigBuildEngine.EntityAttributes, DigBuildEngine.EntityCapabilities));
         }
     }
 }

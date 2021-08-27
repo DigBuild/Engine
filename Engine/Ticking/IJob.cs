@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace DigBuild.Engine.Ticking
 {
     public interface IJob<in TInput>
     {
-        public Task Execute(Scheduler scheduler, [ReadOnly(true)] IEnumerable<TInput> inputs);
+        public Task Execute(Scheduler scheduler, IEnumerable<TInput> inputs);
     }
 
     public static class Job

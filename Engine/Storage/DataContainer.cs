@@ -71,20 +71,21 @@ namespace DigBuild.Engine.Storage
 
         public event Action? Changed;
 
-        private void OnChange()
+        private void NotifyChange()
         {
             Changed?.Invoke();
         }
 
         public T Get<TReadOnly, T>(DataHandle<TTarget, TReadOnly, T> handle)
-            where T : TReadOnly, IData<T>, IChangeNotifier
+            where T : TReadOnly, IData<T>
         {
             using var lck = _locks.Lock(handle);
 
             if (_data.TryGetValue(handle, out var data))
                 return (T) data;
             var t = handle.New();
-            t.Changed += OnChange;
+            if (t is IChangeNotifier notifier)
+                notifier.Changed += NotifyChange;
             _data[handle] = t;
             return t;
         }
@@ -93,7 +94,12 @@ namespace DigBuild.Engine.Storage
         {
             var copy = new DataContainer<TTarget>();
             foreach (var (handle, data) in _data)
-                copy._data[handle] = data.Copy();
+            {
+                var t = copy._data[handle] = data.Copy();
+                if (t is IChangeNotifier notifier)
+                    notifier.Changed += copy.NotifyChange;
+            }
+
             return copy;
         }
 
@@ -125,7 +131,7 @@ namespace DigBuild.Engine.Storage
                     var handle = Registry.GetOrNull(name.Value)!;
                     var data = handle.Deserialize(stream, context);
                     container._data[handle] = data;
-                    ((IChangeNotifier) data).Changed += container.OnChange;
+                    ((IChangeNotifier) data).Changed += container.NotifyChange;
                 }
 
                 return container;

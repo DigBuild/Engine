@@ -97,7 +97,7 @@ namespace DigBuild.Engine.Blocks
             foreach (var action in buildActions)
                 action(builder);
             DigBuildEngine.EventBus.Post(new BlockBuildingEvent(name, builder));
-            return registry.Add(name, builder.Build(name, BuiltInRegistries.BlockEvents, BuiltInRegistries.BlockAttributes, BuiltInRegistries.BlockCapabilities));
+            return registry.Add(name, builder.Build(name, DigBuildEngine.BlockEvents, DigBuildEngine.BlockAttributes, DigBuildEngine.BlockCapabilities));
         }
     }
 }

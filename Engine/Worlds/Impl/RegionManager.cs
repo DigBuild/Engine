@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using DigBuild.Engine.BuiltIn;
 using DigBuild.Engine.Collections;
 using DigBuild.Engine.Events;
 using DigBuild.Engine.Math;

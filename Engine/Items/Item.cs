@@ -91,7 +91,7 @@ namespace DigBuild.Engine.Items
             foreach (var action in buildActions)
                 action(builder);
             DigBuildEngine.EventBus.Post(new ItemBuildingEvent(name, builder));
-            return registry.Add(name, builder.Build(name, BuiltInRegistries.ItemEvents, BuiltInRegistries.ItemAttributes, BuiltInRegistries.ItemCapabilities));
+            return registry.Add(name, builder.Build(name, DigBuildEngine.ItemEvents, DigBuildEngine.ItemAttributes, DigBuildEngine.ItemCapabilities));
         }
     }
 }

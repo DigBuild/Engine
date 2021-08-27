@@ -14,7 +14,7 @@ namespace DigBuild.Engine.Worldgen
         public ChunkPos Position { get; }
         public long Seed { get; }
 
-        public DescribeNeighborDelegate NeighborDescriptor { private get; set; } = null!;
+        internal DescribeNeighborDelegate NeighborDescriptor { private get; set; } = null!;
 
         internal ChunkDescriptionContext(ChunkPos position, long seed)
         {

@@ -45,7 +45,7 @@ namespace DigBuild.Engine.Registries
             ResourceName name,
             Predicate<Type>? typeValidator = null,
             Predicate<TValue>? valueValidator = null
-        ) where T : notnull
+        )
         {
             _builders.Add(() =>
             {

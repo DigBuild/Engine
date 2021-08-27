@@ -2,7 +2,7 @@
 
 namespace DigBuild.Engine.Registries
 {
-    public sealed class TypeRegistryBuiltEvent<T, TValue> : IEvent where T : notnull
+    public sealed class TypeRegistryBuiltEvent<T, TValue> : IEvent
     {
         public TypeRegistry<T, TValue> Registry { get; }
 

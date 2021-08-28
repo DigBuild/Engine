@@ -94,7 +94,7 @@ namespace DigBuild.Engine.Render.Worlds
                     if (chunk != null)
                     {
                         var block = chunk.GetBlock(blockPos);
-                        solidity = block?.Get(new ReadOnlyBlockContext(_world, absPos, block), BlockFaceSolidity.Attribute) ?? BlockFaceSolidity.None;
+                        solidity = block?.Get(_world, absPos, BlockFaceSolidity.Attribute) ?? BlockFaceSolidity.None;
 
                         if (sameChunk)
                             solidityCache[blockPos.X, blockPos.Y, blockPos.Z] = solidity;
@@ -113,7 +113,7 @@ namespace DigBuild.Engine.Render.Worlds
                 if (!_blockModels.TryGetValue(block, out var model))
                     continue;
 
-                var modelData = block.Get(new ReadOnlyBlockContext(_world, _chunk.Position + pos, block), ModelData.BlockAttribute);
+                var modelData = block.Get(_world, _chunk.Position + pos, ModelData.BlockAttribute);
                 var visibleFaces = Directions.All
                     .Where(direction => IsNeighborFaceSolid(pos, direction))
                     .Aggregate(DirectionFlags.All, (current, direction) => (DirectionFlags) (current - direction.ToFlags()));
@@ -144,7 +144,7 @@ namespace DigBuild.Engine.Render.Worlds
             _dynamicGeometryBuffer.Clear();
             foreach (var data in _dynamicModelData)
             {
-                var modelData = data.Block.Get(new ReadOnlyBlockContext(_world, _chunk.Position + data.Pos, data.Block), ModelData.BlockAttribute);
+                var modelData = data.Block.Get(_world, _chunk.Position + data.Pos, ModelData.BlockAttribute);
 
                 _dynamicGeometryBuffer.Transform = Matrix4x4.CreateTranslation((Vector3) data.Pos);
                 data.Model.AddDynamicGeometry(_dynamicGeometryBuffer, modelData, data.VisibleFaces, partialTick);

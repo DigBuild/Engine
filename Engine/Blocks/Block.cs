@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using DigBuild.Engine.BuiltIn;
+using DigBuild.Engine.Math;
 using DigBuild.Engine.Registries;
 using DigBuild.Engine.Serialization;
 using DigBuild.Engine.Storage;
+using DigBuild.Engine.Worlds;
 using DigBuild.Engine.Worlds.Impl;
 using DigBuild.Platform.Resource;
 
@@ -63,6 +64,16 @@ namespace DigBuild.Engine.Blocks
             if (!_capabilitySuppliers.TryGetValue(capability, out var supplier))
                 throw new ArgumentException($"Attempted to request unregistered capability: {capability}", nameof(capability));
             return (TCap) supplier(context, GetDataContainer(context));
+        }
+
+        public TAttrib Get<TAttrib>(IReadOnlyWorld world, BlockPos pos, BlockAttribute<TAttrib> attribute)
+        {
+            return Get(new ReadOnlyBlockContext(world, pos, this), attribute);
+        }
+
+        public TCap Get<TCap>(IWorld world, BlockPos pos, BlockCapability<TCap> capability)
+        {
+            return Get(new BlockContext(world, pos, this), capability);
         }
 
         internal DataContainer? CreateDataContainer()

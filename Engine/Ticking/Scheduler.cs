@@ -7,13 +7,11 @@ namespace DigBuild.Engine.Ticking
 {
     public sealed class Scheduler
     {
-        private readonly IStableTickSource _tickSource;
         private readonly Dictionary<ulong, ScheduledTick> _scheduledTicks = new();
-        private ulong _now = 0;
+        private ulong _now;
 
-        public Scheduler(IStableTickSource tickSource)
+        public Scheduler(ITickSource tickSource)
         {
-            _tickSource = tickSource;
             tickSource.Tick += Tick;
         }
 
@@ -34,26 +32,20 @@ namespace DigBuild.Engine.Ticking
                 if (_scheduledTicks.TryGetValue(_now + delay, out var tick))
                     return tick;
             
-                return _scheduledTicks[_now + delay] = new ScheduledTick(this, _now, delay);
+                return _scheduledTicks[_now + delay] = new ScheduledTick(this);
             }
         }
 
-        private sealed class ScheduledTick : IScheduledTick, IInterpolator
+        private sealed class ScheduledTick : IScheduledTick
         {
             private readonly Scheduler _scheduler;
-            private readonly ulong _startTime, _delay;
             private readonly Dictionary<IJobHandle, IScheduledJob> _scheduledJobs = new();
 
             public event Action? Tick;
-            public IInterpolator Interpolator => this;
 
-            public float Value => (float) System.Math.Min((_scheduler._now + _scheduler._tickSource.CurrentTick.Value - _startTime) / (double) _delay, 1);
-
-            public ScheduledTick(Scheduler scheduler, ulong startTime, ulong delay)
+            public ScheduledTick(Scheduler scheduler)
             {
                 _scheduler = scheduler;
-                _startTime = startTime;
-                _delay = delay;
             }
 
             public void Enqueue<TInput>(JobHandle<TInput> job, IEnumerable<TInput> inputs)
@@ -112,8 +104,6 @@ namespace DigBuild.Engine.Ticking
 
     public interface IScheduledTick : ITickSource
     {
-        public IInterpolator Interpolator { get; }
-
         public void Enqueue<TInput>(JobHandle<TInput> job, params TInput[] inputs)
         {
             Enqueue(job, (IEnumerable<TInput>) inputs);

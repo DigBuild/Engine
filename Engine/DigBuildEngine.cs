@@ -13,8 +13,14 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine
 {
+    /// <summary>
+    /// The base class for the engine.
+    /// </summary>
     public static class DigBuildEngine
     {
+        /// <summary>
+        /// The engine's domain.
+        /// </summary>
         public const string Domain = "digbuildengine";
 
         internal static EventBus EventBus { get; private set; } = null!;
@@ -34,6 +40,10 @@ namespace DigBuild.Engine
         internal static Registry<IEntityAttribute> EntityAttributes { get; set; } = null!;
         internal static Registry<IEntityCapability> EntityCapabilities { get; set; } = null!;
 
+        /// <summary>
+        /// Initializes the engine.
+        /// </summary>
+        /// <param name="eventBus">The event bus</param>
         public static void Initialize(EventBus eventBus)
         {
             EventBus = eventBus;

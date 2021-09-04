@@ -2,15 +2,24 @@
 
 namespace DigBuild.Engine.Math
 {
+    /// <summary>
+    /// A chunk position within a region.
+    /// </summary>
     public readonly struct RegionChunkPos : IEquatable<RegionChunkPos>
     {
+        /// <summary>
+        /// The X coordinate.
+        /// </summary>
         public int X { get; }
+        /// <summary>
+        /// The Z coordinate.
+        /// </summary>
         public int Z { get; }
 
         public RegionChunkPos(int x, int z)
         {
-            X = x & 63;
-            Z = z & 63;
+            X = WorldDimensions.ChunkCoordToSubRegionCoord(x);
+            Z = WorldDimensions.ChunkCoordToSubRegionCoord(z);
         }
 
         public override string ToString()

@@ -3,6 +3,11 @@ using DigBuild.Engine.Ticking;
 
 namespace DigBuild.Engine.Collections
 {
+    /// <summary>
+    /// A single-value container that evicts its value if it hasn't been
+    /// written to or read from for a certain amount of ticks.
+    /// </summary>
+    /// <typeparam name="T">The type</typeparam>
     public sealed class IndividualCache<T> : IDisposable
     {
         private readonly ITickSource _tickSource;
@@ -11,8 +16,14 @@ namespace DigBuild.Engine.Collections
 
         private T? _value;
 
+        /// <summary>
+        /// Whether a value is present or not.
+        /// </summary>
         public bool HasValue { get; private set; } = false;
 
+        /// <summary>
+        /// The value.
+        /// </summary>
         public T Value
         {
             get
@@ -38,6 +49,9 @@ namespace DigBuild.Engine.Collections
             }
         }
 
+        /// <summary>
+        /// Fired when the value is evicted.
+        /// </summary>
         public event Action<T>? Evicted;
 
         public IndividualCache(ITickSource tickSource, ulong expirationDelay)

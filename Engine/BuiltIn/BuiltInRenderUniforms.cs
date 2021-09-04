@@ -5,9 +5,15 @@ using DigBuild.Platform.Render;
 
 namespace DigBuild.Engine.BuiltIn
 {
+    /// <summary>
+    /// The built-in render uniforms.
+    /// </summary>
     public static class BuiltInRenderUniforms
     {
-        public static RenderUniform<SimpleTransform> ModelViewTransform { get; } = new();
+        /// <summary>
+        /// A two-matrix model-view + projection transform.
+        /// </summary>
+        public static RenderUniform<SimpleTransform> ModelViewProjectionTransform { get; } = new();
     }
 
     public interface ISimpleTransform : IUniform<SimpleTransform>

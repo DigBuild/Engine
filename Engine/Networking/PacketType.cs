@@ -4,10 +4,21 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Networking
 {
+    /// <summary>
+    /// A packet type.
+    /// </summary>
     public interface IPacketType
     {
+        /// <summary>
+        /// The name.
+        /// </summary>
         ResourceName Name { get; }
 
+        /// <summary>
+        /// Deserializes a packet from a bit stream.
+        /// </summary>
+        /// <param name="stream">The bit stream</param>
+        /// <returns>A new packet</returns>
         IPacket Deserialize(Stream stream);
     }
 
@@ -22,6 +33,11 @@ namespace DigBuild.Engine.Networking
             Serdes = serdes;
         }
 
+        /// <summary>
+        /// Serializes a packet into a bit stream.
+        /// </summary>
+        /// <param name="stream">The stream</param>
+        /// <param name="packet">The packet</param>
         public void Serialize(Stream stream, T packet)
         {
             Serdes.Serialize(stream, packet);

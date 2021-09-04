@@ -4,10 +4,19 @@ using System.Threading;
 
 namespace DigBuild.Engine.Collections
 {
+    /// <summary>
+    /// A key-based semaphore manager.
+    /// </summary>
+    /// <typeparam name="TKey">The key type</typeparam>
     public sealed class LockStore<TKey> where TKey : notnull
     {
         private readonly Dictionary<TKey, LockHandle> _locks = new();
 
+        /// <summary>
+        /// Obtains a lock for the specified key. Waits if unavailable.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <returns>The lock handle</returns>
         public LockHandle Lock(TKey key)
         {
             LockHandle? handle;
@@ -20,6 +29,9 @@ namespace DigBuild.Engine.Collections
             return handle;
         }
 
+        /// <summary>
+        /// A lock handle. Released when disposed of.
+        /// </summary>
         public sealed class LockHandle : IDisposable
         {
             private readonly Dictionary<TKey, LockHandle> _locks;

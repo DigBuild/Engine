@@ -8,8 +8,14 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Networking
 {
+    /// <summary>
+    /// A client network manager. Must connect to a <see cref="ServerNetworkManager"/>.
+    /// </summary>
     public sealed class ClientNetworkManager : IDisposable
     {
+        /// <summary>
+        /// The connection to the server.
+        /// </summary>
         public Connection Connection { get; }
 
         public ClientNetworkManager(

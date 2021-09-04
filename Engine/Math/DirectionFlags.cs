@@ -2,6 +2,9 @@
 
 namespace DigBuild.Engine.Math
 {
+    /// <summary>
+    /// A set of direction flags.
+    /// </summary>
     [Flags]
     public enum DirectionFlags : byte
     {
@@ -15,11 +18,20 @@ namespace DigBuild.Engine.Math
         All = NegX | PosX | NegY | PosY | NegZ | PosZ
     }
 
+    /// <summary>
+    /// Direction flag extensions.
+    /// </summary>
     public static class BlockFaceFlagsExtensions
     {
-        public static bool Has(this DirectionFlags flags, Direction face)
+        /// <summary>
+        /// Checks whether a flag set contains a direction or not.
+        /// </summary>
+        /// <param name="flags">The flags</param>
+        /// <param name="direction">The direction</param>
+        /// <returns>Whether it is contained or not</returns>
+        public static bool Has(this DirectionFlags flags, Direction direction)
         {
-            return (flags & face.ToFlags()) != DirectionFlags.None;
+            return (flags & direction.ToFlags()) != DirectionFlags.None;
         }
     }
 }

@@ -3,17 +3,33 @@ using DigBuild.Platform.Util;
 
 namespace DigBuild.Engine.Particles
 {
+    /// <summary>
+    /// A particle system.
+    /// </summary>
     public interface IParticleSystem
     {
+        /// <summary>
+        /// Updates the particle system with the given context.
+        /// </summary>
+        /// <param name="context">The context</param>
         void Update(IParticleUpdateContext context);
     }
 
+    /// <summary>
+    /// A particle system.
+    /// </summary>
+    /// <typeparam name="TGpu">The GPU particle type</typeparam>
     public interface IParticleSystem<TGpu> : IParticleSystem
         where TGpu : unmanaged
     {
         internal INativeBuffer<TGpu> UpdateGpu(float partialTick);
     }
 
+    /// <summary>
+    /// A particle system.
+    /// </summary>
+    /// <typeparam name="T">The particle type</typeparam>
+    /// <typeparam name="TGpu">The GPU particle type</typeparam>
     public sealed class ParticleSystem<T, TGpu> : IParticleSystem<TGpu>, IDisposable
         where T : unmanaged, IParticle<TGpu>
         where TGpu : unmanaged
@@ -33,6 +49,11 @@ namespace DigBuild.Engine.Particles
             _gpuBuffer.Dispose();
         }
 
+        /// <summary>
+        /// Creates a new set of particles and returns a span containing them.
+        /// </summary>
+        /// <param name="amount">The amount of particles</param>
+        /// <returns>The span with the particles</returns>
         public Span<T> Create(uint amount)
         {
             var span = _instanceBuffer.Add(amount);

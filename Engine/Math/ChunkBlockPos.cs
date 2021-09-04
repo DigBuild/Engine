@@ -3,6 +3,9 @@ using System.Numerics;
 
 namespace DigBuild.Engine.Math
 {
+    /// <summary>
+    /// A block position within a chunk.
+    /// </summary>
     public readonly struct ChunkBlockPos : IEquatable<ChunkBlockPos>
     {
         public int X { get; }
@@ -11,9 +14,9 @@ namespace DigBuild.Engine.Math
         
         public ChunkBlockPos(int x, int y, int z)
         {
-            X = x & 15;
-            Y = y & 255;
-            Z = z & 15;
+            X = WorldDimensions.XZBlockCoordToSubChunkCoord(x);
+            Y = (int)(y % WorldDimensions.ChunkHeight);
+            Z = WorldDimensions.XZBlockCoordToSubChunkCoord(z);
         }
         
         public void Deconstruct(out int x, out int y, out int z)

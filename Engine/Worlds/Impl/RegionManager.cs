@@ -71,7 +71,7 @@ namespace DigBuild.Engine.Worlds.Impl
 
             region = new Region(pos, _storageProvider(_world, pos), _chunkProvider, _tickSource);
             region.ChunkLoaded += chunk => _eventBus.Post(new BuiltInChunkEvent.Loaded(_world, chunk));
-            region.ChunkUnloaded += chunk => _eventBus.Post(new BuiltInChunkEvent.Unloaded(_world, chunk));
+            region.ChunkUnloaded += chunk => _eventBus.Post(new BuiltInChunkEvent.Unloading(_world, chunk));
             lock (_regions)
             {
                 _regions[pos] = region;

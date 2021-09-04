@@ -3,6 +3,9 @@ using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Engine.Blocks
 {
+    /// <summary>
+    /// A read-only block context.
+    /// </summary>
     public sealed class ReadOnlyBlockContext : IReadOnlyBlockContext
     {
         public IReadOnlyWorld World { get; }

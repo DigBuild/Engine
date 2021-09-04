@@ -1,16 +1,39 @@
 ﻿using System;
+using System.Numerics;
 
 namespace DigBuild.Engine.Math
 {
+    /// <summary>
+    /// A region position.
+    /// </summary>
     public readonly struct RegionPos : IEquatable<RegionPos>
     {
+        /// <summary>
+        /// The X coordinate.
+        /// </summary>
         public int X { get; }
+        /// <summary>
+        /// The Z coordinate.
+        /// </summary>
         public int Z { get; }
 
         public RegionPos(int x, int z)
         {
             X = x;
             Z = z;
+        }
+
+        /// <summary>
+        /// Gets the lowermost corner of the chunk.
+        /// </summary>
+        /// <returns>The origin position</returns>
+        public Vector3 GetOrigin()
+        {
+            return new Vector3(
+                WorldDimensions.XZChunkCoordToBlockCoord(WorldDimensions.RegionCoordToChunkCoord(X)), 
+                0,
+                WorldDimensions.XZChunkCoordToBlockCoord(WorldDimensions.RegionCoordToChunkCoord(Z))
+            );
         }
 
         public override string ToString()
@@ -25,7 +48,7 @@ namespace DigBuild.Engine.Math
 
         public override bool Equals(object? obj)
         {
-            return obj is ChunkPos other && Equals(other);
+            return obj is RegionPos other && Equals(other);
         }
 
         public override int GetHashCode()
@@ -44,8 +67,8 @@ namespace DigBuild.Engine.Math
         }
         
         public static ChunkPos operator +(RegionPos regionPos, RegionChunkPos chunkPos) => new(
-            (regionPos.X << 6) | chunkPos.X,
-            (regionPos.Z << 6) | chunkPos.Z
+            WorldDimensions.RegionAndSubRegionCoordToChunkCoord(regionPos.X, chunkPos.X),
+            WorldDimensions.RegionAndSubRegionCoordToChunkCoord(regionPos.Z, chunkPos.Z)
         );
     }
 }

@@ -3,6 +3,9 @@ using DigBuild.Engine.Worlds;
 
 namespace DigBuild.Engine.Blocks
 {
+    /// <summary>
+    /// A block context.
+    /// </summary>
     public class BlockContext : IBlockContext
     {
         public IWorld World { get; }

@@ -16,13 +16,21 @@ namespace DigBuild.Engine.Blocks
     internal delegate object BlockAttributeDelegate(IReadOnlyBlockContext context, DataContainer? dataContainer, Func<object> next);
     internal delegate object BlockCapabilityDelegate(IBlockContext context, DataContainer? dataContainer, Func<object> next);
 
+    /// <summary>
+    /// A block behavior builder.
+    /// </summary>
     public interface IBlockBehaviorBuilder
     {
         internal Dictionary<Type, List<BlockEventDelegate>> EventHandlers { get; }
         internal Dictionary<IBlockAttribute, List<BlockAttributeDelegate>> AttributeSuppliers { get; }
         internal Dictionary<IBlockCapability, List<BlockCapabilityDelegate>> CapabilitySuppliers { get; }
     }
-
+    
+    /// <summary>
+    /// A block behavior builder.
+    /// </summary>
+    /// <typeparam name="TReadOnlyData">The read only contract</typeparam>
+    /// <typeparam name="TData">The read-write contract</typeparam>
     public interface IBlockBehaviorBuilder<out TReadOnlyData, out TData> : IBlockBehaviorBuilder
         where TData : TReadOnlyData
     {
@@ -34,7 +42,12 @@ namespace DigBuild.Engine.Blocks
         void Add<T>(BlockAttribute<T> attribute, BlockAttributeDelegate<TReadOnlyData, T> supplier);
         void Add<T>(BlockCapability<T> capability, BlockCapabilityDelegate<TData, T> supplier);
     }
-
+    
+    /// <summary>
+    /// A block behavior builder.
+    /// </summary>
+    /// <typeparam name="TReadOnlyData">The read only contract</typeparam>
+    /// <typeparam name="TData">The read-write contract</typeparam>
     public sealed class BlockBehaviorBuilder<TReadOnlyData, TData> : IBlockBehaviorBuilder<TReadOnlyData, TData>
         where TData : TReadOnlyData
     {
@@ -76,6 +89,12 @@ namespace DigBuild.Engine.Blocks
             });
         }
 
+        /// <summary>
+        /// Adds a new attribute supplier.
+        /// </summary>
+        /// <typeparam name="T">The attribute type</typeparam>
+        /// <param name="attribute">The attribute</param>
+        /// <param name="supplier">The supplier</param>
         public void Add<T>(BlockAttribute<T> attribute, BlockAttributeDelegate<TReadOnlyData, T> supplier)
         {
             if (!_attributeSuppliers.TryGetValue(attribute, out var list))
@@ -85,7 +104,13 @@ namespace DigBuild.Engine.Blocks
                 return supplier(context, _dataGetter(dataContainer), () => (T) next())!;
             });
         }
-
+        
+        /// <summary>
+        /// Adds a new capability supplier.
+        /// </summary>
+        /// <typeparam name="T">The capability type</typeparam>
+        /// <param name="capability">The capability</param>
+        /// <param name="supplier">The supplier</param>
         public void Add<T>(BlockCapability<T> capability, BlockCapabilityDelegate<TData, T> supplier)
         {
             if (!_capabilitySuppliers.TryGetValue(capability, out var list))

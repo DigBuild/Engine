@@ -10,6 +10,9 @@ using DigBuild.Engine.Registries;
 
 namespace DigBuild.Engine.Networking
 {
+    /// <summary>
+    /// A server network manager. The clients must be <see cref="ClientNetworkManager"/> instances.
+    /// </summary>
     public sealed class ServerNetworkManager : IDisposable
     {
         private readonly TypeRegistry<IPacket, IPacketType> _packetTypes;
@@ -20,6 +23,9 @@ namespace DigBuild.Engine.Networking
         private readonly Thread _thread;
         private bool _threadActive = true;
 
+        /// <summary>
+        /// Fired whenever a client successfully connects.
+        /// </summary>
         public event Action<Connection>? ClientConnected;
 
         public ServerNetworkManager(
@@ -74,6 +80,9 @@ namespace DigBuild.Engine.Networking
             _thread.Start();
         }
 
+        /// <summary>
+        /// Closes all connections.
+        /// </summary>
         public void Close()
         {
             _threadActive = false;
@@ -90,6 +99,11 @@ namespace DigBuild.Engine.Networking
             _thread.Join();
         }
 
+        /// <summary>
+        /// Sends a packet to all connected clients.
+        /// </summary>
+        /// <typeparam name="T">The packet type</typeparam>
+        /// <param name="packet">The packet</param>
         public void SendToAll<T>(T packet) where T : IPacket
         {
             if (!_packetTypes.TryGetValue(typeof(T), out var t) || t is not PacketType<T> type)
@@ -103,7 +117,12 @@ namespace DigBuild.Engine.Networking
                     connection.Enqueue(type, serialized.Bytes, serialized.Length);
             }
         }
-
+        
+        /// <summary>
+        /// Asynchronously sends a packet to all connected clients.
+        /// </summary>
+        /// <typeparam name="T">The packet type</typeparam>
+        /// <param name="packet">The packet</param>
         public Task SendToAllAsync<T>(T packet) where T : IPacket
         {
             return Task.Run(() => SendToAll(packet));

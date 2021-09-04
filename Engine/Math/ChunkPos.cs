@@ -3,13 +3,31 @@ using System.Numerics;
 
 namespace DigBuild.Engine.Math
 {
+    /// <summary>
+    /// A chunk position.
+    /// </summary>
     public readonly struct ChunkPos : IEquatable<ChunkPos>
     {
+        /// <summary>
+        /// The X coordinate.
+        /// </summary>
         public int X { get; }
+        /// <summary>
+        /// The Z coordinate.
+        /// </summary>
         public int Z { get; }
 
-        public RegionPos RegionPos => new(X >> 6, Z >> 6);
-        public RegionChunkPos RegionChunkPos => new(X & 63, Z & 63);
+        /// <summary>
+        /// The region position.
+        /// </summary>
+        public RegionPos RegionPos => new(
+            WorldDimensions.ChunkCoordToRegionCoord(X),
+            WorldDimensions.ChunkCoordToRegionCoord(X)
+        );
+        /// <summary>
+        /// The position within the region.
+        /// </summary>
+        public RegionChunkPos RegionChunkPos => new(X, Z);
 
         public ChunkPos(int x, int z)
         {
@@ -17,22 +35,49 @@ namespace DigBuild.Engine.Math
             Z = z;
         }
         
+        /// <summary>
+        /// Deconstructs the chunk into a region and region-local position.
+        /// </summary>
+        /// <param name="regionPos">The region position</param>
+        /// <param name="chunkPos">The position within the region</param>
         public void Deconstruct(out RegionPos regionPos, out RegionChunkPos chunkPos)
         {
             regionPos = RegionPos;
             chunkPos = RegionChunkPos;
         }
 
+        /// <summary>
+        /// Gets the center of the chunk.
+        /// </summary>
+        /// <param name="y">The Y coordinate</param>
+        /// <returns>The center position</returns>
         public Vector3 GetCenter(float y)
         {
-            return new Vector3((X << 4) + 8, y, (Z << 4) + 8);
+            return new Vector3(
+                WorldDimensions.XZChunkAndSubChunkCoordToBlockCoord(X, (int)WorldDimensions.ChunkSize / 2),
+                y,
+                WorldDimensions.XZChunkAndSubChunkCoordToBlockCoord(Z, (int)WorldDimensions.ChunkSize / 2)
+            );
         }
 
+        /// <summary>
+        /// Gets the lowermost corner of the chunk.
+        /// </summary>
+        /// <returns>The origin position</returns>
         public Vector3 GetOrigin()
         {
-            return new Vector3(X << 4, 0, Z << 4);
+            return new Vector3(
+                WorldDimensions.XZChunkCoordToBlockCoord(X), 
+                0,
+                WorldDimensions.XZChunkCoordToBlockCoord(Z)
+            );
         }
 
+        /// <summary>
+        /// Calculates the square distance to another chunk.
+        /// </summary>
+        /// <param name="other">The other position</param>
+        /// <returns>The square distance</returns>
         public long DistanceSq(ChunkPos other)
         {
             var x = X - other.X;
@@ -40,6 +85,11 @@ namespace DigBuild.Engine.Math
             return x * x + z * z;
         }
 
+        /// <summary>
+        /// Creates a chunk position offset in the specified direction.
+        /// </summary>
+        /// <param name="direction">The direction</param>
+        /// <returns>The new position</returns>
         public ChunkPos Offset(Direction direction)
         {
             var offset = direction.GetOffsetI();
@@ -80,9 +130,9 @@ namespace DigBuild.Engine.Math
         }
 
         public static BlockPos operator +(ChunkPos chunkPos, ChunkBlockPos subChunkPos) => new(
-            (chunkPos.X << 4) | subChunkPos.X,
+            WorldDimensions.XZChunkAndSubChunkCoordToBlockCoord(chunkPos.X, subChunkPos.X),
             subChunkPos.Y,
-            (chunkPos.Z << 4) | subChunkPos.Z
+            WorldDimensions.XZChunkAndSubChunkCoordToBlockCoord(chunkPos.Z, subChunkPos.Z)
         );
 
         public static ChunkPos operator +(ChunkPos pos, ChunkOffset offset) => new(pos.X + offset.X, pos.Z + offset.Z);

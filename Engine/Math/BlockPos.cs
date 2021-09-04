@@ -3,13 +3,25 @@ using System.Numerics;
 
 namespace DigBuild.Engine.Math
 {
+    /// <summary>
+    /// A block position.
+    /// </summary>
     public readonly struct BlockPos : IVector3I, IEquatable<BlockPos>
     {
         public int X { get; }
         public int Y { get; }
         public int Z { get; }
         
-        public ChunkPos ChunkPos => new(X >> 4, Z >> 4);
+        /// <summary>
+        /// The block's chunk position.
+        /// </summary>
+        public ChunkPos ChunkPos => new(
+            WorldDimensions.XZBlockCoordToChunkCoord(X),
+            WorldDimensions.XZBlockCoordToChunkCoord(Z)
+        );
+        /// <summary>
+        /// The block's position within the chunk.
+        /// </summary>
         public ChunkBlockPos SubChunkPos => new(X, Y, Z);
 
         public BlockPos(int x, int y, int z)
@@ -31,6 +43,12 @@ namespace DigBuild.Engine.Math
         {
         }
 
+        /// <summary>
+        /// Deconstructs the block position into its components.
+        /// </summary>
+        /// <param name="x">The X coordinate</param>
+        /// <param name="y">The Y coordinate</param>
+        /// <param name="z">The Z coordinate</param>
         public void Deconstruct(out int x, out int y, out int z)
         {
             x = X;
@@ -38,15 +56,26 @@ namespace DigBuild.Engine.Math
             z = Z;
         }
         
+        /// <summary>
+        /// Deconstructs the block position into its chunk and chunk-relative positions.
+        /// </summary>
+        /// <param name="chunkPos">The chunk position</param>
+        /// <param name="subChunkPos">The position within the chunk</param>
         public void Deconstruct(out ChunkPos chunkPos, out ChunkBlockPos subChunkPos)
         {
             chunkPos = ChunkPos;
             subChunkPos = SubChunkPos;
         }
 
-        public BlockPos Offset(Direction face, int amount = 1)
+        /// <summary>
+        /// Creates a new block position offset by the specified amount in the given direction.
+        /// </summary>
+        /// <param name="direction">The direction</param>
+        /// <param name="amount">The amount</param>
+        /// <returns>A new block position</returns>
+        public BlockPos Offset(Direction direction, int amount = 1)
         {
-            return this + face.GetOffsetI() * amount;
+            return this + direction.GetOffsetI() * amount;
         }
 
         public override string ToString()

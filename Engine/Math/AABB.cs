@@ -4,15 +4,30 @@ using System.Numerics;
 
 namespace DigBuild.Engine.Math
 {
+    /// <summary>
+    /// An axis-aligned bounding box.
+    /// </summary>
     public readonly struct AABB
     {
         private const float Epsilon = 1e-7f;
 
-        public static readonly AABB FullBlock = new(0, 0, 0, 1, 1, 1);
+        /// <summary>
+        /// A full block (1x1x1 anchored at the origin) bounding box.
+        /// </summary>
+        public static readonly AABB FullBlock = new(Vector3.Zero, Vector3.One);
 
+        /// <summary>
+        /// The lowermost corner.
+        /// </summary>
         public Vector3 Min { get; }
+        /// <summary>
+        /// The highermost corner.
+        /// </summary>
         public Vector3 Max { get; }
 
+        /// <summary>
+        /// The center.
+        /// </summary>
         public Vector3 Center => (Min + Max) / 2;
 
         public AABB(Vector3 min, Vector3 max)
@@ -27,21 +42,44 @@ namespace DigBuild.Engine.Math
             Max = new Vector3(maxX, maxY, maxZ);
         }
 
+        /// <summary>
+        /// Creates a new AABB that is expanded by the specified amount in each direction.
+        /// </summary>
+        /// <param name="x">The X amount</param>
+        /// <param name="y">The Y amount</param>
+        /// <param name="z">The Z amount</param>
+        /// <returns>A new AABB</returns>
         public AABB Grow(float x, float y, float z)
         {
             var amt = new Vector3(x, y, z);
             return new AABB(Min - amt, Max + amt);
         }
 
+        /// <summary>
+        /// Creates a new AABB that is expanded by the specified amount in all directions.
+        /// </summary>
+        /// <param name="amt">The amount</param>
+        /// <returns>A new AABB</returns>
         public AABB Grow(float amt) => Grow(amt, amt, amt);
 
+        /// <summary>
+        /// Checks whether the point is contained within this AABB or not.
+        /// </summary>
+        /// <param name="vec">The point</param>
+        /// <returns>Whether it is contained or not</returns>
         public bool Contains(Vector3 vec)
         {
             return
                 vec.X >= Min.X && vec.Y >= Min.Y && vec.Z >= Min.Z &&
                 vec.X < Max.X && vec.Y < Max.Y && vec.Z < Max.Z;
         }
-
+        
+        /// <summary>
+        /// Checks whether the point is contained within this AABB or not and returns how far in it is.
+        /// </summary>
+        /// <param name="vec">The point</param>
+        /// <param name="penetration">The penetration</param>
+        /// <returns>Whether it is contained or not</returns>
         public bool Contains(Vector3 vec, out Vector3 penetration)
         {
             penetration = Vector3.Zero;
@@ -84,6 +122,11 @@ namespace DigBuild.Engine.Math
             return true;
         }
 
+        /// <summary>
+        /// Checks whether another AABB intersects this one or not.
+        /// </summary>
+        /// <param name="other">The other AABB</param>
+        /// <returns>Whether they intersect or not</returns>
         public bool Intersects(AABB other)
         {
             return
@@ -91,7 +134,13 @@ namespace DigBuild.Engine.Math
                 Min.Y + Epsilon < other.Max.Y && Max.Y > other.Min.Y + Epsilon &&
                 Min.Z + Epsilon < other.Max.Z && Max.Z > other.Min.Z + Epsilon;
         }
-
+        
+        /// <summary>
+        /// Checks whether another AABB intersects this one or not and returns how far in it is.
+        /// </summary>
+        /// <param name="other">The other AABB</param>
+        /// <param name="intersection">The intersection</param>
+        /// <returns>Whether they intersect or not</returns>
         public bool Intersects(AABB other, out Vector3 intersection)
         {
             float x1 = other.Max.X - Min.X, x2 = Max.X - other.Min.X;
@@ -105,6 +154,14 @@ namespace DigBuild.Engine.Math
             return !(x1 < Epsilon || x2 < Epsilon || y1 < Epsilon || y2 < Epsilon || z1 < Epsilon || z2 < Epsilon);
         }
         
+        /// <summary>
+        /// Tries to intersect a ray and this AABB.
+        /// </summary>
+        /// <param name="origin">The ray origin</param>
+        /// <param name="magnitude">The ray magnitude</param>
+        /// <param name="delta">How far the ray travelled</param>
+        /// <param name="side">The side it hit</param>
+        /// <returns>Whether the ray intersects the AABB or not</returns>
         public bool IntersectRay(Vector3 origin, Vector3 magnitude, out float delta, out Direction side)
         {
             delta = float.MaxValue;
@@ -179,6 +236,10 @@ namespace DigBuild.Engine.Math
             return delta != float.MaxValue;
         }
 
+        /// <summary>
+        /// Gets all the block positions intersected by this AABB.
+        /// </summary>
+        /// <returns>The enumerable of block positions</returns>
         public IEnumerable<BlockPos> GetIntersectedBlockPositions()
         {
             var (minX, minY, minZ) = new BlockPos(Min);
@@ -197,9 +258,15 @@ namespace DigBuild.Engine.Math
         public static AABB operator +(AABB aabb, Vector3 offset) => new(aabb.Min + offset, aabb.Max + offset);
         public static AABB operator -(AABB aabb, Vector3 offset) => new(aabb.Min - offset, aabb.Max - offset);
 
+        /// <summary>
+        /// Creates a new AABB containing both arguments.
+        /// </summary>
+        /// <param name="a">The first AABB</param>
+        /// <param name="b">The second AABB</param>
+        /// <returns>The new AABB</returns>
         public static AABB Containing(AABB a, AABB b)
         {
-            return new(
+            return new AABB(
                 MathF.Min(a.Min.X, b.Min.X),
                 MathF.Min(a.Min.Y, b.Min.Y),
                 MathF.Min(a.Min.Z, b.Min.Z),
@@ -209,9 +276,15 @@ namespace DigBuild.Engine.Math
             );
         }
 
+        /// <summary>
+        /// Calculates the Minkowski difference of two AABBs.
+        /// </summary>
+        /// <param name="a">The first AABB</param>
+        /// <param name="b">The second AABB</param>
+        /// <returns>The new AABB</returns>
         public static AABB MinkowskiDifference(AABB a, AABB b)
         {
-            return new(
+            return new AABB(
                 a.Min - b.Max,
                 a.Max - b.Min
             );

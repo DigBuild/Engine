@@ -41,13 +41,13 @@ namespace DigBuild.Engine.Render.Worlds
             _chunkRendererFactory = chunkRendererFactory;
             
             _eventBus.Subscribe<BuiltInChunkEvent.Loaded>(OnChunkLoaded);
-            _eventBus.Subscribe<BuiltInChunkEvent.Unloaded>(OnChunkUnloaded);
+            _eventBus.Subscribe<BuiltInChunkEvent.Unloading>(OnChunkUnloaded);
         }
 
         public void Dispose()
         {
             _eventBus.Unsubscribe<BuiltInChunkEvent.Loaded>(OnChunkLoaded);
-            _eventBus.Unsubscribe<BuiltInChunkEvent.Unloaded>(OnChunkUnloaded);
+            _eventBus.Unsubscribe<BuiltInChunkEvent.Unloading>(OnChunkUnloaded);
 
             foreach (var data in _chunkRenderData.Values)
                 data.Dispose();
@@ -64,7 +64,7 @@ namespace DigBuild.Engine.Render.Worlds
             }
         }
 
-        private void OnChunkUnloaded(BuiltInChunkEvent.Unloaded evt)
+        private void OnChunkUnloaded(BuiltInChunkEvent.Unloading evt)
         {
             lock (_unloadedChunks)
             {
@@ -146,7 +146,7 @@ namespace DigBuild.Engine.Render.Worlds
                 if (!worldView.ViewFrustum.Test(data.Bounds))
                     continue;
 
-                uniforms.Push(BuiltInRenderUniforms.ModelViewTransform, new SimpleTransform
+                uniforms.Push(BuiltInRenderUniforms.ModelViewProjectionTransform, new SimpleTransform
                 {
                     ModelView = Matrix4x4.CreateTranslation(data.Position.GetOrigin()) * cameraTransform,
                     Projection = worldView.Projection

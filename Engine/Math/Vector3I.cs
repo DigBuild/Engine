@@ -3,11 +3,20 @@ using System.Numerics;
 
 namespace DigBuild.Engine.Math
 {
+    /// <summary>
+    /// A 3D int vector.
+    /// </summary>
     public readonly struct Vector3I : IVector3I, IEquatable<Vector3I>
     {
+        /// <summary>
+        /// A vector with all components as 0.
+        /// </summary>
         public static Vector3I Zero = new(0, 0, 0);
+        /// <summary>
+        /// A vector with all components as 1.
+        /// </summary>
         public static Vector3I One = new(1, 1, 1);
-
+        
         public int X { get; }
         public int Y { get; }
         public int Z { get; }
@@ -31,6 +40,12 @@ namespace DigBuild.Engine.Math
         {
         }
 
+        /// <summary>
+        /// Deconstructs the vector into its components.
+        /// </summary>
+        /// <param name="x">The X coordinate</param>
+        /// <param name="y">The Y coordinate</param>
+        /// <param name="z">The Z coordinate</param>
         public void Deconstruct(out int x, out int y, out int z)
         {
             x = X;
@@ -38,9 +53,15 @@ namespace DigBuild.Engine.Math
             z = Z;
         }
         
-        public Vector3I Offset(Direction face, int amount = 1)
+        /// <summary>
+        /// Creates a new vector offset by the specified amount in the given direction.
+        /// </summary>
+        /// <param name="direction">The direction</param>
+        /// <param name="amount">The amount</param>
+        /// <returns>A new block position</returns>
+        public Vector3I Offset(Direction direction, int amount = 1)
         {
-            return this + face.GetOffsetI() * amount;
+            return this + direction.GetOffsetI() * amount;
         }
 
         public long LengthSquared()
@@ -97,11 +118,22 @@ namespace DigBuild.Engine.Math
         public static explicit operator Vector3(Vector3I vec) => new(vec.X, vec.Y, vec.Z);
         public static implicit operator Vector3I((int X, int Y, int Z) tuple) => new(tuple.X, tuple.Y, tuple.Z);
 
+        /// <summary>
+        /// Creates a new vector with the absolute values of all the componenets of the input.
+        /// </summary>
+        /// <param name="vector">The vector</param>
+        /// <returns>The new vector</returns>
         public static Vector3I Abs(IVector3I vector)
         {
             return new(System.Math.Abs(vector.X), System.Math.Abs(vector.Y), System.Math.Abs(vector.Z));
         }
 
+        /// <summary>
+        /// Creates a new vector with the minimum values of all the components of the inputs.
+        /// </summary>
+        /// <param name="a">The first vector</param>
+        /// <param name="b">The second vector</param>
+        /// <returns>The new vector</returns>
         public static Vector3I Min(IVector3I a, IVector3I b)
         {
             return new(
@@ -110,7 +142,13 @@ namespace DigBuild.Engine.Math
                 System.Math.Min(a.Z, b.Z)
             );
         }
-
+        
+        /// <summary>
+        /// Creates a new vector with the maximum values of all the components of the inputs.
+        /// </summary>
+        /// <param name="a">The first vector</param>
+        /// <param name="b">The second vector</param>
+        /// <returns>The new vector</returns>
         public static Vector3I Max(IVector3I a, IVector3I b)
         {
             return new(

@@ -4,6 +4,10 @@ using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Collections
 {
+    /// <summary>
+    /// An octree.
+    /// </summary>
+    /// <typeparam name="T">The type</typeparam>
     public sealed class Octree<T> : IOctree<T>
     {
         private readonly Level _topLevel;
@@ -22,6 +26,10 @@ namespace DigBuild.Engine.Collections
             set => _topLevel.Set(x, y, z, value);
         }
 
+        /// <summary>
+        /// Enumerates all non-null KV pairs.
+        /// </summary>
+        /// <returns>The enumerable</returns>
         public IEnumerable<KeyValuePair<Vector3I, T>> EnumerateNonNull() => _topLevel.EnumerateNonNull();
 
         public IEnumerator<KeyValuePair<Vector3I, T>> GetEnumerator() => _topLevel.GetEnumerator();

@@ -9,6 +9,9 @@ using DigBuild.Engine.Registries;
 
 namespace DigBuild.Engine.Networking
 {
+    /// <summary>
+    /// A network connection.
+    /// </summary>
     public sealed class Connection : IConnection, IDisposable
     {
         private readonly TcpClient _client;
@@ -22,6 +25,9 @@ namespace DigBuild.Engine.Networking
 
         public bool Connected => _client.Connected;
 
+        /// <summary>
+        /// Fired when the connection is closed.
+        /// </summary>
         public event Action? Closed;
 
         public Connection(
@@ -88,6 +94,9 @@ namespace DigBuild.Engine.Networking
             }) { Name = $"Network TX: {name}" };
         }
 
+        /// <summary>
+        /// Starts the packet handling threads.
+        /// </summary>
         public void StartHandlingPackets()
         {
             _rxThread.Start();
@@ -108,7 +117,7 @@ namespace DigBuild.Engine.Networking
             _client.Dispose();
         }
 
-        public void Enqueue(IPacketType type, byte[] bytes, int length)
+        internal void Enqueue(IPacketType type, byte[] bytes, int length)
         {
             if (!_packetIdsByType.TryGetValue(type, out var id))
                 throw new ArgumentException($"Unsupported packet type: {type.Name}", nameof(type));
@@ -137,7 +146,7 @@ namespace DigBuild.Engine.Networking
             _packetQueue.Add(new Packet(id, bytes, length));
         }
 
-        public static (byte[] Bytes, int Length) Serialize<T>(PacketType<T> type, T packet) where T : IPacket
+        internal static (byte[] Bytes, int Length) Serialize<T>(PacketType<T> type, T packet) where T : IPacket
         {
             var stream = new MemoryStream();
             type.Serialize(stream, packet);

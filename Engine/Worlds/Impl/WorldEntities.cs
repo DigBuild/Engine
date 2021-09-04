@@ -80,7 +80,7 @@ namespace DigBuild.Engine.Worlds.Impl
             }
         }
 
-        public static void OnChunkUnloaded(BuiltInChunkEvent.Unloaded evt)
+        public static void OnChunkUnloaded(BuiltInChunkEvent.Unloading evt)
         {
             var worldEntities = evt.World.Get(Type);
             var chunkEntities = evt.Chunk.Get(ChunkEntities.Type);

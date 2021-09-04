@@ -54,6 +54,9 @@ using FNLfloat = System.Single;
 
 namespace DigBuild.Engine.Math
 {
+    /// <summary>
+    /// FastNoiseLite library.
+    /// </summary>
     public class FastNoiseLite
     {
         private const short INLINE = 256; // MethodImplOptions.AggressiveInlining;

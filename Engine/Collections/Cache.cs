@@ -6,6 +6,12 @@ using DigBuild.Engine.Ticking;
 
 namespace DigBuild.Engine.Collections
 {
+    /// <summary>
+    /// A key-value collection that evicts keys after they haven't been
+    /// written to or read from for a certain amount of ticks.
+    /// </summary>
+    /// <typeparam name="TK">The key type</typeparam>
+    /// <typeparam name="TV">The value type</typeparam>
     public sealed class Cache<TK, TV> : IDictionary<TK, TV>, IDisposable where TK : notnull
     {
         private readonly Dictionary<TK, Entry> _store = new();
@@ -15,11 +21,20 @@ namespace DigBuild.Engine.Collections
         private readonly Dictionary<ulong, HashSet<TK>> _expirationStore = new();
         private ulong _now;
 
+        /// <summary>
+        /// The amount of entries.
+        /// </summary>
         public int Count => _store.Count;
-        public bool IsReadOnly => false;
+        /// <summary>
+        /// The keys.
+        /// </summary>
         public ICollection<TK> Keys => _store.Keys;
+        bool ICollection<KeyValuePair<TK, TV>>.IsReadOnly => false;
         ICollection<TV> IDictionary<TK, TV>.Values => throw new NotSupportedException();
         
+        /// <summary>
+        /// Fired when an entry is evicted.
+        /// </summary>
         public event Action<TK, TV>? EntryEvicted;
 
         public Cache(ITickSource tickSource, ulong expirationDelay)
@@ -67,6 +82,12 @@ namespace DigBuild.Engine.Collections
             keys.Add(key);
         }
         
+        /// <summary>
+        /// Adds a new key-value pair, optionally persisting it indefinitely.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <param name="value">The value</param>
+        /// <param name="persistIndefinitely">Whether to persist the KV pair indefinitely or not</param>
         public void Add(TK key, TV value, bool persistIndefinitely)
         {
             if (persistIndefinitely)
@@ -82,11 +103,22 @@ namespace DigBuild.Engine.Collections
             keys.Add(key);
         }
         
+        /// <summary>
+        /// Removes a key (and its value) from the cache.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <returns>Whether the KV pair was removed</returns>
         public bool Remove(TK key)
         {
             return Remove(key, out _);
         }
         
+        /// <summary>
+        /// Removes a key (and its value) from the cache.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <param name="value">The value</param>
+        /// <returns>Whether the KV pair was removed</returns>
         public bool Remove(TK key, [MaybeNullWhen(false)] out TV value)
         {
             if (!_store.Remove(key, out var val))
@@ -104,12 +136,20 @@ namespace DigBuild.Engine.Collections
             return true;
         }
 
+        /// <summary>
+        /// Clears the cache.
+        /// </summary>
         public void Clear()
         {
             _store.Clear();
             _expirationStore.Clear();
         }
 
+        /// <summary>
+        /// Forces a key to be persisted indefinitely.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <returns>Whether the key exists or not</returns>
         public bool Persist(TK key)
         {
             if (!_store.TryGetValue(key, out var val))
@@ -127,6 +167,11 @@ namespace DigBuild.Engine.Collections
             return true;
         }
 
+        /// <summary>
+        /// Allows a key to expire.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <returns>Whether the key exists or not</returns>
         public bool UnPersist(TK key)
         {
             if (!_store.TryGetValue(key, out var val))
@@ -137,6 +182,12 @@ namespace DigBuild.Engine.Collections
             return true;
         }
 
+        /// <summary>
+        /// Tries to get the value for a given key.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <param name="value">The value</param>
+        /// <returns>Whether the key exists or not</returns>
         public bool TryGetValue(TK key, [MaybeNullWhen(false)] out TV value)
         {
             if (!_store.TryGetValue(key, out var val))
@@ -151,6 +202,11 @@ namespace DigBuild.Engine.Collections
             return true;
         }
 
+        /// <summary>
+        /// A value.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <returns>The value</returns>
         public TV this[TK key]
         {
             get => TryGetValue(key, out var value) ? value : throw new ArgumentException("Key not found.", nameof(key));
@@ -169,12 +225,21 @@ namespace DigBuild.Engine.Collections
             }
         }
 
+        /// <summary>
+        /// Gets the enumerator for KV pairs.
+        /// </summary>
+        /// <returns>The enumerator</returns>
         public IEnumerator<KeyValuePair<TK, TV>> GetEnumerator()
         {
             return new Enumerator(this);
         }
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        /// <summary>
+        /// Checks whether a key is contained in the cache.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <returns>Whether the key was found or not</returns>
         public bool ContainsKey(TK key) => _store.ContainsKey(key);
 
         void IDictionary<TK, TV>.Add(TK key, TV value) => Add(key, value, false);

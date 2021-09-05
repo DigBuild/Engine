@@ -128,7 +128,7 @@ namespace DigBuild.Engine.Storage
                 for (var i = 0; i < count; i++)
                 {
                     var name = ResourceName.Parse(br.ReadString())!;
-                    var handle = Registry.GetOr(name.Value)!;
+                    var handle = Registry.GetOrNull(name.Value)!;
                     var data = handle.Deserialize(stream, context);
                     container._data[handle] = data;
                     ((IChangeNotifier) data).Changed += container.NotifyChange;

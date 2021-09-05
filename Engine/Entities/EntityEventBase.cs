@@ -1,7 +1,7 @@
 ﻿namespace DigBuild.Engine.Entities
 {
     /// <summary>
-    /// An entity event.
+    /// An internal entity event.
     /// </summary>
     public abstract class EntityEventBase : IEntityEvent
     {

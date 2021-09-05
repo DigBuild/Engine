@@ -7,8 +7,14 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Items
 {
+    /// <summary>
+    /// An item instance.
+    /// </summary>
     public sealed class ItemInstance : IReadOnlyItemInstance
     {
+        /// <summary>
+        /// The empty item instance singleton.
+        /// </summary>
         public static readonly ItemInstance Empty = new(null!, 0);
 
         public Item Type { get; }
@@ -30,6 +36,13 @@ namespace DigBuild.Engine.Items
         }
 
         public TAttrib Get<TAttrib>(ItemAttribute<TAttrib> attribute) => Type.Get(this, attribute);
+        
+        /// <summary>
+        /// Gets a capability of this item.
+        /// </summary>
+        /// <typeparam name="TCap">The capability type</typeparam>
+        /// <param name="capability">The capability</param>
+        /// <returns>The value</returns>
         public TCap Get<TCap>(ItemCapability<TCap> capability) => Type.Get(this, capability);
 
         public bool Equals(IReadOnlyItemInstance other, bool ignoreCount = false, bool testEmpty = false)
@@ -56,6 +69,9 @@ namespace DigBuild.Engine.Items
             return Count == 0 ? "Empty" : $"{Count}x {Type.Name}";
         }
 
+        /// <summary>
+        /// The serdes.
+        /// </summary>
         public static ISerdes<ItemInstance> Serdes { get; } = new SimpleSerdes<ItemInstance>(
             (stream, item) =>
             {

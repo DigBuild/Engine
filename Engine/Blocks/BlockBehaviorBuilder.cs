@@ -39,7 +39,20 @@ namespace DigBuild.Engine.Blocks
         void Subscribe<TEvent, TResult>(BlockEventDelegate<TData, TEvent, TResult> del)
             where TEvent : IBlockEvent<TResult>;
         
+        /// <summary>
+        /// Adds a new attribute supplier.
+        /// </summary>
+        /// <typeparam name="T">The attribute type</typeparam>
+        /// <param name="attribute">The attribute</param>
+        /// <param name="supplier">The supplier</param>
         void Add<T>(BlockAttribute<T> attribute, BlockAttributeDelegate<TReadOnlyData, T> supplier);
+        
+        /// <summary>
+        /// Adds a new capability supplier.
+        /// </summary>
+        /// <typeparam name="T">The capability type</typeparam>
+        /// <param name="capability">The capability</param>
+        /// <param name="supplier">The supplier</param>
         void Add<T>(BlockCapability<T> capability, BlockCapabilityDelegate<TData, T> supplier);
     }
     
@@ -89,12 +102,6 @@ namespace DigBuild.Engine.Blocks
             });
         }
 
-        /// <summary>
-        /// Adds a new attribute supplier.
-        /// </summary>
-        /// <typeparam name="T">The attribute type</typeparam>
-        /// <param name="attribute">The attribute</param>
-        /// <param name="supplier">The supplier</param>
         public void Add<T>(BlockAttribute<T> attribute, BlockAttributeDelegate<TReadOnlyData, T> supplier)
         {
             if (!_attributeSuppliers.TryGetValue(attribute, out var list))
@@ -105,12 +112,6 @@ namespace DigBuild.Engine.Blocks
             });
         }
         
-        /// <summary>
-        /// Adds a new capability supplier.
-        /// </summary>
-        /// <typeparam name="T">The capability type</typeparam>
-        /// <param name="capability">The capability</param>
-        /// <param name="supplier">The supplier</param>
         public void Add<T>(BlockCapability<T> capability, BlockCapabilityDelegate<TData, T> supplier)
         {
             if (!_capabilitySuppliers.TryGetValue(capability, out var list))

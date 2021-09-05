@@ -12,7 +12,10 @@ namespace DigBuild.Engine.Entities
     internal delegate object GenericEntityEventDelegate(IEntityEvent evt);
     internal delegate object GenericEntityAttributeDelegate(IReadOnlyEntityInstance instance);
     internal delegate object GenericEntityCapabilityDelegate(EntityInstance instance);
-
+    
+    /// <summary>
+    /// An entity builder.
+    /// </summary>
     public sealed class EntityBuilder
     {
         private static readonly Func<DataContainer?> CreateNullData = () => null;
@@ -23,7 +26,12 @@ namespace DigBuild.Engine.Entities
         private readonly Dictionary<IEntityAttribute, List<EntityAttributeDelegate>> _attributeSuppliers = new();
         private readonly Dictionary<IEntityCapability, List<EntityCapabilityDelegate>> _capabilitySuppliers = new();
         private readonly List<Action<DataContainer>> _dataInitializers = new();
-
+        
+        /// <summary>
+        /// Adds a new non-persistent data class.
+        /// </summary>
+        /// <typeparam name="TData">The data class type</typeparam>
+        /// <returns>The handle</returns>
         public DataHandle<TData> Add<TData>()
             where TData : class, IData<TData>, new()
         {
@@ -31,7 +39,14 @@ namespace DigBuild.Engine.Entities
             _dataHandles.Add(handle);
             return handle;
         }
-
+        
+        /// <summary>
+        /// Adds a persistent data class.
+        /// </summary>
+        /// <typeparam name="TData">The data class type</typeparam>
+        /// <param name="name">The name</param>
+        /// <param name="serdes">The serdes</param>
+        /// <returns>The handle</returns>
         public DataHandle<TData> Add<TData>(ResourceName name, ISerdes<TData> serdes)
             where TData : class, IData<TData>, IChangeNotifier, new()
         {
@@ -39,23 +54,56 @@ namespace DigBuild.Engine.Entities
             _serializedDataHandles.Add(handle, (name, serdes.UncheckedSuperCast<TData, IData>()));
             return handle;
         }
-
+        
+        /// <summary>
+        /// Attaches a behavior without a contract.
+        /// </summary>
+        /// <param name="behavior">The behavior</param>
         public void Attach(IEntityBehavior behavior) => AttachLast(behavior);
+        /// <summary>
+        /// Attaches a behavior.
+        /// </summary>
+        /// <typeparam name="TReadOnlyContract">The read-only contract type</typeparam>
+        /// <typeparam name="TContract">The contract type</typeparam>
+        /// <typeparam name="TData">The data type</typeparam>
+        /// <param name="behavior">The behavior</param>
+        /// <param name="data">The data</param>
         public void Attach<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
             where TContract : TReadOnlyContract
             where TData : class, TContract, IData<TData>, new()
             => AttachLast(behavior, data);
+        /// <summary>
+        /// Attaches a behavior with deferred data querying.
+        /// </summary>
+        /// <typeparam name="TReadOnlyContract">The read-only contract type</typeparam>
+        /// <typeparam name="TContract">The contract type</typeparam>
+        /// <typeparam name="TData">The data type</typeparam>
+        /// <param name="behavior">The behavior</param>
+        /// <param name="data">The data</param>
+        /// <param name="adapter">The data adapter</param>
         public void Attach<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TContract : TReadOnlyContract
             where TData : class, IData<TData>, new()
             => AttachLast(behavior, data, adapter);
         
+        /// <summary>
+        /// Attaches a behavior without a contract at the end of the chain.
+        /// </summary>
+        /// <param name="behavior">The behavior</param>
         public void AttachLast(IEntityBehavior behavior)
         {
             var builder = new EntityBehaviorBuilder<object, object>(_ => null!);
             behavior.Build(builder);
             Attach(builder, false);
         }
+        /// <summary>
+        /// Attaches a behavior at the end of the chain.
+        /// </summary>
+        /// <typeparam name="TReadOnlyContract">The read-only contract type</typeparam>
+        /// <typeparam name="TContract">The contract type</typeparam>
+        /// <typeparam name="TData">The data type</typeparam>
+        /// <param name="behavior">The behavior</param>
+        /// <param name="data">The data</param>
         public void AttachLast<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
             where TContract : TReadOnlyContract
             where TData : class, TContract, IData<TData>, new()
@@ -69,7 +117,15 @@ namespace DigBuild.Engine.Entities
             
             _dataInitializers.Add(container => behavior.Init(container.Get(data)));
         }
-
+        /// <summary>
+        /// Attaches a behavior with deferred data querying at the end of the chain.
+        /// </summary>
+        /// <typeparam name="TReadOnlyContract">The read-only contract type</typeparam>
+        /// <typeparam name="TContract">The contract type</typeparam>
+        /// <typeparam name="TData">The data type</typeparam>
+        /// <param name="behavior">The behavior</param>
+        /// <param name="data">The data</param>
+        /// <param name="adapter">The data adapter</param>
         public void AttachLast<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TContract : TReadOnlyContract
             where TData : class, IData<TData>, new()
@@ -83,13 +139,25 @@ namespace DigBuild.Engine.Entities
             
             _dataInitializers.Add(container => behavior.Init(adapter(container.Get(data))));
         }
-
+        
+        /// <summary>
+        /// Attaches a behavior without a contract at the start of the chain.
+        /// </summary>
+        /// <param name="behavior">The behavior</param>
         public void AttachFirst(IEntityBehavior<object> behavior)
         {
             var builder = new EntityBehaviorBuilder<object, object>(_ => null!);
             behavior.Build(builder);
             Attach(builder, true);
         }
+        /// <summary>
+        /// Attaches a behavior at the start of the chain.
+        /// </summary>
+        /// <typeparam name="TReadOnlyContract">The read-only contract type</typeparam>
+        /// <typeparam name="TContract">The contract type</typeparam>
+        /// <typeparam name="TData">The data type</typeparam>
+        /// <param name="behavior">The behavior</param>
+        /// <param name="data">The data</param>
         public void AttachFirst<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data)
             where TContract : TReadOnlyContract
             where TData : class, TContract, IData<TData>, new()
@@ -103,6 +171,15 @@ namespace DigBuild.Engine.Entities
             
             _dataInitializers.Insert(0, container => behavior.Init(container.Get(data)));
         }
+        /// <summary>
+        /// Attaches a behavior with deferred data querying at the start of the chain.
+        /// </summary>
+        /// <typeparam name="TReadOnlyContract">The read-only contract type</typeparam>
+        /// <typeparam name="TContract">The contract type</typeparam>
+        /// <typeparam name="TData">The data type</typeparam>
+        /// <param name="behavior">The behavior</param>
+        /// <param name="data">The data</param>
+        /// <param name="adapter">The data adapter</param>
         public void AttachFirst<TReadOnlyContract, TContract, TData>(IEntityBehavior<TReadOnlyContract, TContract> behavior, DataHandle<TData> data, RefFunc<TData, TContract> adapter)
             where TContract : TReadOnlyContract
             where TData : class, IData<TData>, new()

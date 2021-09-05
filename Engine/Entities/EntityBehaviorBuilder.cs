@@ -15,14 +15,22 @@ namespace DigBuild.Engine.Entities
     internal delegate object EntityEventDelegate(IEntityEvent evt, Func<object> next);
     internal delegate object EntityAttributeDelegate(IReadOnlyEntityInstance instance, Func<object> next);
     internal delegate object EntityCapabilityDelegate(EntityInstance instance, Func<object> next);
-
+    
+    /// <summary>
+    /// An entity behavior builder.
+    /// </summary>
     public interface IEntityBehaviorBuilder
     {
         internal Dictionary<Type, List<EntityEventDelegate>> EventHandlers { get; }
         internal Dictionary<IEntityAttribute, List<EntityAttributeDelegate>> AttributeSuppliers { get; }
         internal Dictionary<IEntityCapability, List<EntityCapabilityDelegate>> CapabilitySuppliers { get; }
     }
-
+    
+    /// <summary>
+    /// An entity behavior builder.
+    /// </summary>
+    /// <typeparam name="TReadOnlyData">The read only contract</typeparam>
+    /// <typeparam name="TData">The read-write contract</typeparam>
     public interface IEntityBehaviorBuilder<out TReadOnlyData, out TData> : IEntityBehaviorBuilder
         where TData : TReadOnlyData
     {
@@ -31,10 +39,28 @@ namespace DigBuild.Engine.Entities
         void Subscribe<TEvent, TResult>(EntityEventDelegate<TData, TEvent, TResult> del)
             where TEvent : IEntityEvent<TResult>;
         
+        /// <summary>
+        /// Adds a new attribute supplier.
+        /// </summary>
+        /// <typeparam name="T">The attribute type</typeparam>
+        /// <param name="attribute">The attribute</param>
+        /// <param name="supplier">The supplier</param>
         void Add<T>(EntityAttribute<T> attribute, EntityAttributeDelegate<TReadOnlyData, T> supplier);
+
+        /// <summary>
+        /// Adds a new capability supplier.
+        /// </summary>
+        /// <typeparam name="T">The capability type</typeparam>
+        /// <param name="capability">The capability</param>
+        /// <param name="supplier">The supplier</param>
         void Add<T>(EntityCapability<T> capability, EntityCapabilityDelegate<TData, T> supplier);
     }
-
+    
+    /// <summary>
+    /// An entity behavior builder.
+    /// </summary>
+    /// <typeparam name="TReadOnlyData">The read only contract</typeparam>
+    /// <typeparam name="TData">The read-write contract</typeparam>
     public sealed class EntityBehaviorBuilder<TReadOnlyData, TData> : IEntityBehaviorBuilder<TReadOnlyData, TData>
         where TData : TReadOnlyData
     {

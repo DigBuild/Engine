@@ -8,7 +8,16 @@
     public interface IBlockBehavior<TReadOnlyContract, TContract>
         where TContract : TReadOnlyContract
     {
+        /// <summary>
+        /// Initializes the contract instance.
+        /// </summary>
+        /// <param name="data">The data instance</param>
         void Init(TContract data) { }
+
+        /// <summary>
+        /// Adds event handlers and attribute/capability suppliers to the block.
+        /// </summary>
+        /// <param name="block">The behavior builder</param>
         void Build(BlockBehaviorBuilder<TReadOnlyContract, TContract> block);
     }
 

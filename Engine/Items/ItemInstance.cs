@@ -78,7 +78,7 @@ namespace DigBuild.Engine.Items
                     return Empty;
 
                 var itemName = ResourceName.Parse(br.ReadString())!.Value;
-                var type = DigBuildEngine.Items.GetOrNull(itemName)!;
+                var type = DigBuildEngine.Items.GetOr(itemName)!;
 
                 var data = type.DataSerdes.Deserialize(stream, context);
 

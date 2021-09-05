@@ -24,6 +24,11 @@ namespace DigBuild.Engine.Math
         /// </summary>
         public ChunkBlockPos SubChunkPos => new(X, Y, Z);
 
+        /// <summary>
+        /// Whether this position is out of bounds or not.
+        /// </summary>
+        public bool OutOfBounds => Y < 0 || Y >= WorldDimensions.ChunkHeight;
+
         public BlockPos(int x, int y, int z)
         {
             X = x;

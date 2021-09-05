@@ -5,6 +5,9 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Registries
 {
+    /// <summary>
+    /// A registry instantiator and initializer.
+    /// </summary>
     public sealed class RegistryManager
     {
         private readonly List<Action> _builders = new();
@@ -16,6 +19,13 @@ namespace DigBuild.Engine.Registries
             _eventBus = eventBus;
         }
 
+        /// <summary>
+        /// Creates a new registry.
+        /// </summary>
+        /// <typeparam name="T">The value type</typeparam>
+        /// <param name="name">The registry name</param>
+        /// <param name="nameValidator">The entry name validator</param>
+        /// <param name="valueValidator">The entry value validator</param>
         public void CreateRegistryOf<T>(
             ResourceName name,
             Predicate<ResourceName>? nameValidator = null,
@@ -32,6 +42,14 @@ namespace DigBuild.Engine.Registries
             });
         }
 
+        /// <summary>
+        /// Creates a new registry.
+        /// </summary>
+        /// <typeparam name="T">The value type</typeparam>
+        /// <param name="domain">The registry domain</param>
+        /// <param name="path">The registry path</param>
+        /// <param name="nameValidator">The entry name validator</param>
+        /// <param name="valueValidator">The entry value validator</param>
         public void CreateRegistryOf<T>(
             string domain, string path,
             Predicate<ResourceName>? nameValidator = null,
@@ -41,6 +59,14 @@ namespace DigBuild.Engine.Registries
             CreateRegistryOf(new ResourceName(domain, path), nameValidator, valueValidator);
         }
         
+        /// <summary>
+        /// Creates a new type registry.
+        /// </summary>
+        /// <typeparam name="T">The key type</typeparam>
+        /// <typeparam name="TValue">The value type</typeparam>
+        /// <param name="name">The registry name</param>
+        /// <param name="typeValidator">The entry type validator</param>
+        /// <param name="valueValidator">The entry value validator</param>
         public void CreateTypeRegistryOf<T, TValue>(
             ResourceName name,
             Predicate<Type>? typeValidator = null,
@@ -56,7 +82,16 @@ namespace DigBuild.Engine.Registries
                 _eventBus.Post(new TypeRegistryBuiltEvent<T, TValue>(registry));
             });
         }
-
+        
+        /// <summary>
+        /// Creates a new type registry.
+        /// </summary>
+        /// <typeparam name="T">The key type</typeparam>
+        /// <typeparam name="TValue">The value type</typeparam>
+        /// <param name="domain">The registry domain</param>
+        /// <param name="path">The registry path</param>
+        /// <param name="typeValidator">The entry type validator</param>
+        /// <param name="valueValidator">The entry value validator</param>
         public void CreateTypeRegistryOf<T, TValue>(
             string domain, string path,
             Predicate<Type>? typeValidator = null,
@@ -66,6 +101,9 @@ namespace DigBuild.Engine.Registries
             CreateTypeRegistryOf<T, TValue>(new ResourceName(domain, path), typeValidator, valueValidator);
         }
 
+        /// <summary>
+        /// Builds all the registries, firing events as necessary.
+        /// </summary>
         public void BuildAll()
         {
             _builders.ForEach(build => build());

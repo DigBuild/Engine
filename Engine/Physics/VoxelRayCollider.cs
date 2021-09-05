@@ -4,16 +4,24 @@ using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Physics
 {
+    /// <summary>
+    /// A basic multi-voxel ray collider.
+    /// </summary>
     public sealed class VoxelRayCollider : IRayCollider<VoxelRayCollider.Hit>
     {
         private readonly AABB[] _bounds;
+
+        /// <summary>
+        /// The boxes that are part of this collider.
+        /// </summary>
+        public IEnumerable<AABB> Voxels => _bounds;
 
         public VoxelRayCollider(params AABB[] bounds)
         {
             _bounds = bounds;
         }
 
-        public bool TryCollide(Raycast.Ray ray, [NotNullWhen(true)] out Hit? hit)
+        public bool TryCollide(RayCaster.Ray ray, [NotNullWhen(true)] out Hit? hit)
         {
             var delta = float.MaxValue;
             var side = Direction.NegX;
@@ -41,11 +49,6 @@ namespace DigBuild.Engine.Physics
             }
             hit = new Hit(delta, side, index, hitBox.Value);
             return true;
-        }
-
-        public IEnumerable<AABB> GetCollisionBoxes()
-        {
-            return _bounds;
         }
 
         public sealed class Hit

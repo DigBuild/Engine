@@ -85,7 +85,7 @@ namespace DigBuild.Engine.Worlds.Impl
         //             var id = new Guid(br.ReadBytes(16));
         //             
         //             var name = ResourceName.Parse(br.ReadString())!;
-        //             var type = BuiltInRegistries.Entities.GetOrNull(name.Value)!;
+        //             var type = BuiltInRegistries.Entities.GetOr(name.Value)!;
         //
         //             var data = type.DataSerdes.Deserialize(stream, ctx);
         //

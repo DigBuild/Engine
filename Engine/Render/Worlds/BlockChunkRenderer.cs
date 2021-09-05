@@ -83,6 +83,7 @@ namespace DigBuild.Engine.Render.Worlds
             bool IsNeighborFaceSolid(ChunkBlockPos pos, Direction direction)
             {
                 var absPos = (_chunk.Position + pos).Offset(direction);
+                if (absPos.OutOfBounds) return true;
                 var (chunkPos, blockPos) = absPos;
                 var (relX, relZ) = chunkPos - _chunk.Position;
                 var sameChunk = relX == 0 && relZ == 0;

@@ -147,7 +147,7 @@ namespace DigBuild.Engine.Worlds.Impl
                         continue;
 
                     var name = ResourceName.Parse(br.ReadString())!;
-                    var block = DigBuildEngine.Blocks.GetOrNull(name.Value)!;
+                    var block = DigBuildEngine.Blocks.GetOr(name.Value)!;
                     blocks._blocks[i][x, y, z] = block;
                     
                     var data = block.DataSerdes.Deserialize(stream, context);

@@ -3,27 +3,36 @@ using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Physics
 {
+    /// <summary>
+    /// A basic single voxel collider.
+    /// </summary>
     public sealed class VoxelCollider : ICollider
     {
-        private readonly AABB _bounds;
-        
-        public VoxelCollider(AABB bounds)
+        /// <summary>
+        /// The bounds of this collider.
+        /// </summary>
+        public AABB Voxel { get; }
+
+        public VoxelCollider(AABB voxel)
         {
-            _bounds = bounds;
+            Voxel = voxel;
         }
 
-        public bool Collide(AABB target, Vector3 motion, out Vector3 intersection)
+        public bool Collide(AABB target, Vector3 velocity, out float delta, out Vector3 intersection)
         {
-            var minkowski = AABB.MinkowskiDifference(target, _bounds);
+            var minkowski = AABB.MinkowskiDifference(target, Voxel);
 
             // Already intersecting
-            if (minkowski.Contains(-motion, out intersection))
-                return true;
-
-            // Will intersect at some point
-            if (minkowski.IntersectRay(Vector3.Zero, -motion, out var delta, out var side))
+            if (minkowski.Contains(-velocity, out intersection))
             {
-                intersection = -motion * side.GetAxis().AsVector() * (1 - delta);
+                delta = 0;
+                return true;
+            }
+            
+            // Will intersect at some point
+            if (minkowski.IntersectRay(Vector3.Zero, -velocity, out delta, out var side))
+            {
+                intersection = -velocity * side.GetAxis().AsVector() * (1 - delta);
                 return true;
             }
 

@@ -22,7 +22,7 @@ namespace DigBuild.Engine.Math
         /// </summary>
         public RegionPos RegionPos => new(
             WorldDimensions.ChunkCoordToRegionCoord(X),
-            WorldDimensions.ChunkCoordToRegionCoord(X)
+            WorldDimensions.ChunkCoordToRegionCoord(Z)
         );
         /// <summary>
         /// The position within the region.

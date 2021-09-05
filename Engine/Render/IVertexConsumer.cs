@@ -1,72 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using DigBuild.Platform.Util;
 
 namespace DigBuild.Engine.Render
 {
+    /// <summary>
+    /// A vertex consumer.
+    /// </summary>
+    /// <typeparam name="T">The vertex type</typeparam>
     public interface IVertexConsumer<in T> where T : unmanaged
     {
+        /// <summary>
+        /// Accepts a single vertex.
+        /// </summary>
+        /// <param name="vertex">The vertex</param>
         void Accept(T vertex);
+
+        /// <summary>
+        /// Accepts an enumeration of vertices.
+        /// </summary>
+        /// <param name="vertices">The vertices</param>
         void Accept(IEnumerable<T> vertices);
+
+        /// <summary>
+        /// Accepts an array of vertices.
+        /// </summary>
+        /// <param name="vertices">The vertices</param>
         void Accept(params T[] vertices) => Accept((IEnumerable<T>) vertices);
-    }
-
-    public sealed class VertexTransformer<T> : IVertexConsumer<T> where T : unmanaged
-    {
-        private readonly IVertexConsumer<T> _next;
-        private readonly Func<T, T> _transform;
-
-        public VertexTransformer(IVertexConsumer<T> next, Func<T, T> transform)
-        {
-            _next = next;
-            _transform = transform;
-        }
-        
-        public void Accept(T vertex)
-        {
-            _next.Accept(_transform(vertex));
-        }
-
-        public void Accept(IEnumerable<T> vertices)
-        {
-            _next.Accept(vertices.Select(_transform));
-        }
-    }
-
-    public sealed class NativeBufferVertexConsumer<T> : IVertexConsumer<T> where T : unmanaged
-    {
-        private readonly INativeBuffer<T> _buffer;
-
-        public NativeBufferVertexConsumer(INativeBuffer<T> buffer)
-        {
-            _buffer = buffer;
-        }
-
-        public void Accept(T vertex) => _buffer.Add(vertex);
-        public void Accept(IEnumerable<T> vertices) => _buffer.Add(vertices);
-    }
-
-    public sealed class LazyNativeBufferVertexConsumer<T> : IVertexConsumer<T> where T : unmanaged
-    {
-        private readonly Func<INativeBuffer<T>> _supplier;
-        private INativeBuffer<T>? _buffer;
-
-        public LazyNativeBufferVertexConsumer(Func<INativeBuffer<T>> supplier)
-        {
-            _supplier = supplier;
-        }
-
-        public void Accept(T vertex)
-        {
-            _buffer ??= _supplier();
-            _buffer.Add(vertex);
-        }
-
-        public void Accept(IEnumerable<T> vertices)
-        {
-            _buffer ??= _supplier();
-            _buffer.Add(vertices);
-        }
     }
 }

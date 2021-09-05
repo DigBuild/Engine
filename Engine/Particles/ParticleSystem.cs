@@ -22,7 +22,12 @@ namespace DigBuild.Engine.Particles
     public interface IParticleSystem<TGpu> : IParticleSystem
         where TGpu : unmanaged
     {
-        internal INativeBuffer<TGpu> UpdateGpu(float partialTick);
+        /// <summary>
+        /// Updates the GPU representations of all the particles.
+        /// </summary>
+        /// <param name="partialTick">The tick delta</param>
+        /// <returns>The native buffer with the GPU particles</returns>
+        INativeBuffer<TGpu> UpdateGpu(float partialTick);
     }
 
     /// <summary>

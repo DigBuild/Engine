@@ -5,64 +5,82 @@ using DigBuild.Platform.Util;
 
 namespace DigBuild.Engine.Render
 {
+    /// <summary>
+    /// A basic read-write uniform buffer set implementation.
+    /// </summary>
     public sealed class UniformBufferSet : IUniformBufferSetWriter, IReadOnlyUniformBufferSet
     {
         private readonly NativeBufferPool _bufferPool;
 
-        private readonly Dictionary<IRenderUniform, IData> _uniforms = new();
+        private readonly Dictionary<IUniformType, IData> _uniforms = new();
         
-        public UniformBufferSet(IEnumerable<IRenderUniform> uniforms, NativeBufferPool bufferPool)
+        public UniformBufferSet(IEnumerable<IUniformType> uniforms, NativeBufferPool bufferPool)
         {
             _bufferPool = bufferPool;
             foreach (var uniform in uniforms)
                 _uniforms[uniform] = uniform.CreateData(bufferPool);
         }
 
-        private Data<TUniform> GetData<TUniform>(RenderUniform<TUniform> uniform)
+        private Data<TUniform> GetData<TUniform>(UniformType<TUniform> uniformType)
             where TUniform : unmanaged, IUniform<TUniform>
         {
-            if (!_uniforms.TryGetValue(uniform, out var d) || d is not Data<TUniform> data)
-                _uniforms[uniform] = data = new Data<TUniform>(_bufferPool);
+            if (!_uniforms.TryGetValue(uniformType, out var d) || d is not Data<TUniform> data)
+                _uniforms[uniformType] = data = new Data<TUniform>(_bufferPool);
             return data;
         }
 
-        public uint Push<TUniform>(RenderUniform<TUniform> uniform, TUniform value)
+        public uint Push<TUniform>(UniformType<TUniform> uniformType, TUniform value)
             where TUniform : unmanaged, IUniform<TUniform>
         {
-            var data = GetData(uniform);
+            var data = GetData(uniformType);
             data.Push(value);
             return data.Index;
         }
 
-        public UniformBuffer<TUniform> Get<TUniform>(RenderUniform<TUniform> uniform)
+        public UniformBuffer<TUniform> Get<TUniform>(UniformType<TUniform> uniformType)
             where TUniform : unmanaged, IUniform<TUniform>
         {
-            return GetData(uniform).Buffer;
+            return GetData(uniformType).Buffer;
         }
 
-        public uint GetIndex<TUniform>(RenderUniform<TUniform> uniform)
+        public uint GetIndex<TUniform>(UniformType<TUniform> uniformType)
             where TUniform : unmanaged, IUniform<TUniform>
         {
-            return GetData(uniform).Index;
+            return GetData(uniformType).Index;
         }
 
+        /// <summary>
+        /// Captures a snapshot of the buffer set in its current state.
+        /// </summary>
+        /// <returns>The snapshot</returns>
         public Snapshot CaptureSnapshot()
         {
-            return new(this);
+            return new Snapshot(this);
         }
 
+        /// <summary>
+        /// Sets up all the uniforms.
+        /// </summary>
+        /// <param name="context">The render context</param>
         public void Setup(RenderContext context)
         {
             foreach (var data in _uniforms.Values)
                 data.Setup(context);
         }
 
+        /// <summary>
+        /// Uploads all the uniform buffers.
+        /// </summary>
+        /// <param name="context">The render context</param>
         public void Upload(RenderContext context)
         {
             foreach (var data in _uniforms.Values)
                 data.Upload(context);
         }
 
+        /// <summary>
+        /// Clears all the uniforms.
+        /// </summary>
         public void Clear()
         {
             foreach (var data in _uniforms.Values)
@@ -135,10 +153,13 @@ namespace DigBuild.Engine.Render
             }
         }
 
+        /// <summary>
+        /// A snapshot of the uniform buffer set.
+        /// </summary>
         public sealed class Snapshot : IReadOnlyUniformBufferSet
         {
             private readonly UniformBufferSet _uniforms;
-            private readonly Dictionary<IRenderUniform, uint> _indices = new();
+            private readonly Dictionary<IUniformType, uint> _indices = new();
             
             public Snapshot(UniformBufferSet uniforms)
             {
@@ -147,14 +168,14 @@ namespace DigBuild.Engine.Render
                     _indices[key] = data.Index;
             }
 
-            public UniformBuffer<TUniform> Get<TUniform>(RenderUniform<TUniform> uniform) where TUniform : unmanaged, IUniform<TUniform>
+            public UniformBuffer<TUniform> Get<TUniform>(UniformType<TUniform> uniformType) where TUniform : unmanaged, IUniform<TUniform>
             {
-                return _uniforms.Get(uniform);
+                return _uniforms.Get(uniformType);
             }
 
-            public uint GetIndex<TUniform>(RenderUniform<TUniform> uniform) where TUniform : unmanaged, IUniform<TUniform>
+            public uint GetIndex<TUniform>(UniformType<TUniform> uniformType) where TUniform : unmanaged, IUniform<TUniform>
             {
-                return _indices[uniform];
+                return _indices[uniformType];
             }
         }
     }

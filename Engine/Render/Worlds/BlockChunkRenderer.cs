@@ -12,6 +12,9 @@ using DigBuild.Platform.Util;
 
 namespace DigBuild.Engine.Render.Worlds
 {
+    /// <summary>
+    /// A chunk renderer that draws blocks.
+    /// </summary>
     public class BlockChunkRenderer : IChunkRenderer
     {
         private readonly IReadOnlyWorld _world;
@@ -55,6 +58,9 @@ namespace DigBuild.Engine.Render.Worlds
             _lightingStorage.Changed -= OnChanged;
         }
 
+        /// <summary>
+        /// Notifies the block renderer that it must update.
+        /// </summary>
         public void OnChanged()
         {
             _updated = true;

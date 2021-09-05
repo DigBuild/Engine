@@ -6,6 +6,9 @@ using DigBuild.Platform.Util;
 
 namespace DigBuild.Engine.Render
 {
+    /// <summary>
+    /// A basic geometry buffer implementation.
+    /// </summary>
     public sealed class GeometryBuffer : IGeometryBuffer, IDisposable
     {
         private readonly NativeBufferPool _bufferPool;
@@ -29,24 +32,41 @@ namespace DigBuild.Engine.Render
             return layer.CreateTransformer(geometry, Transform, TransformNormal);
         }
 
+        /// <summary>
+        /// Uploads all layer data to the GPU.
+        /// </summary>
+        /// <param name="context">The render context</param>
         public void Upload(RenderContext context)
         {
             foreach (var layerData in _layers.Values)
                 layerData.Upload(context);
         }
         
+        /// <summary>
+        /// Records the draw call for the geometry for the specified layer.
+        /// </summary>
+        /// <param name="cmd">The command buffer</param>
+        /// <param name="layer">The layer</param>
+        /// <param name="bindings">The layer bindings</param>
+        /// <param name="uniforms">The uniforms</param>
         public void Draw(CommandBufferRecorder cmd, IRenderLayer layer, RenderLayerBindingSet bindings, IReadOnlyUniformBufferSet uniforms)
         {
             if (_layers.TryGetValue(layer, out var data))
                 data.Draw(cmd, bindings, uniforms);
         }
 
+        /// <summary>
+        /// Clears all the geometry.
+        /// </summary>
         public void Clear()
         {
             foreach (var layerData in _layers.Values)
                 layerData.Clear();
         }
 
+        /// <summary>
+        /// Clears all the geometry and resets the transforms.
+        /// </summary>
         public void Reset()
         {
             Clear();
@@ -67,7 +87,7 @@ namespace DigBuild.Engine.Render
             void Clear();
         }
 
-        public class Geometry<TVertex> : IGeometry, IVertexConsumer<TVertex>
+        private class Geometry<TVertex> : IGeometry, IVertexConsumer<TVertex>
             where TVertex : unmanaged
         {
             private readonly IRenderLayer<TVertex> _layer;

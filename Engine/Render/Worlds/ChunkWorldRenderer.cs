@@ -13,6 +13,9 @@ using DigBuild.Platform.Render;
 
 namespace DigBuild.Engine.Render.Worlds
 {
+    /// <summary>
+    /// A world renderer that draws chunks.
+    /// </summary>
     public sealed class ChunkWorldRenderer : IWorldRenderer
     {
         private readonly IReadOnlyWorld _world;

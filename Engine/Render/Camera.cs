@@ -3,13 +3,22 @@ using System.Numerics;
 
 namespace DigBuild.Engine.Render
 {
+    /// <summary>
+    /// A basic 3D camera.
+    /// </summary>
     public class Camera : ICamera
     {
         public float FieldOfView { get; }
 
         public Vector3 Position { get; }
 
+        /// <summary>
+        /// The pitch.
+        /// </summary>
         public float Pitch { get; }
+        /// <summary>
+        /// The yaw.
+        /// </summary>
         public float Yaw { get; }
 
         public Camera(Vector3 position, float pitch, float yaw, float fieldOfView)

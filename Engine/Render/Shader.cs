@@ -2,9 +2,15 @@
 
 namespace DigBuild.Engine.Render
 {
+    /// <summary>
+    /// A custom shader resource.
+    /// </summary>
     public sealed class Shader : ICustomResource
     {
         public ResourceName Name { get; }
+        /// <summary>
+        /// The backing resource.
+        /// </summary>
         public IResource Resource { get; }
 
         private Shader(ResourceName name, IResource resource)

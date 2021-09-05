@@ -3,6 +3,9 @@ using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Render
 {
+    /// <summary>
+    /// A view frustum composed by 6 planes.
+    /// </summary>
     public sealed class ViewFrustum
     {
         private readonly Plane[] _planes = new Plane[6];
@@ -47,6 +50,11 @@ namespace DigBuild.Engine.Render
             ));
         }
 
+        /// <summary>
+        /// Checks if the AABB falls within the bounds of this view frustum.
+        /// </summary>
+        /// <param name="aabb">The AABB</param>
+        /// <returns>Whether it is within the view frustum or not</returns>
         public bool Test(AABB aabb)
         {
             foreach (var plane in _planes)

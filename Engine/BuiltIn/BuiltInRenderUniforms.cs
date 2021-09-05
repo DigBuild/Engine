@@ -13,7 +13,7 @@ namespace DigBuild.Engine.BuiltIn
         /// <summary>
         /// A two-matrix model-view + projection transform.
         /// </summary>
-        public static RenderUniform<SimpleTransform> ModelViewProjectionTransform { get; } = new();
+        public static Render.UniformType<SimpleTransform> ModelViewProjectionTransform { get; } = new();
     }
 
     public interface ISimpleTransform : IUniform<SimpleTransform>

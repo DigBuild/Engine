@@ -3,6 +3,9 @@ using DigBuild.Engine.Serialization;
 
 namespace DigBuild.Engine.Items.Inventories
 {
+    /// <summary>
+    /// A basic inventory slot with an optional filter function.
+    /// </summary>
     public sealed class InventorySlot : IInventorySlot
     {
         private static readonly Func<ItemInstance, bool> Always = _ => true;
@@ -50,6 +53,9 @@ namespace DigBuild.Engine.Items.Inventories
             return Item.ToString();
         }
 
+        /// <summary>
+        /// The serdes.
+        /// </summary>
         public static ISerdes<InventorySlot> Serdes { get; } = new CompositeSerdes<InventorySlot>()
         {
             { 1u, slot => slot.Item, ItemInstance.Serdes }

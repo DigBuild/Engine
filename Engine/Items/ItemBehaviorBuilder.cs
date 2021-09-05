@@ -15,14 +15,22 @@ namespace DigBuild.Engine.Items
     internal delegate object ItemEventDelegate(IItemEvent evt, Func<object> next);
     internal delegate object ItemAttributeDelegate(IReadOnlyItemInstance instance, Func<object> next);
     internal delegate object ItemCapabilityDelegate(ItemInstance instance, Func<object> next);
-
+    
+    /// <summary>
+    /// An item behavior builder.
+    /// </summary>
     public interface IItemBehaviorBuilder
     {
         internal Dictionary<Type, List<ItemEventDelegate>> EventHandlers { get; }
         internal Dictionary<IItemAttribute, List<ItemAttributeDelegate>> AttributeSuppliers { get; }
         internal Dictionary<IItemCapability, List<ItemCapabilityDelegate>> CapabilitySuppliers { get; }
     }
-
+    
+    /// <summary>
+    /// An item behavior builder.
+    /// </summary>
+    /// <typeparam name="TReadOnlyData">The read only contract</typeparam>
+    /// <typeparam name="TData">The read-write contract</typeparam>
     public interface IItemBehaviorBuilder<out TReadOnlyData, out TData> : IItemBehaviorBuilder
         where TData : TReadOnlyData
     {
@@ -31,10 +39,28 @@ namespace DigBuild.Engine.Items
         void Subscribe<TEvent, TResult>(ItemEventDelegate<TData, TEvent, TResult> del)
             where TEvent : IItemEvent<TResult>;
         
+        /// <summary>
+        /// Adds a new attribute supplier.
+        /// </summary>
+        /// <typeparam name="T">The attribute type</typeparam>
+        /// <param name="attribute">The attribute</param>
+        /// <param name="supplier">The supplier</param>
         void Add<T>(ItemAttribute<T> attribute, ItemAttributeDelegate<TReadOnlyData, T> supplier);
+        
+        /// <summary>
+        /// Adds a new capability supplier.
+        /// </summary>
+        /// <typeparam name="T">The capability type</typeparam>
+        /// <param name="capability">The capability</param>
+        /// <param name="supplier">The supplier</param>
         void Add<T>(ItemCapability<T> capability, ItemCapabilityDelegate<TData, T> supplier);
     }
-
+    
+    /// <summary>
+    /// An item behavior builder.
+    /// </summary>
+    /// <typeparam name="TReadOnlyData">The read only contract</typeparam>
+    /// <typeparam name="TData">The read-write contract</typeparam>
     public sealed class ItemBehaviorBuilder<TReadOnlyData, TData> : IItemBehaviorBuilder<TReadOnlyData, TData>
         where TData : TReadOnlyData
     {

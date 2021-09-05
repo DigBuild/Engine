@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace DigBuild.Engine.Items.Inventories
 {
+    /// <summary>
+    /// A basic inventory implementation around a set of slots.
+    /// </summary>
     public sealed class SimpleInventory : IInventory
     {
         private readonly IInventorySlot[] _slots;

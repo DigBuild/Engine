@@ -2,6 +2,9 @@
 
 namespace DigBuild.Engine.Items.Inventories
 {
+    /// <summary>
+    /// A lockable filter slot wrapper around an existing slot.
+    /// </summary>
     public class LockableInventorySlot : ILockableInventorySlot
     {
         private readonly InventorySlot _slot;

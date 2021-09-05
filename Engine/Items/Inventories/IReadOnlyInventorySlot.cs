@@ -1,7 +1,13 @@
 ﻿namespace DigBuild.Engine.Items.Inventories
 {
+    /// <summary>
+    /// A read-only inventory slot.
+    /// </summary>
     public interface IReadOnlyInventorySlot
     {
-        public IReadOnlyItemInstance Item { get; }
+        /// <summary>
+        /// The item in the slot.
+        /// </summary>
+        IReadOnlyItemInstance Item { get; }
     }
 }

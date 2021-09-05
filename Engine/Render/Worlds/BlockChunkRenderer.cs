@@ -77,7 +77,7 @@ namespace DigBuild.Engine.Render.Worlds
                 chunks[offX, offZ] = neighbor;
             }
 
-            const uint chunkSize = WorldDimensions.ChunkSize;
+            const uint chunkSize = WorldDimensions.ChunkWidth;
             const uint chunkHeight = WorldDimensions.ChunkHeight;
             var solidityCache = new BlockFaceSolidity?[chunkSize, chunkHeight, chunkSize];
             bool IsNeighborFaceSolid(ChunkBlockPos pos, Direction direction)

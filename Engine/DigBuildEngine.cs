@@ -48,6 +48,9 @@ namespace DigBuild.Engine
         {
             EventBus = eventBus;
             
+            EventBus.Subscribe<BuiltInChunkEvent.Loaded>(WorldEntities.OnChunkLoaded);
+            EventBus.Subscribe<BuiltInChunkEvent.Unloading>(WorldEntities.OnChunkUnloaded);
+            
             SubscribeRegister<IDataHandle<IWorld>>(Register);
             SubscribeRegister<IDataHandle<IChunk>>(Register);
             SubscribeRegister<IBlockAttribute>(Register);

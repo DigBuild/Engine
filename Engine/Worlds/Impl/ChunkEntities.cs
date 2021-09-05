@@ -9,13 +9,25 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Worlds.Impl
 {
+    /// <summary>
+    /// A read-only view of the entities in a chunk.
+    /// </summary>
     public interface IReadOnlyChunkEntities : IChangeNotifier
     {
+        /// <summary>
+        /// The entity enumeration.
+        /// </summary>
         IEnumerable<EntityInstance> Entities { get; }
     }
 
+    /// <summary>
+    /// A chunk data type for entity storage.
+    /// </summary>
     public class ChunkEntities : IReadOnlyChunkEntities, IData<ChunkEntities>
     {
+        /// <summary>
+        /// The data handle for chunk entities.
+        /// </summary>
         public static DataHandle<IChunk, IReadOnlyChunkEntities, ChunkEntities> Type { get; internal set; } = null!;
 
         private readonly Dictionary<Guid, EntityInstance> _entities = new();
@@ -28,12 +40,20 @@ namespace DigBuild.Engine.Worlds.Impl
         {
         }
 
+        /// <summary>
+        /// Adds a new entity to the chunk.
+        /// </summary>
+        /// <param name="entity">The entity</param>
         public void Add(EntityInstance entity)
         {
             _entities.TryAdd(entity.Id, entity);
             NotifyChange();
         }
 
+        /// <summary>
+        /// Removes an entity from the chunk.
+        /// </summary>
+        /// <param name="entity">The entity</param>
         public void Remove(EntityInstance entity)
         {
             _entities.Remove(entity.Id);
@@ -54,6 +74,9 @@ namespace DigBuild.Engine.Worlds.Impl
         }
         
         // Temporarily disabled due to issues with the save system
+        /// <summary>
+        /// The serdes.
+        /// </summary>
         public static ISerdes<ChunkEntities> Serdes { get; } = EmptySerdes<ChunkEntities>.Instance;
 
         // public static ISerdes<ChunkEntities> Serdes { get; } = new SimpleSerdes<ChunkEntities>(

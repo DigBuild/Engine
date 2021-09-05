@@ -7,6 +7,9 @@ using DigBuild.Engine.Ticking;
 
 namespace DigBuild.Engine.Worlds.Impl
 {
+    /// <summary>
+    /// A base world implementation.
+    /// </summary>
     public abstract class WorldBase : IWorld, IDisposable
     {
         private readonly DataContainer<IWorld> _storage = new();
@@ -15,6 +18,9 @@ namespace DigBuild.Engine.Worlds.Impl
 
         public abstract float Gravity { get; }
 
+        /// <summary>
+        /// The region manager.
+        /// </summary>
         public RegionManager RegionManager { get; }
 
         public IChunkManager ChunkManager => RegionManager;
@@ -24,7 +30,7 @@ namespace DigBuild.Engine.Worlds.Impl
         protected WorldBase(
             ITickSource tickSource,
             IChunkProvider chunkProvider,
-            Func<IWorld, RegionPos, IRegionStorage> storageProvider,
+            Func<IWorld, RegionPos, IRegionStorageHandler> storageProvider,
             EventBus eventBus
         )
         {
@@ -36,15 +42,17 @@ namespace DigBuild.Engine.Worlds.Impl
             RegionManager.Dispose();
         }
 
-        public T Get<TReadOnly, T>(DataHandle<IWorld, TReadOnly, T> type)
+        public T Get<TReadOnly, T>(DataHandle<IWorld, TReadOnly, T> handle)
             where T : TReadOnly, IData<T>, IChangeNotifier
         {
-            return _storage.Get(type);
+            return _storage.Get(handle);
         }
 
         public virtual IChunk? GetChunk(ChunkPos pos, bool loadOrGenerate = true)
         {
-            return RegionManager.Get(pos.RegionPos)?.Get(pos.RegionChunkPos, loadOrGenerate);
+            if (!RegionManager.TryGet(pos.RegionPos, out var region))
+                return null;
+            return region.TryGet(pos.RegionChunkPos, out var chunk, loadOrGenerate) ? chunk : null;
         }
 
         public abstract void OnBlockChanged(BlockPos pos);

@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Numerics;
 using DigBuild.Engine.Render;
 using DigBuild.Platform.Input;
@@ -6,27 +7,52 @@ using DigBuild.Platform.Render;
 
 namespace DigBuild.Engine.Ui.Elements
 {
+    /// <summary>
+    /// A basic UI container.
+    /// </summary>
     public sealed class UiContainer : IUiElement
     {
         private readonly ElementContainer _children = new();
 
+        /// <summary>
+        /// Whether or not the container is visible.
+        /// </summary>
         public bool Visible { get; set; } = true;
 
+        /// <summary>
+        /// Adds a UI element at the specified position.
+        /// </summary>
+        /// <param name="x">The X coordinate</param>
+        /// <param name="y">The Y coordinate</param>
+        /// <param name="element">The element</param>
         public void Add(int x, int y, IUiElement element)
         {
             _children.Add(new UIElementData(x, y, element));
         }
-
+        
+        /// <summary>
+        /// Adds a UI element at the specified position.
+        /// </summary>
+        /// <param name="x">The X coordinate</param>
+        /// <param name="y">The Y coordinate</param>
+        /// <param name="element">The element</param>
         public void Add(uint x, uint y, IUiElement element)
         {
             Add((int) x, (int) y, element);
         }
 
+        /// <summary>
+        /// Removes a UI element.
+        /// </summary>
+        /// <param name="element"></param>
         public void Remove(IUiElement element)
         {
             _children.Remove(element);
         }
 
+        /// <summary>
+        /// Removes all children.
+        /// </summary>
         public void Clear()
         {
             _children.Clear();

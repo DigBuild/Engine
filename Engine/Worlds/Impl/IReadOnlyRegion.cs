@@ -5,12 +5,22 @@ using DigBuild.Engine.Storage;
 namespace DigBuild.Engine.Worlds.Impl
 {
     /// <summary>
-    /// A world region.
+    /// A read-only view of a region.
     /// </summary>
-    public interface IRegion : IReadOnlyRegion
+    public interface IReadOnlyRegion
     {
-        public const uint Size = WorldDimensions.RegionSize;
-        
+        /// <summary>
+        /// The position.
+        /// </summary>
+        RegionPos Position { get; }
+
+        /// <summary>
+        /// Checks whether a chunk within the region is loaded or not.
+        /// </summary>
+        /// <param name="pos">The position</param>
+        /// <returns>Whether the chunk is loaded or not</returns>
+        bool IsLoaded(RegionChunkPos pos);
+
         /// <summary>
         /// Tries to get the chunk at the given position, optionally loading or generating it.
         /// </summary>
@@ -18,22 +28,16 @@ namespace DigBuild.Engine.Worlds.Impl
         /// <param name="chunk">The chunk</param>
         /// <param name="loadOrGenerate">Whether to load or generate if missing</param>
         /// <returns>Whether the chunk was found/loaded/generated or not</returns>
-        bool TryGet(RegionChunkPos pos, [MaybeNullWhen(false)] out IChunk? chunk, bool loadOrGenerate = true);
+        bool TryGet(RegionChunkPos pos, [NotNullWhen(true)] out IReadOnlyChunk? chunk, bool loadOrGenerate = true);
         
         /// <summary>
-        /// Gets the read-write data for a handle.
+        /// Gets the read-only data for a handle.
         /// </summary>
         /// <typeparam name="TReadOnly">The read-only data type</typeparam>
         /// <typeparam name="T">The read-write data type</typeparam>
         /// <param name="handle">The handle</param>
         /// <returns>The value</returns>
-        new T Get<TReadOnly, T>(DataHandle<IRegion, TReadOnly, T> handle)
+        TReadOnly Get<TReadOnly, T>(DataHandle<IRegion, TReadOnly, T> handle)
             where T : TReadOnly, IData<T>, IChangeNotifier;
-        
-        bool IReadOnlyRegion.TryGet(RegionChunkPos pos, [NotNullWhen(true)] out IReadOnlyChunk? chunk, bool loadOrGenerate)
-        {
-            return TryGet(pos, out chunk, loadOrGenerate);
-        }
-        TReadOnly IReadOnlyRegion.Get<TReadOnly, T>(DataHandle<IRegion, TReadOnly, T> handle) => Get(handle);
     }
 }

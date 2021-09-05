@@ -10,16 +10,19 @@ using DigBuild.Engine.Ticking;
 
 namespace DigBuild.Engine.Worlds.Impl
 {
+    /// <summary>
+    /// A chunk manager that subdivides the world into regions.
+    /// </summary>
     public class RegionManager : IChunkManager, IDisposable
     {
-        public const ulong TemporaryRegionExpirationDelay = 50;
+        private const ulong TemporaryRegionExpirationDelay = 50;
 
         private readonly Cache<RegionPos, Region> _regions;
         private readonly LockStore<RegionPos> _locks = new();
 
         private readonly IWorld _world;
         private readonly IChunkProvider _chunkProvider;
-        private readonly Func<IWorld, RegionPos, IRegionStorage> _storageProvider;
+        private readonly Func<IWorld, RegionPos, IRegionStorageHandler> _storageProvider;
         private readonly ITickSource _tickSource;
         private readonly EventBus _eventBus;
 
@@ -28,7 +31,7 @@ namespace DigBuild.Engine.Worlds.Impl
         public RegionManager(
             IWorld world,
             IChunkProvider chunkProvider,
-            Func<IWorld, RegionPos, IRegionStorage> storageProvider,
+            Func<IWorld, RegionPos, IRegionStorageHandler> storageProvider,
             ITickSource tickSource,
             EventBus eventBus
         )
@@ -44,7 +47,7 @@ namespace DigBuild.Engine.Worlds.Impl
             {
                 var (regionPos, chunkPos) = pos;
                 if (TryGet(regionPos, out var region))
-                    region.Get(chunkPos, true);
+                    region.TryGet(chunkPos, out _, true);
             });
         }
 
@@ -59,6 +62,12 @@ namespace DigBuild.Engine.Worlds.Impl
             }
         }
 
+        /// <summary>
+        /// Tries to get the region at the given position.
+        /// </summary>
+        /// <param name="pos">The position</param>
+        /// <param name="region">The region</param>
+        /// <returns>Whether the region was found or not</returns>
         public bool TryGet(RegionPos pos, [NotNullWhen(true)] out Region? region)
         {
             using var lck = _locks.Lock(pos);
@@ -78,15 +87,10 @@ namespace DigBuild.Engine.Worlds.Impl
             }
             return true;
         }
-
-        public Region? Get(RegionPos pos)
+        
+        public bool TryClaim(IEnumerable<ChunkPos> chunks, bool loadImmediately, out IChunkLoadingClaim claim)
         {
-            return TryGet(pos, out var region) ? region : null;
-        }
-
-        public bool TryLoad(IEnumerable<ChunkPos> chunks, bool immediate, out IChunkClaim claim)
-        {
-            var c = new ChunkClaim(chunks.ToImmutableHashSet(), Release);
+            var c = new ChunkLoadingClaim(chunks.ToImmutableHashSet(), Release);
             claim = c;
 
             var regionData = new Dictionary<RegionPos, (Region Region, List<RegionChunkPos> Chunks)>();
@@ -110,16 +114,16 @@ namespace DigBuild.Engine.Worlds.Impl
             foreach (var (region, regionChunks) in regionData.Values)
             {
                 _regions.Persist(region.Position);
-                region.AddClaim(regionChunks, immediate, c);
+                region.AddClaim(regionChunks, loadImmediately, c);
             }
             
-            if (!immediate)
+            if (!loadImmediately)
                 _chunkLoader.Request(c.Chunks);
             
             return true;
         }
 
-        private void Release(ChunkClaim claim)
+        private void Release(ChunkLoadingClaim claim)
         {
             var regionData = new Dictionary<RegionPos, (Region Region, List<RegionChunkPos> Chunks)>();
 

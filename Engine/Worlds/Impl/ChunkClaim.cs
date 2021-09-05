@@ -5,13 +5,13 @@ using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Worlds.Impl
 {
-    internal sealed class ChunkClaim : IChunkClaim
+    internal sealed class ChunkLoadingClaim : IChunkLoadingClaim
     {
-        private readonly Action<ChunkClaim> _release;
+        private readonly Action<ChunkLoadingClaim> _release;
 
         public IEnumerable<ChunkPos> Chunks { get; }
 
-        public ChunkClaim(ImmutableHashSet<ChunkPos> chunks, Action<ChunkClaim> release)
+        public ChunkLoadingClaim(ImmutableHashSet<ChunkPos> chunks, Action<ChunkLoadingClaim> release)
         {
             Chunks = chunks;
             _release = release;

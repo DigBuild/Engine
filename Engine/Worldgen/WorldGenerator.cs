@@ -7,6 +7,9 @@ using DigBuild.Engine.Worlds.Impl;
 
 namespace DigBuild.Engine.Worldgen
 {
+    /// <summary>
+    /// A basic world generator.
+    /// </summary>
     public class WorldGenerator : IChunkProvider
     {
         public const ulong DescriptorExpirationDelay = 20;
@@ -22,6 +25,12 @@ namespace DigBuild.Engine.Worldgen
             _seed = seed;
         }
 
+        /// <summary>
+        /// Creates a chunk descriptor up to (optionally) the specified feature.
+        /// </summary>
+        /// <param name="pos">The chunk position</param>
+        /// <param name="stop">The feature to stop before</param>
+        /// <returns>The chunk descriptor</returns>
         public ChunkDescriptor Describe(ChunkPos pos, IWorldgenFeature? stop)
         {
             ChunkDescriptionContext descriptionContext = new(pos, _seed);
@@ -37,6 +46,11 @@ namespace DigBuild.Engine.Worldgen
             return descriptionContext.CreateDescriptor();
         }
 
+        /// <summary>
+        /// Generates the chunk at the given position.
+        /// </summary>
+        /// <param name="pos">The position</param>
+        /// <returns>The chunk</returns>
         public Chunk Generate(ChunkPos pos)
         {
             ChunkDescriptor? descriptor;

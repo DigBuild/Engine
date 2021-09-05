@@ -5,6 +5,9 @@ using DigBuild.Engine.Storage;
 
 namespace DigBuild.Engine.Worlds.Impl
 {
+    /// <summary>
+    /// A basic chunk implementation.
+    /// </summary>
     public sealed class Chunk : IChunk
     {
         private readonly DataContainer<IChunk> _data;
@@ -25,10 +28,10 @@ namespace DigBuild.Engine.Worlds.Impl
             _data.Changed += () => Changed?.Invoke();
         }
 
-        public T Get<TReadOnly, T>(DataHandle<IChunk, TReadOnly, T> type)
+        public T Get<TReadOnly, T>(DataHandle<IChunk, TReadOnly, T> handle)
             where T : TReadOnly, IData<T>, IChangeNotifier
         {
-            return _data.Get(type);
+            return _data.Get(handle);
         }
 
         public static ISerdes<Chunk> Serdes = new SimpleSerdes<Chunk>(

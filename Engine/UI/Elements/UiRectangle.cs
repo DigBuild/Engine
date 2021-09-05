@@ -5,6 +5,9 @@ using DigBuild.Platform.Render;
 
 namespace DigBuild.Engine.Ui.Elements
 {
+    /// <summary>
+    /// A basic solid-colored textured UI rectangle.
+    /// </summary>
     public sealed class UiRectangle : IUiElement
     {
         private readonly IRenderLayer<UiVertex> _layer;

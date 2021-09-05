@@ -54,9 +54,9 @@ namespace DigBuild.Engine.Math
         public Vector3 GetCenter(float y)
         {
             return new Vector3(
-                WorldDimensions.XZChunkAndSubChunkCoordToBlockCoord(X, (int)WorldDimensions.ChunkSize / 2),
+                WorldDimensions.XZChunkAndSubChunkCoordToBlockCoord(X, (int)WorldDimensions.ChunkWidth / 2),
                 y,
-                WorldDimensions.XZChunkAndSubChunkCoordToBlockCoord(Z, (int)WorldDimensions.ChunkSize / 2)
+                WorldDimensions.XZChunkAndSubChunkCoordToBlockCoord(Z, (int)WorldDimensions.ChunkWidth / 2)
             );
         }
 

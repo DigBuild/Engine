@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using DigBuild.Engine.Collections;
 using DigBuild.Engine.Math;
 using DigBuild.Engine.Storage;
@@ -7,31 +8,40 @@ using DigBuild.Engine.Ticking;
 
 namespace DigBuild.Engine.Worlds.Impl
 {
+    /// <summary>
+    /// A basic region implementation.
+    /// </summary>
     public sealed class Region : IRegion, IDisposable
     {
         public const ulong TemporaryChunkExpirationDelay = 20;
 
-        private readonly IRegionStorage _storage;
+        private readonly IRegionStorageHandler _storageHandler;
         private readonly IChunkProvider _chunkProvider;
 
         private readonly Cache<RegionChunkPos, Chunk> _chunks;
-        private readonly Dictionary<RegionChunkPos, HashSet<ChunkClaim>> _loadingClaims = new();
+        private readonly Dictionary<RegionChunkPos, HashSet<ChunkLoadingClaim>> _loadingClaims = new();
         private readonly LockStore<RegionChunkPos> _locks = new();
 
         private readonly DataContainer<IRegion> _data;
 
         public RegionPos Position { get; }
 
+        /// <summary>
+        /// Fired when a chunk is loaded.
+        /// </summary>
         public event Action<IChunk>? ChunkLoaded;
+        /// <summary>
+        /// Fired when a chunk is unloaded.
+        /// </summary>
         public event Action<IChunk>? ChunkUnloaded;
 
-        public Region(RegionPos position, IRegionStorage storage, IChunkProvider chunkProvider, ITickSource tickSource)
+        public Region(RegionPos position, IRegionStorageHandler storageHandler, IChunkProvider chunkProvider, ITickSource tickSource)
         {
             Position = position;
-            _storage = storage;
+            _storageHandler = storageHandler;
             _chunkProvider = chunkProvider;
             _chunks = new Cache<RegionChunkPos, Chunk>(tickSource, TemporaryChunkExpirationDelay);
-            _data = _storage.LoadOrCreateManagedData();
+            _data = _storageHandler.LoadOrCreateManagedData();
             _chunks.EntryEvicted += (_, chunk) => ChunkUnloaded?.Invoke(chunk);
         }
 
@@ -42,26 +52,26 @@ namespace DigBuild.Engine.Worlds.Impl
 
         internal bool HasClaims => _loadingClaims.Count > 0;
 
-        internal void AddClaim(List<RegionChunkPos> positions, bool immediate, ChunkClaim claim)
+        internal void AddClaim(List<RegionChunkPos> positions, bool immediate, ChunkLoadingClaim claim)
         {
             foreach (var pos in positions)
             {
                 if (!_loadingClaims.TryGetValue(pos, out var claims))
                 {
-                    _loadingClaims[pos] = claims = new HashSet<ChunkClaim>();
+                    _loadingClaims[pos] = claims = new HashSet<ChunkLoadingClaim>();
                     bool couldPersist;
                     lock (_chunks)
                     {
                         couldPersist = _chunks.Persist(pos);
                     }
                     if (!couldPersist && immediate)
-                        Get(pos);
+                        TryGet(pos, out _);
                 }
                 claims.Add(claim);
             }
         }
 
-        internal void RemoveClaim(List<RegionChunkPos> positions, ChunkClaim claim)
+        internal void RemoveClaim(List<RegionChunkPos> positions, ChunkLoadingClaim claim)
         {
             foreach (var pos in positions)
             {
@@ -88,41 +98,47 @@ namespace DigBuild.Engine.Worlds.Impl
             }
         }
 
-        public IChunk? Get(RegionChunkPos pos, bool loadOrGenerate = true)
+        public bool TryGet(RegionChunkPos pos, [MaybeNullWhen(false)] out IChunk? chunk, bool loadOrGenerate = true)
         {
             using var lck = _locks.Lock(pos);
 
-            Chunk? chunk;
+            chunk = null;
+
+            Chunk? c;
             lock (_chunks)
             {
-                if (_chunks.TryGetValue(pos, out chunk))
-                    return chunk;
+                if (_chunks.TryGetValue(pos, out c))
+                {
+                    chunk = c;
+                    return true;
+                }
             }
             if (!loadOrGenerate)
-                return null;
-            var loaded = _storage.TryLoad(pos, out chunk);
-            if (loaded || _chunkProvider.TryGet(Position + pos, out chunk))
+                return false;
+            var loaded = _storageHandler.TryLoad(pos, out c);
+            if (loaded || _chunkProvider.TryGet(Position + pos, out c))
             {
-                chunk!.Changed += () =>
+                c!.Changed += () =>
                 {
-                    _storage.Save(chunk);
+                    _storageHandler.Save(c);
                 };
                 lock (_chunks)
                 {
-                    _chunks.Add(pos, chunk, _loadingClaims.ContainsKey(pos));
+                    _chunks.Add(pos, c, _loadingClaims.ContainsKey(pos));
                 }
                 if (!loaded)
-                    _storage.Save(chunk);
-                ChunkLoaded?.Invoke(chunk);
-                return chunk;
+                    _storageHandler.Save(c);
+                ChunkLoaded?.Invoke(c);
+                chunk = c;
+                return true;
             }
-            return null;
+            return false;
         }
 
-        public T Get<TReadOnly, T>(DataHandle<IRegion, TReadOnly, T> type)
+        public T Get<TReadOnly, T>(DataHandle<IRegion, TReadOnly, T> handle)
             where T : TReadOnly, IData<T>, IChangeNotifier
         {
-            return _data.Get(type);
+            return _data.Get(handle);
         }
     }
 }

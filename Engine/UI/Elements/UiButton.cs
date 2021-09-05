@@ -7,6 +7,9 @@ using DigBuild.Platform.Render;
 
 namespace DigBuild.Engine.Ui.Elements
 {
+    /// <summary>
+    /// A basic UI button.
+    /// </summary>
     public sealed class UiButton : IUiElement
     {
         private readonly uint _width, _height;
@@ -14,9 +17,21 @@ namespace DigBuild.Engine.Ui.Elements
         private readonly UiVertex[][] _vertices = new UiVertex[3][];
         private bool _hovered, _clicked;
 
+        /// <summary>
+        /// Fired when the button is pressed.
+        /// </summary>
         public Action? Pressed = null;
+        /// <summary>
+        /// Fired when the button is released.
+        /// </summary>
         public Action? Released = null;
+        /// <summary>
+        /// Fired when the button is hovered over.
+        /// </summary>
         public Action? Hovered = null;
+        /// <summary>
+        /// Fired when the button is not hovered over anymore.
+        /// </summary>
         public Action? UnHovered = null;
 
         public UiButton(uint width, uint height, IRenderLayer<UiVertex> layer, ISprite inactiveSprite, ISprite hoveredSprite, ISprite clickedSprite)

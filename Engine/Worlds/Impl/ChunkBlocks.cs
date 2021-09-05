@@ -12,18 +12,36 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Worlds.Impl
 {
+    /// <summary>
+    /// A read-only view of the blocks in a chunk.
+    /// </summary>
     public interface IReadOnlyChunkBlocks : IEnumerable<KeyValuePair<ChunkBlockPos, Block?>>, IChangeNotifier
     {
-        public Block? GetBlock(ChunkBlockPos pos);
+        /// <summary>
+        /// Gets the block at a given position.
+        /// </summary>
+        /// <param name="pos">The position</param>
+        /// <returns>The block, or null if none</returns>
+        Block? GetBlock(ChunkBlockPos pos);
         internal DataContainer? GetData(ChunkBlockPos pos);
 
-        public IEnumerable<KeyValuePair<ChunkBlockPos, Block>> EnumerateNonNull();
+        /// <summary>
+        /// Enumerates all the non-null blocks in the chunk.
+        /// </summary>
+        /// <returns>The enumeration</returns>
+        IEnumerable<KeyValuePair<ChunkBlockPos, Block>> EnumerateNonNull();
     }
 
+    /// <summary>
+    /// A chunk data type for block storage.
+    /// </summary>
     public class ChunkBlocks : IReadOnlyChunkBlocks, IData<ChunkBlocks>
     {
-        private const uint ChunkSize = WorldDimensions.ChunkSize;
+        private const uint ChunkWidth = WorldDimensions.ChunkWidth;
         
+        /// <summary>
+        /// The data handle for chunk blocks.
+        /// </summary>
         public static DataHandle<IChunk, IReadOnlyChunkBlocks, ChunkBlocks> Type { get; internal set; } = null!;
         
         private readonly Octree<Block?>[] _blocks = new Octree<Block?>[WorldDimensions.ChunkVerticalSubdivisions];
@@ -46,6 +64,11 @@ namespace DigBuild.Engine.Worlds.Impl
         internal DataContainer? GetData(ChunkBlockPos pos) => _data.TryGetValue(pos, out var d) ? d : null;
         DataContainer? IReadOnlyChunkBlocks.GetData(ChunkBlockPos pos) => GetData(pos);
 
+        /// <summary>
+        /// Sets the block at a given position.
+        /// </summary>
+        /// <param name="pos">The position</param>
+        /// <param name="block">The block</param>
         public void SetBlock(ChunkBlockPos pos, Block? block)
         {
             if (_blocks[pos.Y >> 4][pos.X, pos.Y & 15, pos.Z] == block)
@@ -95,9 +118,9 @@ namespace DigBuild.Engine.Worlds.Impl
         {
             var copy = new ChunkBlocks();
             for (var i = 0; i < WorldDimensions.ChunkVerticalSubdivisions; i++)
-            for (var x = 0; x < ChunkSize; x++) // TODO: Optimized octree copy
-            for (var y = 0; y < ChunkSize; y++)
-            for (var z = 0; z < ChunkSize; z++)
+            for (var x = 0; x < ChunkWidth; x++) // TODO: Optimized octree copy
+            for (var y = 0; y < 16; y++)
+            for (var z = 0; z < ChunkWidth; z++)
                 copy._blocks[i][x, y, z] = _blocks[i][x, y, z];
 
             foreach (var (pos, d) in _data)
@@ -109,15 +132,18 @@ namespace DigBuild.Engine.Worlds.Impl
             return copy;
         }
         
+        /// <summary>
+        /// The serdes.
+        /// </summary>
         public static ISerdes<ChunkBlocks> Serdes { get; } = new SimpleSerdes<ChunkBlocks>(
             (stream, blocks) =>
             {
                 var bw = new BinaryWriter(stream);
                 
                 for (var i = 0; i < WorldDimensions.ChunkVerticalSubdivisions; i++)
-                for (var x = 0; x < ChunkSize; x++)
-                for (var y = 0; y < ChunkSize; y++)
-                for (var z = 0; z < ChunkSize; z++)
+                for (var x = 0; x < ChunkWidth; x++)
+                for (var y = 0; y < ChunkWidth; y++)
+                for (var z = 0; z < ChunkWidth; z++)
                 {
                     var block = blocks._blocks[i][x, y, z];
 
@@ -139,9 +165,9 @@ namespace DigBuild.Engine.Worlds.Impl
                 var blocks = new ChunkBlocks();
                 
                 for (var i = 0; i < WorldDimensions.ChunkVerticalSubdivisions; i++)
-                for (var x = 0; x < ChunkSize; x++)
-                for (var y = 0; y < ChunkSize; y++)
-                for (var z = 0; z < ChunkSize; z++)
+                for (var x = 0; x < ChunkWidth; x++)
+                for (var y = 0; y < ChunkWidth; y++)
+                for (var z = 0; z < ChunkWidth; z++)
                 {
                     if (!br.ReadBoolean())
                         continue;
@@ -162,24 +188,56 @@ namespace DigBuild.Engine.Worlds.Impl
             });
     }
 
+    /// <summary>
+    /// Helper methods for interfacing with blocks.
+    /// </summary>
     public static class ChunkBlocksExtensions
     {
+        /// <summary>
+        /// Gets the block at a specific position within the chunk.
+        /// </summary>
+        /// <param name="chunk">The chunk</param>
+        /// <param name="pos">The position</param>
+        /// <returns>The block, or null if none</returns>
         public static Block? GetBlock(this IReadOnlyChunk chunk, ChunkBlockPos pos)
         {
             return chunk.Get(ChunkBlocks.Type).GetBlock(pos);
         }
 
+        /// <summary>
+        /// Sets the block at a specific position within the chunk.
+        /// </summary>
+        /// <param name="chunk">The chunk</param>
+        /// <param name="pos">The position</param>
+        /// <param name="block">The block</param>
+        /// <returns>Whether the operation was successful or not</returns>
         public static bool SetBlock(this IChunk chunk, ChunkBlockPos pos, Block? block)
         {
             chunk.Get(ChunkBlocks.Type).SetBlock(pos, block);
             return true;
         }
         
+        /// <summary>
+        /// Gets the block at a specific position in the world.
+        /// </summary>
+        /// <param name="world">The world</param>
+        /// <param name="pos">The position</param>
+        /// <returns>The block, or null if none</returns>
         public static Block? GetBlock(this IReadOnlyWorld world, BlockPos pos)
         {
             return world.GetChunk(pos.ChunkPos)?.GetBlock(pos.SubChunkPos);
         }
 
+        /// <summary>
+        /// Sets the block at a specific position in the world, optionally notifying different systems.
+        /// </summary>
+        /// <param name="world">The world</param>
+        /// <param name="pos">The position</param>
+        /// <param name="block">The block</param>
+        /// <param name="notifyLeave">Whether to notify the existing block that it's leaving</param>
+        /// <param name="notifyJoin">Whether to notify the new block that it's joining</param>
+        /// <param name="reRender">Whether to re-render the chunk</param>
+        /// <returns>Whether the operation was successful or not</returns>
         public static bool SetBlock(this IWorld world, BlockPos pos, Block? block, bool notifyLeave = true, bool notifyJoin = true, bool reRender = true)
         {
             var storage = world.GetChunk(pos.ChunkPos)?.Get(ChunkBlocks.Type);

@@ -4,6 +4,9 @@ using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Worldgen
 {
+    /// <summary>
+    /// A chunk description context.
+    /// </summary>
     public sealed class ChunkDescriptionContext
     {
         public delegate ChunkDescriptor DescribeNeighborDelegate(ChunkPos pos);
@@ -11,7 +14,14 @@ namespace DigBuild.Engine.Worldgen
         private readonly WorldgenAttributeDictionary _attributes = new();
         private readonly WorldgenAttributeDictionary _newAttributes = new();
 
+        /// <summary>
+        /// The chunk position.
+        /// </summary>
         public ChunkPos Position { get; }
+
+        /// <summary>
+        /// The seed used for generation.
+        /// </summary>
         public long Seed { get; }
 
         internal DescribeNeighborDelegate NeighborDescriptor { private get; set; } = null!;
@@ -22,8 +32,15 @@ namespace DigBuild.Engine.Worldgen
             Seed = seed;
         }
 
-        public TStorage Get<TStorage>(WorldgenAttribute<TStorage> attribute, ChunkOffset offset = default)
-            where TStorage : notnull
+        /// <summary>
+        /// Gets the value of an attribute at the given offset.
+        /// </summary>
+        /// <typeparam name="T">The attribute type</typeparam>
+        /// <param name="attribute">The attribute</param>
+        /// <param name="offset">The offset</param>
+        /// <returns>The value</returns>
+        public T Get<T>(WorldgenAttribute<T> attribute, ChunkOffset offset = default)
+            where T : notnull
         {
             if (!offset.Equals(default(ChunkOffset)))
                 return NeighborDescriptor(Position + offset).Get(attribute);
@@ -31,21 +48,27 @@ namespace DigBuild.Engine.Worldgen
             return _attributes.Get(attribute);
         }
 
-        public void Submit<TStorage>(WorldgenAttribute<TStorage> attribute, TStorage value)
-            where TStorage : notnull
+        /// <summary>
+        /// Submits a new value for the given attribute.
+        /// </summary>
+        /// <typeparam name="T">The attribute type</typeparam>
+        /// <param name="attribute">The attribute</param>
+        /// <param name="value">The value</param>
+        public void Submit<T>(WorldgenAttribute<T> attribute, T value)
+            where T : notnull
         {
             _newAttributes.Set(attribute, value);
         }
 
         internal void Next()
         {
-            _attributes.SetAll(_newAttributes);
+            _attributes.CopyFrom(_newAttributes);
             _newAttributes.Clear();
         }
 
         internal ChunkDescriptor CreateDescriptor()
         {
-            return new(Position, _attributes);
+            return new ChunkDescriptor(_attributes);
         }
     }
 }

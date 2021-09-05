@@ -3,10 +3,22 @@ using DigBuild.Engine.Render;
 
 namespace DigBuild.Engine.Ui
 {
+    /// <summary>
+    /// User interface vertex format.
+    /// </summary>
     public readonly struct UiVertex
     {
+        /// <summary>
+        /// The position.
+        /// </summary>
         public readonly Vector2 Position;
+        /// <summary>
+        /// The UV.
+        /// </summary>
         public readonly Vector2 Uv;
+        /// <summary>
+        /// The color.
+        /// </summary>
         public readonly Vector4 Color;
 
         public UiVertex(Vector2 position, Vector2 uv, Vector4 color)
@@ -23,9 +35,16 @@ namespace DigBuild.Engine.Ui
             Color = new Vector4(r, g, b, a);
         }
 
-        public static VertexTransformer<UiVertex> CreateTransformer(IVertexConsumer<UiVertex> next, Matrix4x4 transform, bool transformNormal)
+        /// <summary>
+        /// Creates a vertex consumer that applies the given transform before passing data on to the specified consumer.
+        /// </summary>
+        /// <param name="next">The following consumer in the chain</param>
+        /// <param name="transform">The transform matrix</param>
+        /// <param name="transformNormal">Whether to transform normals or not</param>
+        /// <returns>The new vertex consumer</returns>
+        public static IVertexConsumer<UiVertex> CreateTransformer(IVertexConsumer<UiVertex> next, Matrix4x4 transform, bool transformNormal)
         {
-            return new(next, v => new UiVertex(
+            return new VertexTransformer<UiVertex>(next, v => new UiVertex(
                 Vector2.Transform(v.Position, transform),
                 v.Uv,
                 v.Color

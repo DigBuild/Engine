@@ -77,7 +77,7 @@ namespace DigBuild.Engine.Textures
                 {
                     bitmap = bmp;
 
-                    info.Sprite.UV = Vector2.Zero;
+                    info.Sprite.Uv = Vector2.Zero;
                     info.Sprite.Size = Vector2.One;
                     sprites.Add(info.Sprite);
 
@@ -105,7 +105,7 @@ namespace DigBuild.Engine.Textures
                     // Scale all the existing UVs
                     foreach (var sprite in sprites)
                     {
-                        sprite.UV /= 2;
+                        sprite.Uv /= 2;
                         sprite.Size /= 2;
                     }
 
@@ -117,7 +117,7 @@ namespace DigBuild.Engine.Textures
                 var bmpSize = bmp.Width;
                 graphics!.DrawImageUnscaledAndClipped(bmp, new Rectangle(region.X, region.Y, bmpSize, bmpSize));
                 
-                info.Sprite.UV = new Vector2(region.X / (float) bitmap.Width, region.Y / (float) bitmap.Height);
+                info.Sprite.Uv = new Vector2(region.X / (float) bitmap.Width, region.Y / (float) bitmap.Height);
                 info.Sprite.Size = new Vector2(bmpSize / (float) bitmap.Width, bmpSize / (float) bitmap.Height);
                 sprites.Add(info.Sprite);
 
@@ -154,7 +154,7 @@ namespace DigBuild.Engine.Textures
 
         private sealed class Sprite : ISprite
         {
-            public Vector2 UV { get; internal set; }
+            public Vector2 Uv { get; internal set; }
             public Vector2 Size { get; internal set; }
         }
     }

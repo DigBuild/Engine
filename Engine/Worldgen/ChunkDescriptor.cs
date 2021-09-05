@@ -1,21 +1,25 @@
-﻿using DigBuild.Engine.Math;
-
-namespace DigBuild.Engine.Worldgen
+﻿namespace DigBuild.Engine.Worldgen
 {
+    /// <summary>
+    /// A chunk descriptor composed of an attribute dictionary.
+    /// </summary>
     public sealed class ChunkDescriptor
     {
         private readonly WorldgenAttributeDictionary _attributes;
 
-        public ChunkPos Position { get; }
-
-        internal ChunkDescriptor(ChunkPos position, WorldgenAttributeDictionary attributes)
+        internal ChunkDescriptor(WorldgenAttributeDictionary attributes)
         {
-            Position = position;
             _attributes = attributes;
         }
 
-        public TStorage Get<TStorage>(WorldgenAttribute<TStorage> attribute)
-            where TStorage : notnull
+        /// <summary>
+        /// Gets the value for a certain attribute.
+        /// </summary>
+        /// <typeparam name="T">The attribute type</typeparam>
+        /// <param name="attribute">The attribute</param>
+        /// <returns>The value</returns>
+        public T Get<T>(WorldgenAttribute<T> attribute)
+            where T : notnull
         {
             return _attributes.Get(attribute);
         }

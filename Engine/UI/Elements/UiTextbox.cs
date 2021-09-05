@@ -4,15 +4,21 @@ using DigBuild.Platform.Render;
 
 namespace DigBuild.Engine.Ui.Elements
 {
+    /// <summary>
+    /// A basic UI textbox.
+    /// </summary>
     public sealed class UiTextbox : IUiElement
     {
         private readonly uint _width, _height;
-        private readonly TextRenderer _textRenderer;
+        private readonly ITextRenderer _textRenderer;
         private bool _hovered, _hasFocus;
 
+        /// <summary>
+        /// The text.
+        /// </summary>
         public string Text { get; set; }
 
-        public UiTextbox(uint width, uint height, string text = "", TextRenderer textRenderer = null!)
+        public UiTextbox(uint width, uint height, string text = "", ITextRenderer textRenderer = null!)
         {
             _width = width;
             _height = height;

@@ -10,7 +10,7 @@ namespace DigBuild.Engine.Textures
         /// <summary>
         /// The UV coordinates.
         /// </summary>
-        public Vector2 UV { get; }
+        public Vector2 Uv { get; }
         /// <summary>
         /// The size.
         /// </summary>
@@ -24,7 +24,7 @@ namespace DigBuild.Engine.Textures
         /// <returns>An interpolated vector</returns>
         public Vector2 GetInterpolatedUV(float partialU, float partialV)
         {
-            return UV + Size * new Vector2(partialU, partialV);
+            return Uv + Size * new Vector2(partialU, partialV);
         }
     }
 }

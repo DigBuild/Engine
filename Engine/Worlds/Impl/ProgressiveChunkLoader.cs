@@ -6,6 +6,9 @@ using DigBuild.Engine.Math;
 
 namespace DigBuild.Engine.Worlds.Impl
 {
+    /// <summary>
+    /// An off-thread chunk loading implementation.
+    /// </summary>
     public sealed class ProgressiveChunkLoader
     {
         private readonly object _lockObject = new();
@@ -42,6 +45,10 @@ namespace DigBuild.Engine.Worlds.Impl
             _generationThread.Join();
         }
 
+        /// <summary>
+        /// Requests a set of chunks to be loaded asynchronously.
+        /// </summary>
+        /// <param name="chunks"></param>
         public void Request(IEnumerable<ChunkPos> chunks)
         {
             foreach (var chunk in chunks)

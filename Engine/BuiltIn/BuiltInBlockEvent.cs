@@ -7,16 +7,12 @@ namespace DigBuild.Engine.BuiltIn
     /// <summary>
     /// A built-in block event.
     /// </summary>
-    public abstract class BuiltInBlockEvent : BlockContext, IBlockEvent
+    public static class BuiltInBlockEvent
     {
-        private BuiltInBlockEvent(IWorld world, BlockPos pos, Block block) : base(world, pos, block)
-        {
-        }
-
         /// <summary>
         /// Fired when the block is added to the world.
         /// </summary>
-        public class JoinedWorld : BuiltInBlockEvent
+        public class JoinedWorld : BlockContext, IBlockEvent
         {
             public JoinedWorld(IWorld world, BlockPos pos, Block block) : base(world, pos, block)
             {
@@ -26,7 +22,7 @@ namespace DigBuild.Engine.BuiltIn
         /// <summary>
         /// Fired when the block is being removed from the world.
         /// </summary>
-        public class LeavingWorld : BuiltInBlockEvent
+        public class LeavingWorld : BlockContext, IBlockEvent
         {
             public LeavingWorld(IWorld world, BlockPos pos, Block block) : base(world, pos, block)
             {

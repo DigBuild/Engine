@@ -3,6 +3,9 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Textures
 {
+    /// <summary>
+    /// A custom resource type for bitmaps.
+    /// </summary>
     public sealed class BitmapTexture : IBitmapTexture, ICustomResource
     {
         private readonly IResource _resource;

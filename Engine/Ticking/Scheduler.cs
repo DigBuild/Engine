@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace DigBuild.Engine.Ticking
 {
+    /// <summary>
+    /// A deferred work scheduler.
+    /// </summary>
     public sealed class Scheduler
     {
         private readonly Dictionary<ulong, ScheduledTick> _scheduledTicks = new();
@@ -25,6 +28,11 @@ namespace DigBuild.Engine.Ticking
             _now++;
         }
 
+        /// <summary>
+        /// Gets the tick after a certain delay.
+        /// </summary>
+        /// <param name="delay">The delay</param>
+        /// <returns>The tick</returns>
         public IScheduledTick After(ulong delay)
         {
             lock (_scheduledTicks)
@@ -39,7 +47,7 @@ namespace DigBuild.Engine.Ticking
         private sealed class ScheduledTick : IScheduledTick
         {
             private readonly Scheduler _scheduler;
-            private readonly Dictionary<IJobHandle, IScheduledJob> _scheduledJobs = new();
+            private readonly Dictionary<IJob, IScheduledJob> _scheduledJobs = new();
 
             public event Action? Tick;
 
@@ -48,7 +56,7 @@ namespace DigBuild.Engine.Ticking
                 _scheduler = scheduler;
             }
 
-            public void Enqueue<TInput>(JobHandle<TInput> job, IEnumerable<TInput> inputs)
+            public void Enqueue<TInput>(Job<TInput> job, IEnumerable<TInput> inputs)
             {
                 IScheduledJob? scheduledJob;
 
@@ -75,11 +83,11 @@ namespace DigBuild.Engine.Ticking
 
             private sealed class ScheduledJob<TInput> : IScheduledJob
             {
-                private readonly JobHandle<TInput> _handle;
+                private readonly Job<TInput> _handle;
                 private readonly ConcurrentQueue<TInput> _inputs = new();
                 private bool _executing = false;
 
-                public ScheduledJob(JobHandle<TInput> handle)
+                public ScheduledJob(Job<TInput> handle)
                 {
                     _handle = handle;
                 }
@@ -102,13 +110,28 @@ namespace DigBuild.Engine.Ticking
         }
     }
 
+    /// <summary>
+    /// A deferred tick.
+    /// </summary>
     public interface IScheduledTick : ITickSource
     {
-        public void Enqueue<TInput>(JobHandle<TInput> job, params TInput[] inputs)
+        /// <summary>
+        /// Enqueues a set of inputs for a job.
+        /// </summary>
+        /// <typeparam name="TInput">The input type</typeparam>
+        /// <param name="job">The job</param>
+        /// <param name="inputs">The inputs</param>
+        public void Enqueue<TInput>(Job<TInput> job, params TInput[] inputs)
         {
             Enqueue(job, (IEnumerable<TInput>) inputs);
         }
-
-        public void Enqueue<TInput>(JobHandle<TInput> job, IEnumerable<TInput> inputs);
+        
+        /// <summary>
+        /// Enqueues a set of inputs for a job.
+        /// </summary>
+        /// <typeparam name="TInput">The input type</typeparam>
+        /// <param name="job">The job</param>
+        /// <param name="inputs">The inputs</param>
+        public void Enqueue<TInput>(Job<TInput> job, IEnumerable<TInput> inputs);
     }
 }

@@ -87,17 +87,17 @@ namespace DigBuild.Engine
 
         private static void Register(RegistryBuilder<IDataHandle<IWorld>> registry)
         {
-            WorldEntities.Type = registry.Create<IWorld, IReadOnlyWorldEntities, WorldEntities>(
+            WorldEntities.Type = registry.Register<IWorld, IReadOnlyWorldEntities, WorldEntities>(
                 new ResourceName(Domain, "entities"), WorldEntities.Serdes
             );
         }
 
         private static void Register(RegistryBuilder<IDataHandle<IChunk>> registry)
         {
-            ChunkBlocks.Type = registry.Create<IChunk, IReadOnlyChunkBlocks, ChunkBlocks>(
+            ChunkBlocks.Type = registry.Register<IChunk, IReadOnlyChunkBlocks, ChunkBlocks>(
                 new ResourceName(Domain, "blocks"), ChunkBlocks.Serdes
             );
-            ChunkEntities.Type = registry.Create<IChunk, IReadOnlyChunkEntities, ChunkEntities>(
+            ChunkEntities.Type = registry.Register<IChunk, IReadOnlyChunkEntities, ChunkEntities>(
                 new ResourceName(Domain, "entities"), ChunkEntities.Serdes
             );
         }

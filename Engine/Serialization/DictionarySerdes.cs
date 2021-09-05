@@ -3,6 +3,11 @@ using System.IO;
 
 namespace DigBuild.Engine.Serialization
 {
+    /// <summary>
+    /// A serdes implementation for dictionaries.
+    /// </summary>
+    /// <typeparam name="TK">The key type</typeparam>
+    /// <typeparam name="TV">The value type</typeparam>
     public class DictionarySerdes<TK, TV> : ISerdes<Dictionary<TK, TV>> where TK : notnull
     {
         private readonly ISerdes<TK> _keySerdes;

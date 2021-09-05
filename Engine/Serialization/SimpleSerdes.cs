@@ -4,6 +4,10 @@ using System.IO;
 
 namespace DigBuild.Engine.Serialization
 {
+    /// <summary>
+    /// A simple serdes that wraps a serialization and deserialization delegate.
+    /// </summary>
+    /// <typeparam name="T">The type</typeparam>
     public sealed class SimpleSerdes<T> : ISerdes<T>
     {
         private readonly Action<Stream, T> _serialize;
@@ -23,31 +27,6 @@ namespace DigBuild.Engine.Serialization
         public T Deserialize(Stream stream, IDeserializationContext context)
         {
             return _deserialize(stream, context);
-        }
-    }
-
-    public static class SimpleSerdes
-    {
-        public static ISerdes<List<T>> OfList<T>(ISerdes<T> serdes)
-        {
-            return new SimpleSerdes<List<T>>(
-                (stream, list) =>
-                {
-                    var bw = new BinaryWriter(stream);
-                    bw.Write(list.Count);
-                    foreach (var entry in list)
-                        serdes.Serialize(stream, entry);
-                },
-                (stream, ctx) =>
-                {
-                    var br = new BinaryReader(stream);
-                    var count = br.ReadInt32();
-                    var list = new List<T>();
-                    for (var i = 0; i < count; i++)
-                        list.Add(serdes.Deserialize(stream, ctx));
-                    return list;
-                }
-            );
         }
     }
 }

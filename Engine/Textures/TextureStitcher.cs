@@ -8,15 +8,28 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Textures
 {
+    /// <summary>
+    /// A stitcher that generates sprites and spritesheets from bitmaps.
+    /// </summary>
     public sealed class TextureStitcher
     {
         private readonly Dictionary<ResourceName, SpriteInfo> _sprites = new();
 
+        /// <summary>
+        /// Adds a bitmap resource and returns an uninitialized sprite.
+        /// </summary>
+        /// <param name="resource">The resource</param>
+        /// <returns>The sprite</returns>
         public ISprite Add(IResource resource)
         {
             return Add(new BitmapTexture(resource));
         }
 
+        /// <summary>
+        /// Adds a bitmap texture and returns an uninitialized sprite.
+        /// </summary>
+        /// <param name="texture">The texture</param>
+        /// <returns>The sprite</returns>
         public ISprite Add(IBitmapTexture texture)
         {
             if (_sprites.TryGetValue(texture.Name, out var currentInfo))
@@ -34,6 +47,12 @@ namespace DigBuild.Engine.Textures
             return info.Sprite;
         }
 
+        /// <summary>
+        /// Stitches all the textures together into a spritesheet and optionally outputs it to a file.
+        /// </summary>
+        /// <param name="name">The spritesheet name</param>
+        /// <param name="outputFile">The output file</param>
+        /// <returns>The spritesheet</returns>
         public SpriteSheet Stitch(ResourceName name, string? outputFile = null)
         {
             if (_sprites.Count == 0)

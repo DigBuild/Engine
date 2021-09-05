@@ -3,6 +3,10 @@ using System.IO;
 
 namespace DigBuild.Engine.Serialization
 {
+    /// <summary>
+    /// A simple deserializer that wraps a deserialization delegate.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public sealed class SimpleDeserializer<T> : IDeserializer<T>
     {
         private readonly Func<Stream, IDeserializationContext, T> _deserialize;

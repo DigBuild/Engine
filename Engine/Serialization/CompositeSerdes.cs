@@ -7,6 +7,10 @@ using System.Reflection;
 
 namespace DigBuild.Engine.Serialization
 {
+    /// <summary>
+    /// A serdes composed of a number of indexed members, each with their own serdes.
+    /// </summary>
+    /// <typeparam name="T">The type</typeparam>
     public sealed class CompositeSerdes<T> : ISerdes<T>, IEnumerable where T : new()
     {
         private readonly SortedSet<IMemberSerializer> _serializers = new(

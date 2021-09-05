@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace DigBuild.Engine.Serialization
 {
+    /// <summary>
+    /// A basic dictionary-based deserialization context.
+    /// </summary>
     public class SimpleDeserializationContext : IDeserializationContext, IEnumerable<object>
     {
         private readonly IDeserializationContext? _parent;
@@ -14,6 +17,11 @@ namespace DigBuild.Engine.Serialization
             _parent = parent;
         }
 
+        /// <summary>
+        /// Adds a new value to the context and overrides any previous one for the same type.
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <param name="value">The value</param>
         public void Add<T>(T value)
             where T : notnull
         {

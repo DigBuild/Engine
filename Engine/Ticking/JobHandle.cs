@@ -6,38 +6,74 @@ using DigBuild.Platform.Resource;
 
 namespace DigBuild.Engine.Ticking
 {
-    public interface IJobHandle
+    /// <summary>
+    /// A job handle.
+    /// </summary>
+    public interface IJob
     {
     }
 
-    public sealed class JobHandle<TInput> : IJobHandle
+    /// <summary>
+    /// A job handle.
+    /// </summary>
+    /// <typeparam name="TInput">The input type</typeparam>
+    public sealed class Job<TInput> : IJob
     {
-        private readonly IJob<TInput> _job;
+        private readonly IJobExecutor<TInput> _executor;
 
-        internal JobHandle(IJob<TInput> job)
+        internal Job(IJobExecutor<TInput> executor)
         {
-            _job = job;
+            _executor = executor;
         }
 
         internal Task Execute(Scheduler scheduler, IEnumerable<TInput> inputs)
         {
-            return _job.Execute(scheduler, inputs);
+            return _executor.Execute(scheduler, inputs);
         }
     }
 
+    /// <summary>
+    /// Registry extensions for job handles.
+    /// </summary>
     public static class JobHandleRegistryBuilderExtensions
     {
-        public static JobHandle<TInput> Create<TInput>(this IRegistryBuilder<IJobHandle> registry, ResourceName name, IJob<TInput> job)
+        /// <summary>
+        /// Registers a job based on a user-provided executor.
+        /// </summary>
+        /// <typeparam name="TInput">The input type</typeparam>
+        /// <param name="registry">The registry</param>
+        /// <param name="name">The job name</param>
+        /// <param name="executor">The executor</param>
+        /// <returns>The job</returns>
+        public static Job<TInput> Register<TInput>(this IRegistryBuilder<IJob> registry, ResourceName name, IJobExecutor<TInput> executor)
         {
-            return registry.Add(name, new JobHandle<TInput>(job));
+            return registry.Add(name, new Job<TInput>(executor));
         }
-        public static JobHandle<TInput> CreateSequential<TInput>(this IRegistryBuilder<IJobHandle> registry, ResourceName name, Action<Scheduler, TInput> action)
+
+        /// <summary>
+        /// Registers a sequential job based on a user-provided delegate.
+        /// </summary>
+        /// <typeparam name="TInput">The input type</typeparam>
+        /// <param name="registry">The registry</param>
+        /// <param name="name">The job name</param>
+        /// <param name="action">The delegate</param>
+        /// <returns>The job</returns>
+        public static Job<TInput> RegisterSequential<TInput>(this IRegistryBuilder<IJob> registry, ResourceName name, Action<Scheduler, TInput> action)
         {
-            return registry.Create(name, Job.Sequential(action));
+            return registry.Register(name, JobExecutor.Sequential(action));
         }
-        public static JobHandle<TInput> CreateParallel<TInput>(this IRegistryBuilder<IJobHandle> registry, ResourceName name, Action<Scheduler, TInput> action)
+
+        /// <summary>
+        /// Registers a parallel job based on a user-provided delegate.
+        /// </summary>
+        /// <typeparam name="TInput">The input type</typeparam>
+        /// <param name="registry">The registry</param>
+        /// <param name="name">The job name</param>
+        /// <param name="action">The delegate</param>
+        /// <returns>The job</returns>
+        public static Job<TInput> RegisterParallel<TInput>(this IRegistryBuilder<IJob> registry, ResourceName name, Action<Scheduler, TInput> action)
         {
-            return registry.Create(name, Job.Parallel(action));
+            return registry.Register(name, JobExecutor.Parallel(action));
         }
     }
 }

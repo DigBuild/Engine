@@ -3,6 +3,10 @@ using System.IO;
 
 namespace DigBuild.Engine.Serialization
 {
+    /// <summary>
+    /// A serdes implementation for lists.
+    /// </summary>
+    /// <typeparam name="T">The list element type</typeparam>
     public class ListSerdes<T> : ISerdes<List<T>>
     {
         private readonly ISerdes<T> _serdes;

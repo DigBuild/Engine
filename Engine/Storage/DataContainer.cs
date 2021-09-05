@@ -62,8 +62,15 @@ namespace DigBuild.Engine.Storage
         }
     }
 
+    /// <summary>
+    /// A data container with a specific target type. The registry property must be populated during initialization.
+    /// </summary>
+    /// <typeparam name="TTarget">The target type</typeparam>
     public sealed class DataContainer<TTarget> : IChangeNotifier
     {
+        /// <summary>
+        /// The registry the data handles are added to. Must be populated during initialization.
+        /// </summary>
         public static Registry<IDataHandle<TTarget>> Registry { private get; set; } = null!;
         
         private readonly Dictionary<IDataHandle<TTarget>, IData> _data = new();
@@ -76,6 +83,13 @@ namespace DigBuild.Engine.Storage
             Changed?.Invoke();
         }
 
+        /// <summary>
+        /// Gets the value for a specific target, or creates a new one if missing.
+        /// </summary>
+        /// <typeparam name="TReadOnly">The read-only type</typeparam>
+        /// <typeparam name="T">The read-write type</typeparam>
+        /// <param name="handle">The handle</param>
+        /// <returns>The value</returns>
         public T Get<TReadOnly, T>(DataHandle<TTarget, TReadOnly, T> handle)
             where T : TReadOnly, IData<T>
         {
@@ -90,6 +104,10 @@ namespace DigBuild.Engine.Storage
             return t;
         }
 
+        /// <summary>
+        /// Creates a new deep copy of this data container.
+        /// </summary>
+        /// <returns>The copy</returns>
         public DataContainer<TTarget> Copy()
         {
             var copy = new DataContainer<TTarget>();
@@ -103,6 +121,9 @@ namespace DigBuild.Engine.Storage
             return copy;
         }
 
+        /// <summary>
+        /// The serdes.
+        /// </summary>
         public static ISerdes<DataContainer<TTarget>> Serdes { get; } = new SimpleSerdes<DataContainer<TTarget>>(
             (stream, container) =>
             {

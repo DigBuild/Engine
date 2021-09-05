@@ -2,6 +2,10 @@
 
 namespace DigBuild.Engine.Serialization
 {
+    /// <summary>
+    /// A serdes implementation for arrays.
+    /// </summary>
+    /// <typeparam name="T">The array element type</typeparam>
     public class ArraySerdes<T> : ISerdes<T[]>
     {
         private readonly ISerdes<T> _serdes;

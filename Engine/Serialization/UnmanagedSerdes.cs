@@ -3,9 +3,19 @@ using System.Runtime.InteropServices;
 
 namespace DigBuild.Engine.Serialization
 {
+    /// <summary>
+    /// A serdes for unmanaged (blittable) types.
+    /// </summary>
+    /// <typeparam name="T">The unmanaged type</typeparam>
     public static class UnmanagedSerdes<T> where T : unmanaged
     {
+        /// <summary>
+        /// A serdes without nullability support.
+        /// </summary>
         public static ISerdes<T> NotNull { get; } = new NotNullImpl();
+        /// <summary>
+        /// A serdes with nullability support.
+        /// </summary>
         public static ISerdes<T?> Nullable { get; } = new NullableImpl();
 
         private sealed class NotNullImpl : ISerdes<T>
